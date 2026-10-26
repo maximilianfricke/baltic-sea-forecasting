@@ -31,7 +31,7 @@ fi
 mkdir -p "${RESULT_DIR}"
 mkdir -p "${JOB_DATA_DIR}"
 echo "Staging benchmark data to ${JOB_DATA_DIR}"
-time cp -aL "${REPO_ROOT}/data/." "${JOB_DATA_DIR}/"
+time cp -rL "${REPO_ROOT}/data/." "${JOB_DATA_DIR}/"
 du -sh "${JOB_DATA_DIR}"
 source "${VENV_PATH}/bin/activate"
 source jobs/start_gpu_telemetry.sh
