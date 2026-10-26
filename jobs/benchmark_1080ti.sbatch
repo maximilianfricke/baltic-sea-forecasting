@@ -1,5 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=njord-baseline
+#SBATCH --account=dphpc
 #SBATCH --gpus=1080ti:1
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=24G
@@ -13,6 +14,7 @@ module purge
 module add cuda/12.6.3
 
 REPO_ROOT="${SLURM_SUBMIT_DIR}"
+cd "${REPO_ROOT}"
 VENV_PATH="${NJORD_VENV:-${REPO_ROOT}/.venv}"
 RESULT_DIR="${RESULT_DIR:-${REPO_ROOT}/benchmark_results}"
 HIDDEN_DIM="${HIDDEN_DIM:-64}"
@@ -52,8 +54,8 @@ python -m neural_lam.train_model \
     --num_nodes 1 \
     --devices auto \
     --n_example_pred 0 \
-    --benchmark_warmup_steps 5 \
-    --benchmark_steps 30 \
+    --benchmark_warmup_steps 10 \
+    --benchmark_steps 50 \
     --benchmark_label \
     "1080ti-h${HIDDEN_DIM}-p${PROCESSOR_LAYERS}-ckpt-${CHECKPOINT_LABEL}" \
     --benchmark_output "${RESULT_DIR}/baseline-${SLURM_JOB_ID}.json" \
