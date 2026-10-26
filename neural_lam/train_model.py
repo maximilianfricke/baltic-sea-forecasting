@@ -13,6 +13,7 @@ from loguru import logger
 
 # Local
 from . import utils
+from .benchmarking import BaselineBenchmark, InferenceBenchmarkModule
 from .config import load_config_and_datastores
 from .models import EDM, FM, SI, GraphCast, GraphCRPS, GraphEFM, GraphFM, GraphDET
 from .weather_dataset import WeatherDataModule
@@ -29,7 +30,7 @@ MODELS = {
 }
 
 
-@logger.catch
+@logger.catch(reraise=True)
 def main(input_args=None):
     """Main function for training and evaluating models."""
     parser = ArgumentParser(
@@ -626,6 +627,72 @@ def main(input_args=None):
         ],
         help="Multi-phase training scheduler.",
     )
+    parser.add_argument(
+        "--benchmark_output",
+        type=str,
+        default=None,
+        help="Write a controlled training benchmark to this JSON path. This "
+        "disables validation, checkpoint saving, and external logging.",
+    )
+    parser.add_argument(
+        "--benchmark_warmup_steps",
+        type=int,
+        default=5,
+        help=(
+            "Training steps excluded before benchmark measurement (default: 5)"
+        ),
+    )
+    parser.add_argument(
+        "--benchmark_steps",
+        type=int,
+        default=30,
+        help="Number of measured training steps (default: 30)",
+    )
+    parser.add_argument(
+        "--benchmark_label",
+        type=str,
+        default="baseline",
+        help="Human-readable label stored with a benchmark result.",
+    )
+    parser.add_argument(
+        "--benchmark_strategy",
+        type=str,
+        choices=["auto", "ddp"],
+        default="auto",
+        help="Lightning strategy for benchmarking (default: auto).",
+    )
+    parser.add_argument(
+        "--benchmark_scaling_mode",
+        choices=["single", "strong", "weak", "capacity"],
+        default="single",
+        help="Experiment family stored in the result metadata.",
+    )
+    parser.add_argument(
+        "--benchmark_global_batch_size",
+        type=int,
+        default=None,
+        help="Global batch size used for throughput. By default this is the "
+        "local batch size multiplied by world size.",
+    )
+    parser.add_argument(
+        "--benchmark_profiler_dir",
+        type=str,
+        default=None,
+        help="Optional directory for a PyTorch operator trace. Profiling is "
+        "separate from reportable timing runs because it adds overhead.",
+    )
+    parser.add_argument(
+        "--benchmark_workload",
+        choices=["training", "inference"],
+        default="training",
+        help="Benchmark a full training step or forecast-only inference.",
+    )
+    parser.add_argument(
+        "--benchmark_inference_ensemble_size",
+        type=int,
+        default=1,
+        help="Number of parallel forecast members in an inference benchmark.",
+    )
 
     args = parser.parse_args(input_args)
     args.var_leads_metrics_watch = {
@@ -645,6 +712,9 @@ def main(input_args=None):
         "val",
         "test",
     ), f"Unknown eval setting: {args.eval}"
+    if args.benchmark_output is not None:
+        assert args.eval is None, "Do not combine --eval and benchmarking"
+        assert args.scheduler is None, "Benchmarking does not support schedules"
 
     # Get an (actual) random run id as a unique identifier
     random_run_id = random.randint(0, 9999)
@@ -697,6 +767,8 @@ def main(input_args=None):
         torch.set_float32_matmul_precision(
             "high"
         )  # Allows using Tensor Cores on A100s
+    elif torch.backends.mps.is_available():
+        device_name = "mps"
     else:
         device_name = "cpu"
 
@@ -731,38 +803,57 @@ def main(input_args=None):
         f"{time.strftime('%m_%d_%H')}-{random_run_id:04d}"
     )
 
-    training_logger = utils.setup_training_logger(
-        datastore=datastore, args=args, run_name=run_name
+    benchmark_enabled = args.benchmark_output is not None
+    training_logger = (
+        False
+        if benchmark_enabled
+        else utils.setup_training_logger(
+            datastore=datastore, args=args, run_name=run_name
+        )
     )
 
     # Callbacks for saving model checkpoint
     callbacks = []
-    callbacks.append(
-        pl.callbacks.ModelCheckpoint(
-            dirpath=f"saved_models/{run_name}",
-            filename="min_val_loss",
-            monitor="val_mean_loss",
-            mode="min",
+    if benchmark_enabled:
+        callbacks.append(
+            BaselineBenchmark(
+                output_path=args.benchmark_output,
+                warmup_steps=args.benchmark_warmup_steps,
+                measurement_steps=args.benchmark_steps,
+                run_label=args.benchmark_label,
+                args=args,
+            )
         )
-    )
+    else:
+        callbacks.append(
+            pl.callbacks.ModelCheckpoint(
+                dirpath=f"saved_models/{run_name}",
+                filename="min_val_loss",
+                monitor="val_mean_loss",
+                mode="min",
+            )
+        )
     # Separate callback that keeps "last.ckpt" up to date after *every* epoch.
     # A monitored ModelCheckpoint only saves when validation runs, so with
     # --val_interval > 1 (check_val_every_n_epoch != 1, which also makes
     # Lightning save at validation end rather than at train epoch end)
     # last.ckpt would lag up to val_interval epochs behind, and restarting a
     # stage would silently redo that training.
-    last_ckpt_callback = pl.callbacks.ModelCheckpoint(
-        dirpath=f"saved_models/{run_name}",
-        save_top_k=0,
-        save_last=True,
-        save_on_train_epoch_end=True,
-    )
-    callbacks.append(last_ckpt_callback)
+    last_ckpt_callback = None
+    if not benchmark_enabled:
+        last_ckpt_callback = pl.callbacks.ModelCheckpoint(
+            dirpath=f"saved_models/{run_name}",
+            save_top_k=0,
+            save_last=True,
+            save_on_train_epoch_end=True,
+        )
+        callbacks.append(last_ckpt_callback)
     # Log the LR to the training logger, so that a mis-restored schedule after
     # a restart is visible instead of only showing up as a worse loss.
-    callbacks.append(
-        pl.callbacks.LearningRateMonitor(logging_interval="epoch")
-    )
+    if not benchmark_enabled:
+        callbacks.append(
+            pl.callbacks.LearningRateMonitor(logging_interval="epoch")
+        )
 
     # To enable no validation during training, set val_interval to None
     if args.val_interval == 0:
@@ -773,9 +864,35 @@ def main(input_args=None):
         cbs = list(callbacks)
         if extra_callbacks:
             cbs.extend(extra_callbacks)
+        profiler = None
+        if args.benchmark_profiler_dir:
+            active_steps = min(5, args.benchmark_steps)
+            profiler = pl.profilers.PyTorchProfiler(
+                dirpath=args.benchmark_profiler_dir,
+                filename=args.benchmark_label,
+                schedule=torch.profiler.schedule(
+                    wait=max(args.benchmark_warmup_steps - 1, 0),
+                    warmup=1,
+                    active=active_steps,
+                    repeat=1,
+                ),
+                export_to_chrome=True,
+                record_shapes=True,
+                profile_memory=True,
+                with_stack=True,
+                with_flops=True,
+            )
         return pl.Trainer(
             max_epochs=max_epochs,
-            deterministic=True,
+            max_steps=(
+                args.benchmark_warmup_steps + args.benchmark_steps
+                if benchmark_enabled
+                else -1
+            ),
+            # PyG scatter reductions have no deterministic MPS kernel. Allow
+            # them for local Apple-GPU performance experiments while keeping
+            # strict determinism for the official CUDA baseline.
+            deterministic=False if device_name == "mps" else True,
             strategy=strategy,
             accelerator=device_name,
             num_nodes=args.num_nodes,
@@ -785,8 +902,20 @@ def main(input_args=None):
             callbacks=cbs,
             check_val_every_n_epoch=args.val_interval,
             precision=args.precision,
-            num_sanity_val_steps=args.num_sanity_val_steps,
+            num_sanity_val_steps=(
+                0 if benchmark_enabled else args.num_sanity_val_steps
+            ),
             use_distributed_sampler=not args.train_distr_crps,
+            limit_val_batches=0 if benchmark_enabled else 1.0,
+            limit_test_batches=(
+                args.benchmark_warmup_steps + args.benchmark_steps
+                if benchmark_enabled
+                and args.benchmark_workload == "inference"
+                else 1.0
+            ),
+            enable_checkpointing=not benchmark_enabled,
+            enable_progress_bar=not benchmark_enabled,
+            profiler=profiler,
         )
 
     def _run_phase(
@@ -800,7 +929,7 @@ def main(input_args=None):
         """Run one training phase, return path to last checkpoint."""
         t = _make_trainer(max_epochs, strategy,
                           extra_callbacks=extra_callbacks)
-        if t.global_rank == 0:
+        if t.global_rank == 0 and not benchmark_enabled:
             utils.init_training_logger_metrics(
                 training_logger, val_steps=args.val_steps_to_log
             )
@@ -939,7 +1068,23 @@ def main(input_args=None):
 
         model.configure_optimizers = configure_optimizers_finetune
 
-    if args.eval:
+    if benchmark_enabled and args.benchmark_workload == "inference":
+        strategy = args.benchmark_strategy
+        trainer = _make_trainer(args.epochs, strategy)
+        inference_model = InferenceBenchmarkModule(
+            model,
+            ensemble_size=args.benchmark_inference_ensemble_size,
+        )
+        # Performance runs use the larger training split to guarantee the
+        # same requested sample count even for long autoregressive horizons.
+        # No optimization or gradients are performed by trainer.test().
+        data_module.setup("fit")
+        trainer.test(
+            model=inference_model,
+            dataloaders=data_module.train_dataloader(),
+        )
+
+    elif args.eval:
         strategy = (
             "ddp" if args.kl_beta > 0 else "ddp_find_unused_parameters_true"
         )
@@ -1157,12 +1302,17 @@ def main(input_args=None):
 
     else:
         # Default: single-phase training
-        strategy = (
-            "ddp" if args.kl_beta > 0 else "ddp_find_unused_parameters_true"
-        )
+        if benchmark_enabled:
+            strategy = args.benchmark_strategy
+        else:
+            strategy = (
+                "ddp"
+                if args.kl_beta > 0
+                else "ddp_find_unused_parameters_true"
+            )
         _add_cosine_lr(model, args.epochs)
         trainer = _make_trainer(args.epochs, strategy)
-        if trainer.global_rank == 0:
+        if trainer.global_rank == 0 and not benchmark_enabled:
             utils.init_training_logger_metrics(
                 training_logger, val_steps=args.val_steps_to_log
             )

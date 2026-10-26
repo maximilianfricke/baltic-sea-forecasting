@@ -1243,7 +1243,7 @@ class WeatherDataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
             shuffle=None if self.train_distr_crps else True,
             multiprocessing_context=self.multiprocessing_context,
-            persistent_workers=True,
+            persistent_workers=self.num_workers > 0,
             sampler=self._make_sampler(self.train_dataset, shuffle=True),
         )
 
@@ -1255,7 +1255,7 @@ class WeatherDataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
             shuffle=False,
             multiprocessing_context=self.multiprocessing_context,
-            persistent_workers=True,
+            persistent_workers=self.num_workers > 0,
         )
 
     def test_dataloader(self):
@@ -1266,5 +1266,5 @@ class WeatherDataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
             shuffle=False,
             multiprocessing_context=self.multiprocessing_context,
-            persistent_workers=True,
+            persistent_workers=self.num_workers > 0,
         )

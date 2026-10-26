@@ -12,6 +12,7 @@ sweeps
 *.zarr
 *slurm*
 output
+benchmark_results/
 configs
 
 ### Python ###
