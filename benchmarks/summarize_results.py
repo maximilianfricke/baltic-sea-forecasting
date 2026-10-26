@@ -48,8 +48,10 @@ FIELDS = (
     "step_mean_ms",
     "step_std_ms",
     "step_p95_ms",
+    "step_p99_ms",
     "end_to_end_mean_ms",
     "end_to_end_p95_ms",
+    "end_to_end_p99_ms",
     "samples_per_second",
     "compute_samples_per_second",
     "peak_allocated_gib",
@@ -57,6 +59,11 @@ FIELDS = (
     "process_peak_rss_gib",
     "gradient_payload_bytes",
     "ring_allreduce_bytes_per_rank",
+    "job_to_fit_start_seconds",
+    "data_staging_seconds",
+    "data_staging_gib",
+    "measurement_started_at_utc",
+    "measurement_finished_at_utc",
 )
 
 
@@ -149,11 +156,15 @@ def _row(path):
         "step_mean_ms": _nested(result, "summary", "step_ms", "mean"),
         "step_std_ms": _nested(result, "summary", "step_ms", "std"),
         "step_p95_ms": _nested(result, "summary", "step_ms", "p95"),
+        "step_p99_ms": _nested(result, "summary", "step_ms", "p99"),
         "end_to_end_mean_ms": _nested(
             result, "summary", "end_to_end_wall_ms", "mean"
         ),
         "end_to_end_p95_ms": _nested(
             result, "summary", "end_to_end_wall_ms", "p95"
+        ),
+        "end_to_end_p99_ms": _nested(
+            result, "summary", "end_to_end_wall_ms", "p99"
         ),
         "samples_per_second": _nested(
             result, "summary", "samples_per_second"
@@ -183,6 +194,24 @@ def _row(path):
             result,
             "distributed",
             "estimated_ring_allreduce_bytes_per_rank_per_step",
+        ),
+        "job_to_fit_start_seconds": _nested(
+            result, "startup", "job_to_fit_start_seconds"
+        ),
+        "data_staging_seconds": _nested(
+            result, "startup", "data_staging_seconds"
+        ),
+        "data_staging_gib": (
+            _nested(result, "startup", "data_staging_bytes") / 1024**3
+            if _nested(result, "startup", "data_staging_bytes")
+            is not None
+            else None
+        ),
+        "measurement_started_at_utc": _nested(
+            result, "protocol", "measurement_started_at_utc"
+        ),
+        "measurement_finished_at_utc": _nested(
+            result, "protocol", "measurement_finished_at_utc"
         ),
     }
 

@@ -9,6 +9,8 @@
 
 set -euo pipefail
 
+export NJORD_JOB_STARTED_EPOCH_SECONDS="$(date +%s.%N)"
+
 . /etc/profile.d/modules.sh
 module purge
 module add cuda/12.6.3
@@ -17,9 +19,11 @@ REPO_ROOT="${SLURM_SUBMIT_DIR}"
 cd "${REPO_ROOT}"
 VENV_PATH="${NJORD_VENV:-${REPO_ROOT}/.venv}"
 RESULT_DIR="${RESULT_DIR:-${REPO_ROOT}/benchmark_results}"
-JOB_DATA_DIR="${TMPDIR}/njord-data"
 HIDDEN_DIM="${HIDDEN_DIM:-64}"
 PROCESSOR_LAYERS="${PROCESSOR_LAYERS:-3}"
+WARMUP_STEPS="${WARMUP_STEPS:-10}"
+BENCHMARK_STEPS="${BENCHMARK_STEPS:-50}"
+RUN_KIND="${RUN_KIND:-baseline}"
 CHECKPOINT_LABEL="off"
 CHECKPOINT_FLAG=()
 
@@ -29,10 +33,7 @@ if [[ "${GRAD_CHECKPOINTING:-0}" == "1" ]]; then
 fi
 
 mkdir -p "${RESULT_DIR}"
-mkdir -p "${JOB_DATA_DIR}"
-echo "Staging benchmark data to ${JOB_DATA_DIR}"
-time cp -rL "${REPO_ROOT}/data/." "${JOB_DATA_DIR}/"
-du -sh "${JOB_DATA_DIR}"
+source jobs/stage_benchmark_data.sh
 source "${VENV_PATH}/bin/activate"
 source jobs/start_gpu_telemetry.sh
 
@@ -59,11 +60,17 @@ python -m neural_lam.train_model \
     --num_nodes 1 \
     --devices auto \
     --n_example_pred 0 \
-    --benchmark_warmup_steps 10 \
-    --benchmark_steps 50 \
+    --benchmark_warmup_steps "${WARMUP_STEPS}" \
+    --benchmark_steps "${BENCHMARK_STEPS}" \
     --benchmark_label \
-    "1080ti-h${HIDDEN_DIM}-p${PROCESSOR_LAYERS}-ckpt-${CHECKPOINT_LABEL}" \
-    --benchmark_output "${RESULT_DIR}/baseline-${SLURM_JOB_ID}.json" \
+    "${RUN_KIND}-1080ti-h${HIDDEN_DIM}-p${PROCESSOR_LAYERS}-ckpt-${CHECKPOINT_LABEL}" \
+    --benchmark_output "${RESULT_DIR}/${RUN_KIND}-${SLURM_JOB_ID}.json" \
     "${CHECKPOINT_FLAG[@]}"
 
+stop_gpu_telemetry
+trap - EXIT
 bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"
+if ! bash jobs/generate_benchmark_plots.sh \
+    "${REPO_ROOT}/benchmark_results"; then
+    echo "Warning: benchmark completed, but plot generation failed" >&2
+fi

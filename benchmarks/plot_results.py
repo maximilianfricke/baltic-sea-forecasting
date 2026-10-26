@@ -4,6 +4,7 @@
 import argparse
 import csv
 import json
+import os
 import statistics
 from collections import defaultdict
 from pathlib import Path
@@ -41,11 +42,24 @@ def _mean(result, metric):
 
 def _load(paths):
     results = []
-    expanded = []
+    expanded = set()
     for path in paths:
-        expanded.extend(path.rglob("*.json") if path.is_dir() else [path])
-    for path in expanded:
-        result = json.loads(path.read_text(encoding="utf-8"))
+        if path.is_file():
+            expanded.add(path)
+        elif path.is_dir():
+            for root, _, names in os.walk(path, followlinks=True):
+                for name in names:
+                    if name.endswith(".json") and not name.endswith(
+                        ".pt.trace.json"
+                    ):
+                        expanded.add(Path(root) / name)
+    for path in sorted(expanded):
+        try:
+            result = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(result, dict) or "schema_version" not in result:
+            continue
         if result.get("status") != "completed":
             continue
         result["_path"] = str(path)
@@ -57,6 +71,21 @@ def _load(paths):
 
 def _label(result):
     return result.get("label") or Path(result["_path"]).stem
+
+
+def _representative_by_label(results):
+    """Use the median-time repeat for dense overview plots."""
+    grouped = defaultdict(list)
+    for result in results:
+        grouped[_label(result)].append(result)
+    representatives = []
+    for label in sorted(grouped):
+        subset = sorted(
+            grouped[label],
+            key=lambda item: _mean(item, "step_ms") or float("inf"),
+        )
+        representatives.append(subset[len(subset) // 2])
+    return representatives
 
 
 def _workload(result):
@@ -77,6 +106,7 @@ def _save(fig, output_dir, name):
 
 def plot_time_breakdown(results, output_dir):
     results = [result for result in results if _workload(result) == "training"]
+    results = _representative_by_label(results)
     if not results:
         return
     labels = [_label(result) for result in results]
@@ -88,7 +118,9 @@ def plot_time_breakdown(results, output_dir):
     ]
     x = np.arange(len(results))
     bottoms = np.zeros(len(results))
-    fig, ax = plt.subplots(figsize=(max(7, len(results) * 1.15), 5))
+    fig, ax = plt.subplots(
+        figsize=(max(8, min(20, len(results) * 0.55)), 6)
+    )
     for metric, name, color in metrics:
         values = np.array([_mean(result, metric) or 0 for result in results])
         ax.bar(x, values, bottom=bottoms, label=name, color=color)
@@ -103,6 +135,7 @@ def plot_time_breakdown(results, output_dir):
 
 def plot_step_distributions(results, output_dir):
     results = [result for result in results if _workload(result) == "training"]
+    results = _representative_by_label(results)
     values = [
         [step["step_ms"] for step in result.get("steps", [])]
         for result in results
@@ -110,7 +143,9 @@ def plot_step_distributions(results, output_dir):
     keep = [(result, data) for result, data in zip(results, values) if data]
     if not keep:
         return
-    fig, ax = plt.subplots(figsize=(max(7, len(keep) * 1.15), 5))
+    fig, ax = plt.subplots(
+        figsize=(max(8, min(20, len(keep) * 0.55)), 6)
+    )
     ax.boxplot(
         [data for _, data in keep],
         tick_labels=[_label(result) for result, _ in keep],
@@ -208,6 +243,57 @@ def plot_checkpoint_tradeoff(results, output_dir):
     _save(fig, output_dir, "checkpoint-tradeoff")
 
 
+def plot_memory_compute_frontier(results, output_dir):
+    """Show every training run in the memory-versus-runtime plane."""
+    usable = [
+        result
+        for result in results
+        if _workload(result) == "training"
+        and _mean(result, "step_ms") is not None
+        and _nested(
+            result, "summary", "gpu_peak_memory_allocated_bytes"
+        )
+        is not None
+    ]
+    if not usable:
+        return
+    fig, ax = plt.subplots(figsize=(8, 6))
+    for state in (False, True):
+        subset = [
+            result
+            for result in usable
+            if bool(
+                _nested(result, "model", "gradient_checkpointing")
+            )
+            == state
+        ]
+        if not subset:
+            continue
+        ax.scatter(
+            [
+                _nested(
+                    result,
+                    "summary",
+                    "gpu_peak_memory_allocated_bytes",
+                )
+                / 1024**3
+                for result in subset
+            ],
+            [_mean(result, "step_ms") for result in subset],
+            s=50,
+            alpha=0.75,
+            marker="s" if state else "o",
+            color=COLORS["on" if state else "off"],
+            label=f"Checkpointing {'on' if state else 'off'}",
+        )
+    ax.set_xlabel("Peak allocated accelerator memory [GiB]")
+    ax.set_ylabel("Mean compute step [ms]")
+    ax.set_title("Memory-compute design space")
+    ax.legend(frameon=False)
+    ax.grid(alpha=0.25)
+    _save(fig, output_dir, "memory-compute-frontier")
+
+
 def _plot_scaling_axis(
     results,
     output_dir,
@@ -264,28 +350,43 @@ def _plot_scaling_axis(
         1, 2, figsize=(10, 4.5), layout="constrained"
     )
     for state, subset in selected.items():
-        subset.sort(key=lambda item: _nested(item, "arguments", argument))
-        x = [_nested(item, "arguments", argument) for item in subset]
+        by_x = defaultdict(list)
+        for item in subset:
+            by_x[_nested(item, "arguments", argument)].append(item)
+        x = sorted(by_x)
         label = f"Checkpointing {'on' if state else 'off'}"
         color = COLORS["on" if state else "off"]
         axes[0].plot(
             x,
-            [_mean(item, "step_ms") for item in subset],
+            [
+                statistics.median(
+                    _mean(item, "step_ms") for item in by_x[value]
+                )
+                for value in x
+            ],
             marker="o",
             label=label,
             color=color,
         )
-        memory = [
-            _nested(
-                item, "summary", "gpu_peak_memory_allocated_bytes"
-            )
-            / 1024**3
-            for item in subset
-            if _nested(
-                item, "summary", "gpu_peak_memory_allocated_bytes"
-            )
-            is not None
-        ]
+        memory = []
+        for value in x:
+            samples = [
+                _nested(
+                    item,
+                    "summary",
+                    "gpu_peak_memory_allocated_bytes",
+                )
+                / 1024**3
+                for item in by_x[value]
+                if _nested(
+                    item,
+                    "summary",
+                    "gpu_peak_memory_allocated_bytes",
+                )
+                is not None
+            ]
+            if samples:
+                memory.append(statistics.median(samples))
         if len(memory) == len(x):
             axes[1].plot(
                 x, memory, marker="o", label=label, color=color
@@ -331,24 +432,36 @@ def plot_dataloader_scaling(results, output_dir):
             }
         ),
     )
-    best_by_workers = {
-        _nested(result, "arguments", "num_workers"): result
-        for result in subset
-    }
-    ordered = sorted(best_by_workers.items())
+    by_workers = defaultdict(list)
+    for result in subset:
+        by_workers[_nested(result, "arguments", "num_workers")].append(
+            result
+        )
+    ordered = sorted(by_workers.items())
     if len(ordered) < 2:
         return
     x = [item[0] for item in ordered]
     fig, ax = plt.subplots(figsize=(7, 5))
     ax.plot(
         x,
-        [_mean(item[1], "data_wait_ms") for item in ordered],
+        [
+            statistics.median(
+                _mean(result, "data_wait_ms") for result in repeats
+            )
+            for _, repeats in ordered
+        ],
         marker="o",
         label="Data wait",
     )
     ax.plot(
         x,
-        [_mean(item[1], "end_to_end_wall_ms") for item in ordered],
+        [
+            statistics.median(
+                _mean(result, "end_to_end_wall_ms")
+                for result in repeats
+            )
+            for _, repeats in ordered
+        ],
         marker="s",
         label="End-to-end",
     )
@@ -688,6 +801,7 @@ def main():
     plot_time_breakdown(results, args.output_dir)
     plot_step_distributions(results, args.output_dir)
     plot_checkpoint_tradeoff(results, args.output_dir)
+    plot_memory_compute_frontier(results, args.output_dir)
     plot_dataloader_scaling(results, args.output_dir)
     _plot_scaling_axis(
         results,

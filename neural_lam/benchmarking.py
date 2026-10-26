@@ -48,6 +48,7 @@ def _summary(values):
         "std": statistics.pstdev(values) if len(values) > 1 else 0.0,
         "min": ordered[0],
         "p95": percentile(0.95),
+        "p99": percentile(0.99),
         "max": ordered[-1],
     }
 
@@ -149,6 +150,10 @@ def _hardware_metadata():
         "cuda_runtime": torch.version.cuda,
         "cudnn": torch.backends.cudnn.version(),
         "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
+        "cpu_count_visible": os.cpu_count(),
+        "slurm_cpus_per_task": os.environ.get("SLURM_CPUS_PER_TASK"),
+        "slurm_cpus_on_node": os.environ.get("SLURM_CPUS_ON_NODE"),
+        "slurm_mem_per_node_mb": os.environ.get("SLURM_MEM_PER_NODE"),
     }
     if torch.cuda.is_available():
         device = torch.cuda.current_device()
@@ -263,6 +268,9 @@ class BaselineBenchmark(pl.Callback):
         self._events = None
         self._times = None
         self.started_at = None
+        self.measurement_started_at = None
+        self.measurement_finished_at = None
+        self.startup = {}
         self.error = None
         self._mps_peak_allocated = 0
         self._mps_peak_reserved = 0
@@ -286,7 +294,28 @@ class BaselineBenchmark(pl.Callback):
         self._run_start()
 
     def _run_start(self):
-        self.started_at = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(timezone.utc)
+        self.started_at = now.isoformat()
+        job_started_epoch = os.environ.get(
+            "NJORD_JOB_STARTED_EPOCH_SECONDS"
+        )
+        if job_started_epoch is not None:
+            try:
+                self.startup["job_to_fit_start_seconds"] = (
+                    now.timestamp() - float(job_started_epoch)
+                )
+            except ValueError:
+                pass
+        for environment_name, output_name in (
+            ("NJORD_DATA_STAGING_SECONDS", "data_staging_seconds"),
+            ("NJORD_DATA_STAGING_BYTES", "data_staging_bytes"),
+        ):
+            value = os.environ.get(environment_name)
+            if value is not None:
+                try:
+                    self.startup[output_name] = float(value)
+                except ValueError:
+                    pass
         _synchronize()
         self.last_batch_end = time.perf_counter()
 
@@ -300,6 +329,13 @@ class BaselineBenchmark(pl.Callback):
         self._times = {"start": now, "data_wait": data_wait}
         self._mps_batch_memory = []
         self._sample_mps_memory()
+        if (
+            self.seen_steps == self.warmup_steps
+            and self.measurement_started_at is None
+        ):
+            self.measurement_started_at = datetime.now(
+                timezone.utc
+            ).isoformat()
         if torch.cuda.is_available():
             if self.seen_steps == self.warmup_steps:
                 torch.cuda.reset_peak_memory_stats()
@@ -425,6 +461,9 @@ class BaselineBenchmark(pl.Callback):
                     }
                 )
             self.records.append(record)
+            self.measurement_finished_at = datetime.now(
+                timezone.utc
+            ).isoformat()
         self.seen_steps += 1
 
     def on_test_batch_end(
@@ -576,7 +615,7 @@ class BaselineBenchmark(pl.Callback):
             else 0
         )
         result = {
-            "schema_version": 2,
+            "schema_version": 3,
             "label": self.run_label,
             "started_at_utc": self.started_at,
             "finished_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -602,11 +641,18 @@ class BaselineBenchmark(pl.Callback):
             },
             "model": model_metadata,
             "arguments": self.args,
+            "startup": self.startup,
             "protocol": {
                 "warmup_steps": self.warmup_steps,
                 "workload": self.workload,
                 "requested_measurement_steps": self.measurement_steps,
                 "completed_measurement_steps": len(self.records),
+                "measurement_started_at_utc": (
+                    self.measurement_started_at
+                ),
+                "measurement_finished_at_utc": (
+                    self.measurement_finished_at
+                ),
                 "validation_enabled": False,
                 "external_logger_enabled": False,
                 "phase_timing_source": (

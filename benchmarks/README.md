@@ -13,7 +13,8 @@ measurement protocol.
   permits later jobs with up to four identical GPUs.
 - Precision: FP32 for the first reference result.
 - Workload: batch size 1 and one autoregressive training step.
-- Timing: 5 warm-up steps followed by 30 measured optimizer steps.
+- Final baseline timing: 50 warm-up steps followed by 500 measured optimizer
+  steps. The default short job uses 10 + 50 only as a validation run.
 - Excluded from timing: validation, plotting, external experiment logging, and
   checkpoint writes.
 - Reported: GPU phase timings; compute and end-to-end wall time; data-wait
@@ -35,23 +36,24 @@ remaining compute budget; `space` shows the writable course/team paths; and
 `limits` shows current login-node restrictions. Login nodes are only for
 setup, building, and submission, never for benchmark computation.
 
-Keep the repository, environment, 51-GiB dataset, and results in the course or
-team path reported by `space`, normally below `/work/courses`. Home has only
-20 GiB. Personal scratch has 100 GiB but is not backed up. A job-local
-`$TMPDIR` is fast SSD storage but is limited to 40 GiB and deleted after the
-job, so the complete current dataset cannot be staged there.
+Keep the small Git checkout and compact result files in home. Keep the Python
+environment and data below `/scratch/users/mfricke`; this personal scratch has
+100 GiB and no backup. The current benchmark subset is about 151 MiB, not the
+full 51-GiB local archive, so every supplied single-GPU job copies it to the
+job-local `$TMPDIR` SSD and records both staging time and bytes. `$TMPDIR` is
+deleted when the job ends.
 
 Use Git to obtain the code. Transfer the dataset through `scp`/SFTP to
 `student-cluster.inf.ethz.ch`, or mount `smb://student-files.inf.ethz.ch` on
 macOS and select the `work` share. Do not copy the dataset into the home share.
 
 Create the output directory before submission because Slurm opens the log file
-before the job script starts. Replace `<course-tag>` with the DPHPC account tag:
+before the job script starts. The supplied job uses the `dphpc` account:
 
 ```bash
 cd /path/to/baltic-sea-forecasting
 mkdir -p benchmark_results
-sbatch --account=<course-tag> jobs/benchmark_1080ti.sbatch
+sbatch jobs/benchmark_1080ti.sbatch
 ```
 
 The virtual environment defaults to `.venv`. Set `NJORD_VENV` when the cluster
@@ -60,7 +62,7 @@ without editing the job script:
 
 ```bash
 HIDDEN_DIM=128 PROCESSOR_LAYERS=3 GRAD_CHECKPOINTING=1 \
-  sbatch --account=<course-tag> jobs/benchmark_1080ti.sbatch
+  sbatch jobs/benchmark_1080ti.sbatch
 ```
 
 Use the same command with `GRAD_CHECKPOINTING=0` for the direct comparison.
@@ -74,11 +76,11 @@ initialize the module system and select `cuda/12.6.3` explicitly. The
 prebuilt PyTorch CUDA 12.6 wheels retain Pascal (`sm_61`) support required by
 the GTX 1080 Ti; the CUDA 12.9 PyTorch wheels do not.
 
-The official GTX 1080 Ti job limits are 1--4 GPUs, 2 CPU cores, 24 GiB host
-RAM, and 40 GiB job-local temporary storage. The scripts stay inside those
-limits. Multi-GPU DDP ranks share the two allocated CPU cores using Slurm
-overcommit and therefore use `num_workers=0`; this intentionally prevents
-hidden CPU over-allocation from contaminating the GPU scaling comparison.
+The live scheduler assigns and requires four CPU cores and 24 GiB host RAM for
+the current one-GTX-1080-Ti course job; requesting two cores was rejected.
+The single-GPU scripts therefore use exactly four workers/cores. Multi-GPU
+resource geometry must be confirmed with a short allocation before the final
+1/2/4-GPU suite; it must not be inferred from the single-GPU rule.
 
 GTX 1080 Ti nodes normally use a 250 W GPU power limit, but the cluster may
 reduce this progressively to 125 W when a rack is heavily loaded. Every job
@@ -121,6 +123,22 @@ Rebuild the combined table manually at any time with:
 
 ```bash
 bash jobs/update_benchmark_summary.sh benchmark_results
+```
+
+For the authoritative long baseline, submit three identical runs:
+
+```bash
+bash jobs/submit_deep_baseline.sh
+```
+
+Each run records 50 warm-up and 500 measured steps, p95/p99 latency, the exact
+post-warm-up telemetry window, startup and data-staging time, GPU allocator
+memory, process RSS, utilization, clocks, power, temperature, and energy per
+measured step/sample. To isolate the effect of the input location, submit the
+otherwise identical direct-from-shared-scratch comparison:
+
+```bash
+bash jobs/submit_io_comparison.sh
 ```
 
 ## Complete single-GPU experiment matrix
@@ -224,5 +242,10 @@ integrated energy:
 
 ```bash
 python benchmarks/plot_telemetry.py benchmark_results \
+  --benchmark-results benchmark_results \
   --output-dir benchmark_results/plots/telemetry
 ```
+
+The measurement-window telemetry plots exclude model construction and warm-up;
+full-job plots are retained separately. This prevents startup and data-copy
+idle time from lowering the reported steady-state GPU utilization.

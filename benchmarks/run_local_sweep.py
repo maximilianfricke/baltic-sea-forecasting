@@ -27,7 +27,7 @@ def _variants(max_workers=None):
     if max_workers is not None:
         common["num_workers"] = min(common["num_workers"], max_workers)
     variants = []
-    for hidden_dim in (16, 32, 64, 128, 256):
+    for hidden_dim in (16, 32, 64, 128, 256, 384, 512):
         for checkpointing in (False, True):
             variants.append(
                 (
@@ -40,7 +40,7 @@ def _variants(max_workers=None):
                     },
                 )
             )
-    worker_values = (0, 1, 2, 4, 8)
+    worker_values = (0, 1, 2, 3, 4, 8)
     if max_workers is not None:
         worker_values = tuple(
             workers for workers in worker_values if workers <= max_workers
@@ -49,7 +49,7 @@ def _variants(max_workers=None):
         variants.append(
             ("workers", f"workers-w{workers}", {"num_workers": workers})
         )
-    for layers in (1, 3, 6):
+    for layers in (1, 3, 6, 12):
         variants.append(
             (
                 "layers",
@@ -57,7 +57,7 @@ def _variants(max_workers=None):
                 {"processor_layers": layers},
             )
         )
-    for batch_size in (1, 2, 4):
+    for batch_size in (1, 2, 4, 8):
         variants.append(
             (
                 "batch",
@@ -65,7 +65,7 @@ def _variants(max_workers=None):
                 {"batch_size": batch_size},
             )
         )
-    for ar_steps in (1, 2, 4):
+    for ar_steps in (1, 2, 4, 8):
         variants.append(
             (
                 "ar",
@@ -81,7 +81,7 @@ def _variants(max_workers=None):
                 {"precision": precision},
             )
         )
-    for ensemble_size in (1, 5, 10):
+    for ensemble_size in (1, 5, 10, 20):
         variants.append(
             (
                 "inference",
@@ -92,7 +92,7 @@ def _variants(max_workers=None):
                 },
             )
         )
-    for horizon in (1, 2, 4):
+    for horizon in (1, 2, 4, 8):
         variants.append(
             (
                 "inference",
@@ -116,14 +116,14 @@ def _variants(max_workers=None):
     return unique
 
 
-def _command(config, output_path, label, warmup, steps):
+def _command(config, config_path, output_path, label, warmup, steps):
     hidden = str(config["hidden_dim"])
     command = [
         sys.executable,
         "-m",
         "neural_lam.train_model",
         "--config_path",
-        "data/global_ocean_1.yaml",
+        str(config_path),
         "--model",
         "graph_efm",
         "--graph",
@@ -202,6 +202,11 @@ def main():
         type=Path,
         default=Path("benchmark_results/local-sweep"),
     )
+    parser.add_argument(
+        "--config-path",
+        type=Path,
+        default=Path("data/global_ocean_1.yaml"),
+    )
     parser.add_argument("--warmup", type=int, default=3)
     parser.add_argument("--steps", type=int, default=10)
     parser.add_argument(
@@ -235,6 +240,7 @@ def main():
             completed = subprocess.run(
                 _command(
                     config,
+                    args.config_path,
                     output_path,
                     label,
                     args.warmup,

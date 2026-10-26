@@ -3,6 +3,8 @@
 # Standard library
 import argparse
 import csv
+import json
+import os
 import re
 import statistics
 from collections import defaultdict
@@ -17,6 +19,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 
 NUMBER = re.compile(r"[-+]?\d+(?:\.\d+)?")
+JOB_ID = re.compile(r"gpu-(\d+)\.csv$")
 
 
 def number(value):
@@ -46,9 +49,11 @@ def load(path):
         for raw in reader:
             row = {key.strip(): value.strip() for key, value in raw.items()}
             gpu = int(number(row["index"]))
+            parsed_time = timestamp(row["timestamp"])
             by_gpu[gpu].append(
                 {
-                    "time": timestamp(row["timestamp"]),
+                    "time": parsed_time,
+                    "epoch": parsed_time.timestamp(),
                     "name": row["name"],
                     "utilization": number(row["utilization.gpu [%]"]),
                     "memory_utilization": number(
@@ -66,6 +71,61 @@ def load(path):
     return by_gpu
 
 
+def _benchmark_windows(inputs):
+    """Index benchmark measurement windows by Slurm job ID."""
+    windows = defaultdict(list)
+    if not inputs:
+        return windows
+    paths = set()
+    for input_path in inputs:
+        if input_path.is_file():
+            paths.add(input_path)
+        elif input_path.is_dir():
+            for root, _, names in os.walk(input_path, followlinks=True):
+                for name in names:
+                    if name.endswith(".json") and not name.endswith(
+                        ".pt.trace.json"
+                    ):
+                        paths.add(Path(root) / name)
+    for path in sorted(paths):
+        try:
+            result = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(result, dict) or "schema_version" not in result:
+            continue
+        job_id = result.get("hardware", {}).get("slurm_job_id")
+        protocol = result.get("protocol", {})
+        start = protocol.get("measurement_started_at_utc")
+        finish = protocol.get("measurement_finished_at_utc")
+        if not job_id or not start or not finish:
+            continue
+        windows[str(job_id)].append(
+            {
+                "label": result.get("label", path.stem),
+                "start_epoch": datetime.fromisoformat(start).timestamp(),
+                "finish_epoch": datetime.fromisoformat(finish).timestamp(),
+                "steps": protocol.get("completed_measurement_steps"),
+                "global_batch_size": result.get("distributed", {}).get(
+                    "global_batch_size"
+                ),
+            }
+        )
+    return windows
+
+
+def _select_window(by_gpu, window):
+    return {
+        gpu: [
+            row
+            for row in rows
+            if window["start_epoch"] <= row["epoch"]
+            <= window["finish_epoch"]
+        ]
+        for gpu, rows in by_gpu.items()
+    }
+
+
 def energy_wh(rows):
     total_joules = 0.0
     for left, right in zip(rows, rows[1:]):
@@ -74,15 +134,17 @@ def energy_wh(rows):
     return total_joules / 3600
 
 
-def summarize(path, by_gpu):
+def summarize(path, by_gpu, scope="full-job", window=None):
     summaries = []
     for gpu, rows in sorted(by_gpu.items()):
+        if not rows:
+            continue
         rows.sort(key=lambda row: row["time"])
         utilization = [row["utilization"] for row in rows]
         power = [row["power_w"] for row in rows]
-        summaries.append(
-            {
+        item = {
                 "file": str(path),
+                "scope": scope,
                 "gpu": gpu,
                 "name": rows[0]["name"],
                 "samples": len(rows),
@@ -99,11 +161,28 @@ def summarize(path, by_gpu):
                     row["temperature_c"] for row in rows
                 ),
             }
-        )
+        if window is not None:
+            steps = window.get("steps")
+            global_batch_size = window.get("global_batch_size")
+            joules = item["energy_wh"] * 3600
+            item["measurement_steps"] = steps
+            item["energy_per_step_j"] = (
+                joules / steps if steps else None
+            )
+            item["energy_per_sample_j"] = (
+                joules / (steps * global_batch_size)
+                if steps and global_batch_size
+                else None
+            )
+        else:
+            item["measurement_steps"] = None
+            item["energy_per_step_j"] = None
+            item["energy_per_sample_j"] = None
+        summaries.append(item)
     return summaries
 
 
-def plot(path, by_gpu, output_dir):
+def plot(path, by_gpu, output_dir, suffix="", title=None):
     fig, axes = plt.subplots(2, 2, figsize=(12, 8), layout="constrained")
     metrics = (
         ("utilization", "GPU utilization [%]"),
@@ -112,6 +191,8 @@ def plot(path, by_gpu, output_dir):
         ("sm_clock_mhz", "SM clock [MHz]"),
     )
     for gpu, rows in sorted(by_gpu.items()):
+        if not rows:
+            continue
         rows.sort(key=lambda row: row["time"])
         origin = rows[0]["time"]
         seconds = [(row["time"] - origin).total_seconds() for row in rows]
@@ -126,10 +207,10 @@ def plot(path, by_gpu, output_dir):
             axis.grid(alpha=0.25)
     for axis in axes.flat:
         axis.legend(frameon=False)
-    fig.suptitle(f"GPU telemetry: {path.stem}")
-    for suffix in ("png", "pdf"):
+    fig.suptitle(title or f"GPU telemetry: {path.stem}")
+    for extension in ("png", "pdf"):
         fig.savefig(
-            output_dir / f"{path.stem}-telemetry.{suffix}",
+            output_dir / f"{path.stem}{suffix}-telemetry.{extension}",
             dpi=220,
             bbox_inches="tight",
         )
@@ -140,12 +221,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("telemetry", nargs="+", type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
+    parser.add_argument(
+        "--benchmark-results",
+        nargs="+",
+        type=Path,
+        help="Benchmark JSONs used to isolate post-warm-up measurement windows.",
+    )
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     paths = []
     for path in args.telemetry:
         paths.extend(path.rglob("*gpu-*.csv") if path.is_dir() else [path])
+    windows_by_job = _benchmark_windows(args.benchmark_results)
     all_summaries = []
     for path in paths:
         by_gpu = load(path)
@@ -153,6 +241,24 @@ def main():
             continue
         all_summaries.extend(summarize(path, by_gpu))
         plot(path, by_gpu, args.output_dir)
+        match = JOB_ID.search(path.name)
+        job_id = match.group(1) if match else None
+        for index, window in enumerate(windows_by_job.get(job_id, []), 1):
+            selected = _select_window(by_gpu, window)
+            if not any(selected.values()):
+                continue
+            scope = f"measurement:{window['label']}"
+            all_summaries.extend(
+                summarize(path, selected, scope=scope, window=window)
+            )
+            safe_label = re.sub(r"[^A-Za-z0-9_.-]+", "-", window["label"])
+            plot(
+                path,
+                selected,
+                args.output_dir,
+                suffix=f"-measurement-{index}-{safe_label}",
+                title=f"GPU telemetry measurement window: {window['label']}",
+            )
 
     if all_summaries:
         with (args.output_dir / "telemetry-summary.csv").open(
