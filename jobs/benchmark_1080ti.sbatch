@@ -17,6 +17,7 @@ REPO_ROOT="${SLURM_SUBMIT_DIR}"
 cd "${REPO_ROOT}"
 VENV_PATH="${NJORD_VENV:-${REPO_ROOT}/.venv}"
 RESULT_DIR="${RESULT_DIR:-${REPO_ROOT}/benchmark_results}"
+JOB_DATA_DIR="${TMPDIR}/njord-data"
 HIDDEN_DIM="${HIDDEN_DIM:-64}"
 PROCESSOR_LAYERS="${PROCESSOR_LAYERS:-3}"
 CHECKPOINT_LABEL="off"
@@ -28,6 +29,10 @@ if [[ "${GRAD_CHECKPOINTING:-0}" == "1" ]]; then
 fi
 
 mkdir -p "${RESULT_DIR}"
+mkdir -p "${JOB_DATA_DIR}"
+echo "Staging benchmark data to ${JOB_DATA_DIR}"
+time cp -aL "${REPO_ROOT}/data/." "${JOB_DATA_DIR}/"
+du -sh "${JOB_DATA_DIR}"
 source "${VENV_PATH}/bin/activate"
 source jobs/start_gpu_telemetry.sh
 
@@ -37,7 +42,7 @@ nvidia-smi --query-gpu="${GPU_QUERY}" \
     --format=csv
 
 python -m neural_lam.train_model \
-    --config_path data/global_ocean_1.yaml \
+    --config_path "${JOB_DATA_DIR}/global_ocean_1.yaml" \
     --model graph_efm \
     --graph global_cluster_graph \
     --hidden_dim "${HIDDEN_DIM}" \
