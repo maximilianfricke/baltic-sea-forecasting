@@ -17,10 +17,10 @@ measurement protocol.
   steps. The default short job uses 10 + 50 only as a validation run.
 - Excluded from timing: validation, plotting, external experiment logging, and
   checkpoint writes.
-- Reported: GPU phase timings; compute and end-to-end wall time; data-wait
-  time; both compute-only and end-to-end throughput; allocated/reserved/peak
-  GPU memory; CPU RSS; parameter, node and edge counts; Git revision; device
-  and software metadata.
+- Reported: aggregate steady-state throughput in minimally instrumented runs;
+  GPU phase timings and tail latency in separate phase runs; allocated,
+  reserved and peak GPU memory; CPU RSS; parameter, node and edge counts; Git
+  revision; device and software metadata.
 
 Run every reported configuration at least three times. Report the median of
 the run means and retain every JSON file. Do not compare a local CPU or Apple
@@ -76,11 +76,13 @@ initialize the module system and select `cuda/12.6.3` explicitly. The
 prebuilt PyTorch CUDA 12.6 wheels retain Pascal (`sm_61`) support required by
 the GTX 1080 Ti; the CUDA 12.9 PyTorch wheels do not.
 
-The live scheduler assigns and requires four CPU cores and 24 GiB host RAM for
-the current one-GTX-1080-Ti course job; requesting two cores was rejected.
-The single-GPU scripts therefore use exactly four workers/cores. Multi-GPU
-resource geometry must be confirmed with a short allocation before the final
-1/2/4-GPU suite; it must not be inferred from the single-GPU rule.
+The public GTX-1080-Ti table lists two CPU cores and 24 GiB host RAM, while the
+live `dphpc` scheduler assigned four cores and rejected an explicit two-core
+request. The scripts therefore do not request a CPU count. They accept the
+course allocation and choose one fewer DataLoader worker than the number Slurm
+reports, leaving one core for the training process. Multi-GPU resource
+geometry must be confirmed with a short allocation before the final 1/2/4-GPU
+suite; it must not be inferred from the single-GPU rule.
 
 GTX 1080 Ti nodes normally use a 250 W GPU power limit, but the cluster may
 reduce this progressively to 125 W when a rack is heavily loaded. Every job
@@ -125,21 +127,49 @@ Rebuild the combined table manually at any time with:
 bash jobs/update_benchmark_summary.sh benchmark_results
 ```
 
-For the authoritative long baseline, submit three identical runs:
+For the authoritative long baseline, submit three identical runs one at a
+time. Check `squeue -u $USER` between submissions; the cluster permits one
+running and two queued GPU jobs:
 
 ```bash
-bash jobs/submit_deep_baseline.sh
+bash jobs/submit_deep_baseline.sh 1
+# after checking the queue/completion:
+bash jobs/submit_deep_baseline.sh 2
+bash jobs/submit_deep_baseline.sh 3
 ```
 
-Each run records 50 warm-up and 500 measured steps, p95/p99 latency, the exact
-post-warm-up telemetry window, startup and data-staging time, GPU allocator
-memory, process RSS, utilization, clocks, power, temperature, and energy per
-measured step/sample. To isolate the effect of the input location, submit the
-otherwise identical direct-from-shared-scratch comparison:
+These are minimally instrumented aggregate runs. They synchronize only before
+and after the complete 500-step measurement window; no `nvidia-smi` sampler or
+PyTorch profiler runs concurrently. This is the source for headline throughput.
+
+Detailed per-step phase distributions are deliberately separate:
 
 ```bash
-bash jobs/submit_io_comparison.sh
+bash jobs/submit_phase_baseline.sh 1
+# repeat later with IDs 2 and 3
 ```
+
+Phase runs synchronize every batch and report forward, backward, optimizer,
+data-wait, p95 and p99. Their time is not substituted for aggregate throughput.
+To isolate the effect of the input location, submit the otherwise identical
+direct-from-shared-scratch comparison:
+
+```bash
+bash jobs/submit_io_comparison.sh 1
+# repeat later with IDs 2 and 3
+```
+
+Hardware telemetry is a third paired experiment:
+
+```bash
+bash jobs/submit_telemetry_baseline.sh 1
+# repeat later with IDs 2 and 3
+```
+
+It samples `nvidia-smi` at 1 Hz into node-local `$TMPDIR`, copies the CSV only
+after measurement, and records utilization, memory, clocks, temperature,
+power, and energy. Compare these three run means against the non-telemetry
+aggregate repeats to quantify monitoring overhead before reporting telemetry.
 
 ## Complete single-GPU experiment matrix
 
@@ -170,18 +200,36 @@ points; an OOM boundary is a result, not a configuration to silently omit.
 
 ## Multi-GPU scaling
 
+Do not start the scaling suite until the course-specific Slurm geometry has
+been measured. The public GTX-1080-Ti table and the live one-GPU allocation
+currently disagree on CPU count. Submit the read-only two-minute probe one GPU
+count at a time:
+
+```bash
+bash jobs/submit_gpu_probe.sh 1
+bash jobs/submit_gpu_probe.sh 2
+bash jobs/submit_gpu_probe.sh 4
+```
+
+Preserve each `benchmark_results/resource-probe-<job>.out`. Adapt the task/CPU
+layout to those results before setting `MULTI_GPU_LAYOUT_CONFIRMED=1`; the
+scaling submitter intentionally refuses to run without that acknowledgement.
+
 The distributed suite measures both training and inference on 1, 2, and 4
 identical GPUs, with three repeats. The cluster permits only one running GPU
 job and two queued jobs for a user/team, so each GPU count is one bundled job.
 Submit the next count after the preceding job has completed:
 
 ```bash
-bash jobs/submit_scaling_sweep.sh <course-tag> 1
+MULTI_GPU_LAYOUT_CONFIRMED=1 \
+  bash jobs/submit_scaling_sweep.sh <course-tag> 1
 squeue
 # after completion:
-bash jobs/submit_scaling_sweep.sh <course-tag> 2
+MULTI_GPU_LAYOUT_CONFIRMED=1 \
+  bash jobs/submit_scaling_sweep.sh <course-tag> 2
 # after completion:
-bash jobs/submit_scaling_sweep.sh <course-tag> 4
+MULTI_GPU_LAYOUT_CONFIRMED=1 \
+  bash jobs/submit_scaling_sweep.sh <course-tag> 4
 ```
 
 - Strong scaling holds the global batch at four and divides it across GPUs.
@@ -217,12 +265,16 @@ The trace contains semantic GraphEFM regions for embeddings, encoder, prior,
 decoder, and loss plus PyTorch operator, memory, shape, FLOP, CUDA, and NCCL
 events. Inspect the Chrome trace for the critical path, kernel gaps, scatter
 operations, all-reduce duration, and communication/compute overlap. Do not use
-profiled step time as the headline performance number.
+profiled step time as the headline performance number. Large single-GPU trace
+files are written under
+`/scratch/users/$USER/baltic-sea-forecasting-results/profiles`; only the compact
+JSON summary remains in the repository under home.
 
 ## Plots and report
 
-Create PNG/PDF figures, a flat CSV, and a Markdown interpretation from any set
-of completed result files:
+Copy completed result files to the development machine, then create PNG/PDF
+figures, a flat CSV, and a Markdown interpretation locally. Plot generation is
+not part of a GPU job and should not be run as sustained work on a login node:
 
 ```bash
 python benchmarks/plot_results.py benchmark_results \
@@ -236,8 +288,8 @@ processor depth, batch size, autoregressive steps, input workers, precision,
 checkpointing, inference ensemble/horizon, estimated gradient payload, and
 training/inference strong and weak scaling when distributed data are present.
 
-Every Slurm job also samples GPU utilization, memory, power, temperature, and
-clocks at 200 ms. Convert those logs into per-GPU plots and a summary including
+Telemetry control jobs sample GPU utilization, memory, power, temperature, and
+clocks at 1 Hz. Convert those logs into per-GPU plots and a summary including
 integrated energy:
 
 ```bash
@@ -249,3 +301,31 @@ python benchmarks/plot_telemetry.py benchmark_results \
 The measurement-window telemetry plots exclude model construction and warm-up;
 full-job plots are retained separately. This prevents startup and data-copy
 idle time from lowering the reported steady-state GPU utilization.
+
+## Cluster-rule and interference audit
+
+This audit follows the official ETH pages for
+[cluster resources and storage](https://www.isg.inf.ethz.ch/Main/HelpClusterComputingStudentCluster),
+[running jobs](https://www.isg.inf.ethz.ch/Main/HelpClusterComputingStudentClusterRunningJobs),
+[copying data](https://www.isg.inf.ethz.ch/Main/HelpClusterComputingStudentClusterCopyingData),
+and [troubleshooting and quotas](https://www.isg.inf.ethz.ch/Main/HelpClusterComputingStudentClusterTroubleshooting).
+
+- All model execution, profiling, data staging, and sustained analysis runs
+  execute inside `sbatch`/`srun` allocations with account and runtime set.
+- Login nodes are used only for Git, submission, queue/status inspection, and
+  short file inspection. The benchmark timer is created inside the compute
+  process, never on a login node.
+- Slurm logs and compact results may remain in home. ETH explicitly documents
+  home as the default location for `slurm-<job-id>.out`; keep total home usage
+  below 20 GiB.
+- Data, environments, caches, and large profiler traces use personal scratch,
+  which has a 100-GiB hard limit and no backup.
+- The 151-MiB benchmark subset is copied inside the job to the dedicated local
+  SSD at `$TMPDIR`. Nothing there is expected to survive job completion.
+- `nvidia-smi` is an explicitly documented GPU-job example, but continuous
+  sampling remains a separate experiment because allowed monitoring can still
+  perturb performance.
+- No script changes clocks, power limits, scheduler state, cache policy, other
+  users' data, or node configuration. No privileged cache dropping is used.
+- JSON, summary CSV, and plots are written after the measured interval. Large
+  figures are generated locally, not during paid GPU time.

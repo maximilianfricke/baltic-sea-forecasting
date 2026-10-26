@@ -649,6 +649,15 @@ def main(input_args=None):
         help="Number of measured training steps (default: 30)",
     )
     parser.add_argument(
+        "--benchmark_timing_mode",
+        choices=["aggregate", "phase"],
+        default="phase",
+        help=(
+            "Aggregate synchronizes only at measurement-window boundaries; "
+            "phase synchronizes every batch for detailed timings."
+        ),
+    )
+    parser.add_argument(
         "--benchmark_label",
         type=str,
         default="baseline",

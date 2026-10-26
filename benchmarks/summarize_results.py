@@ -64,6 +64,11 @@ FIELDS = (
     "data_staging_gib",
     "measurement_started_at_utc",
     "measurement_finished_at_utc",
+    "timing_mode",
+    "gpu_telemetry_enabled",
+    "gpu_telemetry_interval_ms",
+    "pytorch_profiler_enabled",
+    "data_location",
 )
 
 
@@ -212,6 +217,21 @@ def _row(path):
         ),
         "measurement_finished_at_utc": _nested(
             result, "protocol", "measurement_finished_at_utc"
+        ),
+        "timing_mode": _nested(
+            result, "instrumentation", "timing_mode"
+        ),
+        "gpu_telemetry_enabled": _nested(
+            result, "instrumentation", "gpu_telemetry_enabled"
+        ),
+        "gpu_telemetry_interval_ms": _nested(
+            result, "instrumentation", "gpu_telemetry_interval_ms"
+        ),
+        "pytorch_profiler_enabled": _nested(
+            result, "instrumentation", "pytorch_profiler_enabled"
+        ),
+        "data_location": _nested(
+            result, "startup", "data_location"
         ),
     }
 

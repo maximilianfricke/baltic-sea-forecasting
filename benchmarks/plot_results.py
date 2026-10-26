@@ -92,6 +92,12 @@ def _workload(result):
     return _nested(result, "protocol", "workload", default="training")
 
 
+def _timing_mode(result):
+    return _nested(
+        result, "instrumentation", "timing_mode", default="phase"
+    )
+
+
 def _save(fig, output_dir, name):
     if not fig.get_constrained_layout():
         fig.tight_layout()
@@ -105,7 +111,12 @@ def _save(fig, output_dir, name):
 
 
 def plot_time_breakdown(results, output_dir):
-    results = [result for result in results if _workload(result) == "training"]
+    results = [
+        result
+        for result in results
+        if _workload(result) == "training"
+        and _timing_mode(result) == "phase"
+    ]
     results = _representative_by_label(results)
     if not results:
         return
@@ -134,7 +145,12 @@ def plot_time_breakdown(results, output_dir):
 
 
 def plot_step_distributions(results, output_dir):
-    results = [result for result in results if _workload(result) == "training"]
+    results = [
+        result
+        for result in results
+        if _workload(result) == "training"
+        and _timing_mode(result) == "phase"
+    ]
     results = _representative_by_label(results)
     values = [
         [step["step_ms"] for step in result.get("steps", [])]
@@ -735,6 +751,7 @@ def write_table(results, output_dir):
         "processor_layers",
         "batch_size",
         "workers",
+        "timing_mode",
         "checkpointing",
         "step_mean_ms",
         "step_p95_ms",
@@ -771,6 +788,7 @@ def write_table(results, output_dir):
                     "workers": _nested(
                         result, "arguments", "num_workers"
                     ),
+                    "timing_mode": _timing_mode(result),
                     "checkpointing": _nested(
                         result, "model", "gradient_checkpointing"
                     ),

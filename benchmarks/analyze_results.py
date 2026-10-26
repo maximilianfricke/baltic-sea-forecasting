@@ -3,6 +3,7 @@
 # Standard library
 import argparse
 import json
+import os
 import statistics
 from collections import defaultdict
 from pathlib import Path
@@ -27,11 +28,24 @@ def workload(result):
 
 def load(paths):
     results = []
-    expanded = []
+    expanded = set()
     for path in paths:
-        expanded.extend(path.rglob("*.json") if path.is_dir() else [path])
-    for path in expanded:
-        result = json.loads(path.read_text(encoding="utf-8"))
+        if path.is_file():
+            expanded.add(path)
+        elif path.is_dir():
+            for root, _, names in os.walk(path, followlinks=True):
+                for name in names:
+                    if name.endswith(".json") and not name.endswith(
+                        ".pt.trace.json"
+                    ):
+                        expanded.add(Path(root) / name)
+    for path in sorted(expanded):
+        try:
+            result = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(result, dict) or "schema_version" not in result:
+            continue
         if result.get("status") == "completed":
             result["_path"] = str(path)
             results.append(result)
@@ -111,7 +125,7 @@ def make_report(results):
         hidden_dim=64,
         processor_layers=3,
         batch_size=1,
-        num_workers=4,
+        num_workers=3,
         ar_steps_train=1,
         precision="32",
     )

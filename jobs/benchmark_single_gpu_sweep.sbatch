@@ -2,7 +2,6 @@
 #SBATCH --job-name=njord-single-sweep
 #SBATCH --account=dphpc
 #SBATCH --gpus=1080ti:1
-#SBATCH --cpus-per-task=4
 #SBATCH --mem=24G
 #SBATCH --time=03:00:00
 #SBATCH --output=benchmark_results/slurm-single-sweep-%j.out
@@ -19,11 +18,16 @@ REPO_ROOT="${SLURM_SUBMIT_DIR}"
 cd "${REPO_ROOT}"
 VENV_PATH="${NJORD_VENV:-${REPO_ROOT}/.venv}"
 RESULT_DIR="${RESULT_DIR:-${REPO_ROOT}/benchmark_results/single-gpu}"
+ENABLE_GPU_TELEMETRY="${ENABLE_GPU_TELEMETRY:-0}"
+ALLOCATED_CPUS="${SLURM_CPUS_PER_TASK:-${SLURM_CPUS_ON_NODE:-2}}"
+MAX_WORKERS="$((ALLOCATED_CPUS > 1 ? ALLOCATED_CPUS - 1 : 0))"
 
 mkdir -p "${RESULT_DIR}"
 source jobs/stage_benchmark_data.sh
 source "${VENV_PATH}/bin/activate"
-source jobs/start_gpu_telemetry.sh
+if [[ "${ENABLE_GPU_TELEMETRY}" == "1" ]]; then
+    source jobs/start_gpu_telemetry.sh
+fi
 
 nvidia-smi --query-gpu=name,uuid,driver_version,memory.total,power.limit,clocks.max.sm \
     --format=csv
@@ -35,20 +39,18 @@ for REPEAT in 1 2 3; do
         --group all \
         --config-path "${JOB_DATA_DIR}/global_ocean_1.yaml" \
         --output-dir "${RUN_DIR}" \
-        --max-workers "${SLURM_CPUS_PER_TASK}" \
+        --max-workers "${MAX_WORKERS}" \
         --warmup 10 \
         --steps 50; then
         FAILURES="$((FAILURES + 1))"
     fi
 done
 
-stop_gpu_telemetry
-trap - EXIT
-bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"
-if ! bash jobs/generate_benchmark_plots.sh \
-    "${REPO_ROOT}/benchmark_results"; then
-    echo "Warning: sweep completed, but plot generation failed" >&2
+if [[ "${ENABLE_GPU_TELEMETRY}" == "1" ]]; then
+    stop_gpu_telemetry
+    trap - EXIT
 fi
+bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"
 
 if [[ "${FAILURES}" -gt 0 ]]; then
     echo "${FAILURES} repeat(s) contained failed configurations" >&2

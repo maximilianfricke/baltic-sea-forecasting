@@ -262,8 +262,12 @@ class BaselineBenchmark(pl.Callback):
         self.run_label = run_label
         self.args = vars(args).copy()
         self.workload = self.args.get("benchmark_workload", "training")
+        self.timing_mode = self.args.get(
+            "benchmark_timing_mode", "phase"
+        )
         self.records = []
         self.seen_steps = 0
+        self.measured_steps = 0
         self.last_batch_end = None
         self._events = None
         self._times = None
@@ -271,6 +275,7 @@ class BaselineBenchmark(pl.Callback):
         self.measurement_started_at = None
         self.measurement_finished_at = None
         self.startup = {}
+        self.aggregate_start = None
         self.error = None
         self._mps_peak_allocated = 0
         self._mps_peak_reserved = 0
@@ -316,11 +321,24 @@ class BaselineBenchmark(pl.Callback):
                     self.startup[output_name] = float(value)
                 except ValueError:
                     pass
+        data_location = os.environ.get("NJORD_DATA_LOCATION")
+        if data_location is not None:
+            self.startup["data_location"] = data_location
         _synchronize()
         self.last_batch_end = time.perf_counter()
 
     def on_train_batch_start(self, trainer, pl_module, batch, batch_idx):
         del trainer, pl_module, batch, batch_idx
+        if self.timing_mode == "aggregate":
+            if self.seen_steps == self.warmup_steps:
+                _synchronize()
+                if torch.cuda.is_available():
+                    torch.cuda.reset_peak_memory_stats()
+                self.measurement_started_at = datetime.now(
+                    timezone.utc
+                ).isoformat()
+                self.aggregate_start = time.perf_counter()
+            return
         _synchronize()
         now = time.perf_counter()
         data_wait = (
@@ -370,6 +388,45 @@ class BaselineBenchmark(pl.Callback):
         self, trainer, pl_module, outputs, batch, batch_idx
     ):
         del trainer, pl_module, outputs, batch, batch_idx
+        if self.timing_mode == "aggregate":
+            if self.seen_steps >= self.warmup_steps:
+                self.measured_steps += 1
+                if self.measured_steps == self.measurement_steps:
+                    _synchronize()
+                    end = time.perf_counter()
+                    total_ms = (end - self.aggregate_start) * 1e3
+                    mean_ms = total_ms / self.measured_steps
+                    record = {
+                        "measurement_step": None,
+                        "measurement_steps": self.measured_steps,
+                        "aggregate_window_ms": total_ms,
+                        "step_ms": mean_ms,
+                        "step_wall_ms": mean_ms,
+                        "end_to_end_wall_ms": mean_ms,
+                    }
+                    if torch.cuda.is_available():
+                        record.update(
+                            {
+                                "gpu_memory_allocated_bytes": (
+                                    torch.cuda.memory_allocated()
+                                ),
+                                "gpu_memory_reserved_bytes": (
+                                    torch.cuda.memory_reserved()
+                                ),
+                                "gpu_peak_memory_allocated_bytes": (
+                                    torch.cuda.max_memory_allocated()
+                                ),
+                                "gpu_peak_memory_reserved_bytes": (
+                                    torch.cuda.max_memory_reserved()
+                                ),
+                            }
+                        )
+                    self.records.append(record)
+                    self.measurement_finished_at = datetime.now(
+                        timezone.utc
+                    ).isoformat()
+            self.seen_steps += 1
+            return
         self._mark("end")
         _synchronize()
         end = time.perf_counter()
@@ -461,6 +518,7 @@ class BaselineBenchmark(pl.Callback):
                     }
                 )
             self.records.append(record)
+            self.measured_steps += 1
             self.measurement_finished_at = datetime.now(
                 timezone.utc
             ).isoformat()
@@ -519,6 +577,7 @@ class BaselineBenchmark(pl.Callback):
             len(payload["records"]) for payload in rank_payloads
         )
         time_keys = (
+            "aggregate_window_ms",
             "step_ms",
             "step_wall_ms",
             "end_to_end_wall_ms",
@@ -553,6 +612,7 @@ class BaselineBenchmark(pl.Callback):
     def _write_result(self, trainer, model, rank_payloads):
         records = self._aggregate_rank_records(rank_payloads)
         metric_names = (
+            "aggregate_window_ms",
             "step_ms",
             "step_wall_ms",
             "end_to_end_wall_ms",
@@ -562,9 +622,16 @@ class BaselineBenchmark(pl.Callback):
             "data_wait_ms",
         )
         summaries = {
-            name: _summary([record[name] for record in records])
+            name: _summary(
+                [record[name] for record in records if name in record]
+            )
             for name in metric_names
         }
+        if self.timing_mode == "aggregate":
+            for name in ("step_ms", "step_wall_ms", "end_to_end_wall_ms"):
+                if summaries[name] is not None:
+                    summaries[name]["p95"] = None
+                    summaries[name]["p99"] = None
         step_mean = (
             summaries["step_wall_ms"]["mean"] if records else None
         )
@@ -615,7 +682,7 @@ class BaselineBenchmark(pl.Callback):
             else 0
         )
         result = {
-            "schema_version": 3,
+            "schema_version": 4,
             "label": self.run_label,
             "started_at_utc": self.started_at,
             "finished_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -642,11 +709,26 @@ class BaselineBenchmark(pl.Callback):
             "model": model_metadata,
             "arguments": self.args,
             "startup": self.startup,
+            "instrumentation": {
+                "timing_mode": self.timing_mode,
+                "per_batch_accelerator_synchronization": (
+                    self.timing_mode == "phase"
+                ),
+                "gpu_telemetry_enabled": (
+                    os.environ.get("ENABLE_GPU_TELEMETRY", "0") == "1"
+                ),
+                "gpu_telemetry_interval_ms": (
+                    os.environ.get("TELEMETRY_INTERVAL_MS")
+                ),
+                "pytorch_profiler_enabled": bool(
+                    self.args.get("benchmark_profiler_dir")
+                ),
+            },
             "protocol": {
                 "warmup_steps": self.warmup_steps,
                 "workload": self.workload,
                 "requested_measurement_steps": self.measurement_steps,
-                "completed_measurement_steps": len(self.records),
+                "completed_measurement_steps": self.measured_steps,
                 "measurement_started_at_utc": (
                     self.measurement_started_at
                 ),

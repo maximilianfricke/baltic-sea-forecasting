@@ -12,7 +12,7 @@ COMMON = {
     "hidden_dim": 64,
     "processor_layers": 3,
     "batch_size": 1,
-    "num_workers": 4,
+    "num_workers": 3,
     "ar_steps_train": 1,
     "ar_steps_eval": 1,
     "precision": "32",
