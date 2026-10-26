@@ -2,7 +2,7 @@
 #SBATCH --job-name=njord-baseline
 #SBATCH --account=dphpc
 #SBATCH --gpus=1080ti:1
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=4
 #SBATCH --mem=24G
 #SBATCH --time=00:30:00
 #SBATCH --output=benchmark_results/slurm-%j.out
