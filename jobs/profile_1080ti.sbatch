@@ -42,3 +42,5 @@ python -m neural_lam.train_model \
     --benchmark_label "profile-1080ti" \
     --benchmark_profiler_dir "${PROFILE_DIR}" \
     --benchmark_output "${PROFILE_DIR}/profile-${SLURM_JOB_ID}.json"
+
+bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"

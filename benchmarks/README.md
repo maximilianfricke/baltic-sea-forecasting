@@ -111,11 +111,16 @@ CUDA peak memory comes from the allocator's resettable peak counter. MPS has no
 equivalent counter, so its reported peak is the largest allocation observed at
 a synchronized forward/backward boundary; driver memory also includes caching.
 
-Combine completed runs into a table with:
+Every supplied Slurm benchmark rebuilds
+`benchmark_results/all-benchmarks.csv` after it finishes. The CSV contains one
+row per raw benchmark JSON across the baseline, single-GPU sweeps, scaling, and
+profiler runs. Raw JSON files remain the source of truth and are never replaced
+by the summary.
+
+Rebuild the combined table manually at any time with:
 
 ```bash
-python benchmarks/summarize_results.py benchmark_results/*.json \
-  > benchmark_results/summary.csv
+bash jobs/update_benchmark_summary.sh benchmark_results
 ```
 
 ## Complete single-GPU experiment matrix

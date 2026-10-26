@@ -36,6 +36,8 @@ for REPEAT in 1 2 3; do
     fi
 done
 
+bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"
+
 if [[ "${FAILURES}" -gt 0 ]]; then
     echo "${FAILURES} repeat(s) contained failed configurations" >&2
     exit 1

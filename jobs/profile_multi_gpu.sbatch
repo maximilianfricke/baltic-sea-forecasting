@@ -51,3 +51,5 @@ srun --overcommit --ntasks="${GPU_COUNT}" --gpu-bind=single:1 \
     --benchmark_label "profile-ddp-${GPU_COUNT}gpu" \
     --benchmark_profiler_dir "${PROFILE_DIR}" \
     --benchmark_output "${PROFILE_DIR}/profile-${SLURM_JOB_ID}.json"
+
+bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"

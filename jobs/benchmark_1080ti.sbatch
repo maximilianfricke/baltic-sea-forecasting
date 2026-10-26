@@ -65,3 +65,5 @@ python -m neural_lam.train_model \
     "1080ti-h${HIDDEN_DIM}-p${PROCESSOR_LAYERS}-ckpt-${CHECKPOINT_LABEL}" \
     --benchmark_output "${RESULT_DIR}/baseline-${SLURM_JOB_ID}.json" \
     "${CHECKPOINT_FLAG[@]}"
+
+bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"

@@ -4,6 +4,7 @@
 import argparse
 import csv
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -13,24 +14,49 @@ FIELDS = (
     "status",
     "label",
     "started_at_utc",
+    "finished_at_utc",
+    "error",
     "git_commit",
     "git_dirty",
+    "slurm_job_id",
     "gpu",
+    "torch",
+    "cuda_runtime",
     "world_size",
+    "scaling_mode",
+    "workload",
+    "global_batch_size",
     "model",
     "hidden_dim",
     "processor_layers",
     "gradient_checkpointing",
+    "precision",
+    "batch_size",
+    "num_workers",
+    "ar_steps_train",
+    "inference_ensemble_size",
+    "warmup_steps",
+    "measurement_steps",
     "parameters",
     "grid_nodes",
     "mesh_nodes",
     "total_edges",
+    "forward_mean_ms",
+    "backward_mean_ms",
+    "optimizer_mean_ms",
+    "data_wait_mean_ms",
     "step_mean_ms",
+    "step_std_ms",
     "step_p95_ms",
     "end_to_end_mean_ms",
+    "end_to_end_p95_ms",
     "samples_per_second",
     "compute_samples_per_second",
     "peak_allocated_gib",
+    "peak_reserved_gib",
+    "process_peak_rss_gib",
+    "gradient_payload_bytes",
+    "ring_allreduce_bytes_per_rank",
 )
 
 
@@ -45,6 +71,8 @@ def _nested(mapping, *keys):
 
 def _row(path):
     result = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(result, dict) or "schema_version" not in result:
+        return None
     graph = _nested(result, "model", "graph") or {}
     total_edges = sum(
         value
@@ -54,15 +82,33 @@ def _row(path):
     peak_bytes = _nested(
         result, "summary", "gpu_peak_memory_allocated_bytes"
     )
+    peak_reserved_bytes = _nested(
+        result, "summary", "gpu_peak_memory_reserved_bytes"
+    )
+    process_rss_bytes = _nested(
+        result, "summary", "process_peak_rss_bytes"
+    )
     return {
         "file": str(path),
         "status": result.get("status"),
         "label": result.get("label"),
         "started_at_utc": result.get("started_at_utc"),
+        "finished_at_utc": result.get("finished_at_utc"),
+        "error": result.get("error"),
         "git_commit": _nested(result, "git", "commit"),
         "git_dirty": _nested(result, "git", "dirty"),
+        "slurm_job_id": _nested(result, "hardware", "slurm_job_id"),
         "gpu": _nested(result, "hardware", "gpu", "name"),
+        "torch": _nested(result, "hardware", "torch"),
+        "cuda_runtime": _nested(result, "hardware", "cuda_runtime"),
         "world_size": _nested(result, "distributed", "world_size"),
+        "scaling_mode": _nested(
+            result, "distributed", "scaling_mode"
+        ),
+        "workload": _nested(result, "protocol", "workload"),
+        "global_batch_size": _nested(
+            result, "distributed", "global_batch_size"
+        ),
         "model": _nested(result, "model", "class"),
         "hidden_dim": _nested(result, "arguments", "hidden_dim"),
         "processor_layers": _nested(
@@ -71,14 +117,43 @@ def _row(path):
         "gradient_checkpointing": _nested(
             result, "model", "gradient_checkpointing"
         ),
+        "precision": _nested(result, "arguments", "precision"),
+        "batch_size": _nested(result, "arguments", "batch_size"),
+        "num_workers": _nested(result, "arguments", "num_workers"),
+        "ar_steps_train": _nested(
+            result, "arguments", "ar_steps_train"
+        ),
+        "inference_ensemble_size": _nested(
+            result, "arguments", "benchmark_inference_ensemble_size"
+        ),
+        "warmup_steps": _nested(result, "protocol", "warmup_steps"),
+        "measurement_steps": _nested(
+            result, "protocol", "completed_measurement_steps"
+        ),
         "parameters": _nested(result, "model", "parameters_total"),
         "grid_nodes": graph.get("grid_node_count"),
         "mesh_nodes": graph.get("mesh_node_count"),
         "total_edges": total_edges,
+        "forward_mean_ms": _nested(
+            result, "summary", "forward_ms", "mean"
+        ),
+        "backward_mean_ms": _nested(
+            result, "summary", "backward_ms", "mean"
+        ),
+        "optimizer_mean_ms": _nested(
+            result, "summary", "optimizer_and_hooks_ms", "mean"
+        ),
+        "data_wait_mean_ms": _nested(
+            result, "summary", "data_wait_ms", "mean"
+        ),
         "step_mean_ms": _nested(result, "summary", "step_ms", "mean"),
+        "step_std_ms": _nested(result, "summary", "step_ms", "std"),
         "step_p95_ms": _nested(result, "summary", "step_ms", "p95"),
         "end_to_end_mean_ms": _nested(
             result, "summary", "end_to_end_wall_ms", "mean"
+        ),
+        "end_to_end_p95_ms": _nested(
+            result, "summary", "end_to_end_wall_ms", "p95"
         ),
         "samples_per_second": _nested(
             result, "summary", "samples_per_second"
@@ -89,7 +164,45 @@ def _row(path):
         "peak_allocated_gib": (
             peak_bytes / 1024**3 if peak_bytes is not None else None
         ),
+        "peak_reserved_gib": (
+            peak_reserved_bytes / 1024**3
+            if peak_reserved_bytes is not None
+            else None
+        ),
+        "process_peak_rss_gib": (
+            process_rss_bytes / 1024**3
+            if process_rss_bytes is not None
+            else None
+        ),
+        "gradient_payload_bytes": _nested(
+            result,
+            "distributed",
+            "estimated_gradient_payload_bytes_per_step",
+        ),
+        "ring_allreduce_bytes_per_rank": _nested(
+            result,
+            "distributed",
+            "estimated_ring_allreduce_bytes_per_rank_per_step",
+        ),
     }
+
+
+def _result_paths(inputs):
+    """Expand files and directories, following result-directory symlinks."""
+    paths = set()
+    for input_path in inputs:
+        if input_path.is_file():
+            paths.add(input_path)
+            continue
+        if not input_path.is_dir():
+            continue
+        for root, _, names in os.walk(input_path, followlinks=True):
+            for name in names:
+                if name.endswith(".json") and not name.endswith(
+                    ".pt.trace.json"
+                ):
+                    paths.add(Path(root) / name)
+    return sorted(paths)
 
 
 def main():
@@ -99,8 +212,14 @@ def main():
 
     writer = csv.DictWriter(sys.stdout, fieldnames=FIELDS)
     writer.writeheader()
-    for path in args.results:
-        writer.writerow(_row(path))
+    for path in _result_paths(args.results):
+        try:
+            row = _row(path)
+        except (OSError, json.JSONDecodeError) as error:
+            print(f"Skipping {path}: {error}", file=sys.stderr)
+            continue
+        if row is not None:
+            writer.writerow(row)
 
 
 if __name__ == "__main__":

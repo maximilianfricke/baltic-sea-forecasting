@@ -72,3 +72,5 @@ srun --overcommit --ntasks="${GPU_COUNT}" --gpu-bind=single:1 \
     --benchmark_steps 50 \
     --benchmark_label "${LABEL}" \
     --benchmark_output "${OUTPUT}"
+
+bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"

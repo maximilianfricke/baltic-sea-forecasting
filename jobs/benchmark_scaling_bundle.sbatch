@@ -82,6 +82,8 @@ for WORKLOAD in training inference; do
     done
 done
 
+bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"
+
 if [[ "${FAILURES}" -gt 0 ]]; then
     echo "${FAILURES} scaling configuration(s) failed" >&2
     exit 1
