@@ -5,6 +5,44 @@ parallel implementation is introduced. Official comparisons must use the same
 GPU type, dataset, model configuration, precision, software environment, and
 measurement protocol.
 
+## Budgeted realistic baseline
+
+The primary workload is adapted from the unrolled Graph-EFM stage-3/4 scripts
+present at fork commit `76b30d7`: hidden dimension 64, two processor layers,
+batch size two, and four autoregressive training steps. The available
+one-degree global-ocean data and `global_cluster_graph` replace the original
+private Baltic data and graph. FP32 replaces BF16 because the GTX 1080 Ti does
+not provide native BF16 execution. Four-step unrolling automatically enables
+the model's gradient checkpointing path.
+
+First submit one cheap fit/correctness check:
+
+```bash
+bash jobs/submit_realistic_smoke.sh
+```
+
+If it completes, submit one detailed run with 20 warm-up and 200 measured
+steps. It stores all 200 per-step forward, backward, optimizer, data-wait and
+allocator-memory records:
+
+```bash
+bash jobs/submit_realistic_phase.sh 1
+```
+
+Headline throughput is measured separately without per-step synchronization.
+Run independent repeats one at a time only after the detailed run is valid:
+
+```bash
+bash jobs/submit_realistic_baseline.sh 1
+bash jobs/submit_realistic_baseline.sh 2
+bash jobs/submit_realistic_baseline.sh 3
+```
+
+Every successful job preserves its raw JSON, rebuilds
+`benchmark_results/all-benchmarks.csv`, and regenerates the human-readable
+`benchmark_results/benchmark-report.md`. The JSON is the source of truth; the
+CSV and Markdown files are derived views and may be rebuilt at any time.
+
 ## Protocol
 
 - Dataset: processed 1-degree global ocean data.

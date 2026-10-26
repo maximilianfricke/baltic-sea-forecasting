@@ -20,6 +20,10 @@ VENV_PATH="${NJORD_VENV:-${REPO_ROOT}/.venv}"
 RESULT_DIR="${RESULT_DIR:-${REPO_ROOT}/benchmark_results}"
 HIDDEN_DIM="${HIDDEN_DIM:-64}"
 PROCESSOR_LAYERS="${PROCESSOR_LAYERS:-3}"
+BATCH_SIZE="${BATCH_SIZE:-1}"
+AR_STEPS_TRAIN="${AR_STEPS_TRAIN:-1}"
+AR_STEPS_EVAL="${AR_STEPS_EVAL:-${AR_STEPS_TRAIN}}"
+PRECISION="${PRECISION:-32}"
 WARMUP_STEPS="${WARMUP_STEPS:-10}"
 BENCHMARK_STEPS="${BENCHMARK_STEPS:-50}"
 RUN_KIND="${RUN_KIND:-baseline}"
@@ -34,8 +38,11 @@ export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 
 if [[ "${GRAD_CHECKPOINTING:-0}" == "1" ]]; then
-    CHECKPOINT_LABEL="on"
+    CHECKPOINT_LABEL="explicit-on"
     CHECKPOINT_FLAG=(--grad_checkpointing)
+elif [[ "${AR_STEPS_TRAIN}" -gt 1 ]]; then
+    # ARProbModel enables checkpointing automatically for unrolled training.
+    CHECKPOINT_LABEL="auto-on"
 fi
 
 mkdir -p "${RESULT_DIR}"
@@ -59,11 +66,11 @@ python -m neural_lam.train_model \
     --hidden_dim_mesh_nodes "${HIDDEN_DIM}" \
     --hidden_dim_edge "${HIDDEN_DIM}" \
     --processor_layers "${PROCESSOR_LAYERS}" \
-    --batch_size 1 \
-    --precision 32 \
+    --batch_size "${BATCH_SIZE}" \
+    --precision "${PRECISION}" \
     --epochs 100 \
-    --ar_steps_train 1 \
-    --ar_steps_eval 1 \
+    --ar_steps_train "${AR_STEPS_TRAIN}" \
+    --ar_steps_eval "${AR_STEPS_EVAL}" \
     --num_workers "${NUM_WORKERS}" \
     --num_nodes 1 \
     --devices auto \
@@ -72,7 +79,7 @@ python -m neural_lam.train_model \
     --benchmark_steps "${BENCHMARK_STEPS}" \
     --benchmark_timing_mode "${TIMING_MODE}" \
     --benchmark_label \
-    "${RUN_KIND}-1080ti-h${HIDDEN_DIM}-p${PROCESSOR_LAYERS}-ckpt-${CHECKPOINT_LABEL}" \
+    "${RUN_KIND}-1080ti-h${HIDDEN_DIM}-p${PROCESSOR_LAYERS}-b${BATCH_SIZE}-ar${AR_STEPS_TRAIN}-fp${PRECISION}-ckpt-${CHECKPOINT_LABEL}-${TIMING_MODE}" \
     --benchmark_output "${RESULT_DIR}/${RUN_KIND}-${SLURM_JOB_ID}.json" \
     "${CHECKPOINT_FLAG[@]}"
 

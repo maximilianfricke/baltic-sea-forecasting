@@ -120,19 +120,20 @@ def make_report(results):
         ]
     )
 
+    # This is the budgeted, realistic workload adapted from Graph-EFM's
+    # original unrolled stage-3/4 training scripts at the fork point.
     canonical = controlled_training(
         results,
         hidden_dim=64,
-        processor_layers=3,
-        batch_size=1,
-        num_workers=3,
-        ar_steps_train=1,
+        processor_layers=2,
+        batch_size=2,
+        ar_steps_train=4,
         precision="32",
     )
     canonical = [
         item
         for item in canonical
-        if not nested(item, "model", "gradient_checkpointing")
+        if nested(item, "model", "gradient_checkpointing")
     ]
     if canonical:
         base = min(canonical, key=lambda item: mean(item, "step_ms"))
@@ -141,7 +142,7 @@ def make_report(results):
         ) / 1024**3
         lines.extend(
             [
-                "## Canonical local baseline",
+                "## Canonical realistic baseline",
                 "",
                 f"- Mean compute step: {fmt(mean(base, 'step_ms'))} ms",
                 f"- Mean data wait: {fmt(mean(base, 'data_wait_ms'))} ms",
