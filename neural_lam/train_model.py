@@ -1,5 +1,6 @@
 # Standard library
 import json
+import os
 import random
 import time
 from argparse import ArgumentParser
@@ -724,6 +725,19 @@ def main(input_args=None):
     if args.benchmark_output is not None:
         assert args.eval is None, "Do not combine --eval and benchmarking"
         assert args.scheduler is None, "Benchmarking does not support schedules"
+    benchmark_enabled = args.benchmark_output is not None
+
+    benchmark_world_size = 1
+    if benchmark_enabled:
+        distributed_world_size = os.environ.get(
+            "WORLD_SIZE", os.environ.get("SLURM_NTASKS")
+        )
+        if distributed_world_size is not None:
+            benchmark_world_size = int(distributed_world_size)
+        elif args.devices != ["auto"]:
+            benchmark_world_size = len(args.devices) * args.num_nodes
+        elif torch.cuda.is_available():
+            benchmark_world_size = torch.cuda.device_count() * args.num_nodes
 
     # Get an (actual) random run id as a unique identifier
     random_run_id = random.randint(0, 9999)
@@ -768,6 +782,14 @@ def main(input_args=None):
         use_atmosphere_g2m=args.use_atmosphere_g2m,
         density_channel=getattr(config.training, "density_channel", None),
         train_distr_crps=args.train_distr_crps,
+        benchmark_samples_per_epoch=(
+            (args.benchmark_warmup_steps + args.benchmark_steps)
+            * args.batch_size
+            * benchmark_world_size
+            if benchmark_enabled
+            else None
+        ),
+        benchmark_world_size=benchmark_world_size,
     )
 
     # Instantiate model + trainer
@@ -812,7 +834,6 @@ def main(input_args=None):
         f"{time.strftime('%m_%d_%H')}-{random_run_id:04d}"
     )
 
-    benchmark_enabled = args.benchmark_output is not None
     training_logger = (
         False
         if benchmark_enabled

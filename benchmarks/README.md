@@ -43,6 +43,17 @@ Every successful job preserves its raw JSON, rebuilds
 `benchmark_results/benchmark-report.md`. The JSON is the source of truth; the
 CSV and Markdown files are derived views and may be rebuilt at any time.
 
+With four autoregressive steps, the public 14-day training split has only
+eight valid samples, or four batches at batch size two. Restarting such a tiny
+epoch every four optimizer steps creates a roughly two-second periodic input
+stall that would not represent sustained training on the full dataset. In
+benchmark mode only, the dataset is therefore exposed as a deterministic
+fixed-length modulo view long enough to cover warm-up and measurement in one
+epoch on every distributed rank. Every returned sample is unchanged, ordinary
+training is untouched, and the original/effective sample counts, per-rank
+length, world-size hint, and repetition flag are stored in the JSON and
+combined CSV.
+
 ## Protocol
 
 - Dataset: processed 1-degree global ocean data.

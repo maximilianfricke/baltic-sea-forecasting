@@ -13,6 +13,32 @@ import xarray as xr
 from neural_lam.datastore.base import BaseDatastore
 
 
+class BenchmarkRepeatDataset(torch.utils.data.Dataset):
+    """Expose a fixed-length view without changing individual samples.
+
+    The public benchmark subset can contain only a handful of valid samples
+    for long autoregressive unrolls. Repeating indices inside one synthetic
+    benchmark epoch avoids measuring DataLoader teardown/refill every few
+    batches. This wrapper is used only when ``--benchmark_output`` is active.
+    """
+
+    def __init__(self, dataset, length):
+        if length < len(dataset):
+            raise ValueError("Benchmark repeat length must not shrink data")
+        self.dataset = dataset
+        self.length = length
+
+    def __len__(self):
+        return self.length
+
+    def __getitem__(self, idx):
+        return self.dataset[idx % len(self.dataset)]
+
+    def set_epoch(self, epoch):
+        if hasattr(self.dataset, "set_epoch"):
+            self.dataset.set_epoch(epoch)
+
+
 class WeatherDataset(torch.utils.data.Dataset):
     """Dataset class for weather data.
 
@@ -1114,6 +1140,8 @@ class WeatherDataModule(pl.LightningDataModule):
         statistics_datastore_boundary: BaseDatastore = None,
         statistics_datastore_atmosphere: BaseDatastore = None,
         train_distr_crps=False,
+        benchmark_samples_per_epoch=None,
+        benchmark_world_size=1,
     ):
         super().__init__()
         self._datastore = datastore
@@ -1143,12 +1171,41 @@ class WeatherDataModule(pl.LightningDataModule):
         self.val_dataset = None
         self.test_dataset = None
         self.train_distr_crps = train_distr_crps
+        self.benchmark_samples_per_epoch = benchmark_samples_per_epoch
+        self.benchmark_world_size = benchmark_world_size
+        self.benchmark_dataset_metadata = {}
         if num_workers > 0:
             # default to spawn for now, as the default on linux "fork" hangs
             # when using dask
             self.multiprocessing_context = "spawn"
         else:
             self.multiprocessing_context = None
+
+    def _prepare_benchmark_dataset(self, dataset, split):
+        """Lengthen a tiny benchmark split to one uninterrupted epoch."""
+        original_samples = len(dataset)
+        requested_samples = self.benchmark_samples_per_epoch
+        repeated = bool(
+            requested_samples is not None
+            and requested_samples > original_samples
+        )
+        if repeated:
+            dataset = BenchmarkRepeatDataset(dataset, requested_samples)
+        effective_samples = len(dataset)
+        samples_per_rank = (
+            effective_samples + self.benchmark_world_size - 1
+        ) // self.benchmark_world_size
+        self.benchmark_dataset_metadata[split] = {
+            "original_samples": original_samples,
+            "effective_samples_per_epoch": effective_samples,
+            "world_size_hint": self.benchmark_world_size,
+            "samples_per_rank_per_epoch": samples_per_rank,
+            "batches_per_epoch": (
+                (samples_per_rank + self.batch_size - 1) // self.batch_size
+            ),
+            "samples_repeated_within_epoch": repeated,
+        }
+        return dataset
 
     def setup(self, stage=None):
         stats_kwargs = dict(
@@ -1179,6 +1236,9 @@ class WeatherDataModule(pl.LightningDataModule):
                 use_atmosphere_g2m=self.use_atmosphere_g2m,
                 density_channel=self.density_channel,
                 **stats_kwargs,
+            )
+            self.train_dataset = self._prepare_benchmark_dataset(
+                self.train_dataset, "train"
             )
             self.val_dataset = WeatherDataset(
                 datastore=self._datastore,
@@ -1223,6 +1283,9 @@ class WeatherDataModule(pl.LightningDataModule):
                 use_atmosphere_g2m=self.use_atmosphere_g2m,
                 density_channel=self.density_channel,
                 **stats_kwargs,
+            )
+            self.test_dataset = self._prepare_benchmark_dataset(
+                self.test_dataset, "test"
             )
 
     def _make_sampler(self, dataset, shuffle=True, seed=0):

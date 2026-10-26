@@ -69,6 +69,12 @@ FIELDS = (
     "gpu_telemetry_interval_ms",
     "pytorch_profiler_enabled",
     "data_location",
+    "original_dataset_samples",
+    "effective_samples_per_epoch",
+    "dataset_world_size_hint",
+    "samples_per_rank_per_epoch",
+    "batches_per_epoch",
+    "samples_repeated_within_epoch",
 )
 
 
@@ -232,6 +238,24 @@ def _row(path):
         ),
         "data_location": _nested(
             result, "startup", "data_location"
+        ),
+        "original_dataset_samples": _nested(
+            result, "dataset", "original_samples"
+        ),
+        "effective_samples_per_epoch": _nested(
+            result, "dataset", "effective_samples_per_epoch"
+        ),
+        "dataset_world_size_hint": _nested(
+            result, "dataset", "world_size_hint"
+        ),
+        "samples_per_rank_per_epoch": _nested(
+            result, "dataset", "samples_per_rank_per_epoch"
+        ),
+        "batches_per_epoch": _nested(
+            result, "dataset", "batches_per_epoch"
+        ),
+        "samples_repeated_within_epoch": _nested(
+            result, "dataset", "samples_repeated_within_epoch"
         ),
     }
 

@@ -681,6 +681,11 @@ class BaselineBenchmark(pl.Callback):
             if self.workload == "training" and world_size > 1
             else 0
         )
+        data_module = trainer.datamodule
+        split = "test" if self.workload == "inference" else "train"
+        dataset_metadata = getattr(
+            data_module, "benchmark_dataset_metadata", {}
+        ).get(split, {})
         result = {
             "schema_version": 4,
             "label": self.run_label,
@@ -708,6 +713,10 @@ class BaselineBenchmark(pl.Callback):
             },
             "model": model_metadata,
             "arguments": self.args,
+            "dataset": {
+                "split": split,
+                **dataset_metadata,
+            },
             "startup": self.startup,
             "instrumentation": {
                 "timing_mode": self.timing_mode,

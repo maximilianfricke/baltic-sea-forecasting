@@ -429,6 +429,10 @@ def make_report(results):
             "- DDP communication volume is estimated from trainable gradient "
             "bytes; "
             "NCCL duration is obtained from the multi-GPU profiler trace.",
+            "- When the public data subset is shorter than the requested "
+            "benchmark window, valid sample indices are repeated inside one "
+            "synthetic epoch. This prevents tiny-dataset epoch restarts from "
+            "dominating steady-state input timing and is recorded in JSON.",
             "- Report medians across at least three independent cluster runs.",
             "",
         ]
