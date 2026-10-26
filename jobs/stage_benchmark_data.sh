@@ -11,7 +11,10 @@ if [[ "${STAGE_DATA:-1}" == "1" ]]; then
     mkdir -p "${JOB_DATA_DIR}"
     STAGING_START_NS="$(date +%s%N)"
     echo "Staging benchmark data to ${JOB_DATA_DIR}"
-    cp -rL "${REPO_ROOT}/data/." "${JOB_DATA_DIR}/"
+    # Preserve only timestamps (not ownership/xattrs) so MDP's YAML-vs-Zarr
+    # freshness check sees the same ordering as in the source dataset.
+    cp -rL --preserve=timestamps \
+        "${REPO_ROOT}/data/." "${JOB_DATA_DIR}/"
     STAGING_END_NS="$(date +%s%N)"
     export NJORD_DATA_LOCATION="node-local-tmpdir"
 else
