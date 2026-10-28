@@ -14,11 +14,29 @@ sweeps
 output
 configs
 
+# Downloaded datasets (also matches the local sample_data symlink)
+/sample_data
+
+### Logs and profiling artifacts ###
+*.log
+*.out
+*.err
+*.nsys-rep
+*.ncu-rep
+*.qdrep
+*.qdstrm
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite-journal
+*.ckpt
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 
 # C extensions
 *.so

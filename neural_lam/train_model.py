@@ -29,7 +29,7 @@ MODELS = {
 }
 
 
-@logger.catch
+@logger.catch(reraise=True)
 def main(input_args=None):
     """Main function for training and evaluating models."""
     parser = ArgumentParser(
@@ -627,7 +627,33 @@ def main(input_args=None):
         help="Multi-phase training scheduler.",
     )
 
+    parser.add_argument(
+        "--profile_steps", type=int, default=0,
+        help="Profile this many training batches on one GPU, then exit.",
+    )
+    parser.add_argument("--profile_warmup", type=int, default=3)
+    parser.add_argument(
+        "--profile_stages", action="store_true",
+        help="Add CUDA-event phase and graph-stage timings (GraphEFM).",
+    )
+    parser.add_argument(
+        "--profile_output", default="output/profile.csv",
+        help="Append profiling results (including CUDA OOM) to this CSV.",
+    )
+
     args = parser.parse_args(input_args)
+    if args.profile_stages and (
+        not args.profile_steps or args.model != "graph_efm"
+    ):
+        parser.error("--profile_stages requires --profile_steps and graph_efm")
+    if args.profile_steps < 0 or args.profile_warmup < 0:
+        parser.error("Profiling step counts must be nonnegative")
+    if args.profile_steps:
+        if args.eval or args.scheduler or args.num_nodes != 1:
+            parser.error("Profiling requires training on one node, no scheduler")
+        if not torch.cuda.is_available():
+            parser.error("Profiling requires a GPU; run inside a GPU allocation")
+        args.grad_checkpointing = True
     args.var_leads_metrics_watch = {
         int(k): v for k, v in json.loads(args.var_leads_metrics_watch).items()
     }
@@ -734,6 +760,26 @@ def main(input_args=None):
     training_logger = utils.setup_training_logger(
         datastore=datastore, args=args, run_name=run_name
     )
+
+    if args.profile_steps:
+        from .profile_baseline import BaselineProfile
+
+        trainer = pl.Trainer(
+            accelerator="gpu", devices=1, num_nodes=1, strategy="auto",
+            max_epochs=-1,
+            max_steps=args.profile_warmup + args.profile_steps,
+            precision=args.precision, deterministic=True,
+            logger=training_logger, log_every_n_steps=1,
+            callbacks=[BaselineProfile(args)],
+            enable_checkpointing=False, enable_progress_bar=False,
+            enable_model_summary=False,
+            limit_val_batches=0, num_sanity_val_steps=0,
+        )
+        try:
+            trainer.fit(model=model, datamodule=data_module)
+        except torch.cuda.OutOfMemoryError:
+            raise SystemExit(86)
+        return
 
     # Callbacks for saving model checkpoint
     callbacks = []

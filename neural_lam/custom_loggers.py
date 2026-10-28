@@ -5,18 +5,18 @@ import sys
 import mlflow
 import mlflow.pytorch
 import pytorch_lightning as pl
-import wandb
 from loguru import logger
 
 
 class CustomWandbLogger(pl.loggers.WandbLogger):
     """
-    WandbLogger that exposes wandb.run.dir as save_dir.
+    WandbLogger that exposes its run directory as save_dir.
     """
 
     @property
     def save_dir(self):
-        return wandb.run.dir
+        # Lightning may request this before the W&B run has been started.
+        return self.experiment.dir
 
 
 class CustomMLFlowLogger(pl.loggers.MLFlowLogger):
