@@ -1,0 +1,3 @@
+file,scope,gpu,name,samples,duration_s,gpu_utilization_mean_pct,gpu_utilization_p95_pct,power_mean_w,power_peak_w,energy_wh,memory_peak_mib,temperature_peak_c,measurement_steps,energy_per_step_j,energy_per_sample_j
+benchmark_archive/telemetry/physical-scratch-gpu-1634.csv,full-job,0,NVIDIA GeForce GTX 1080 Ti,369,369.252,78.26287262872629,98.0,138.2531707317073,191.32,14.209906666666669,4205.0,54.0,,,
+benchmark_archive/telemetry/physical-scratch-gpu-1634.csv,measurement:physical-io-scratch-phase-telemetry-on-1080ti-h64-p2-b2-ar4-fp32-ckpt-on,0,NVIDIA GeForce GTX 1080 Ti,285,284.966,92.19298245614036,98.0,157.17280701754385,191.32,12.437875955555555,4205.0,54.0,200,223.88176719999998,111.94088359999999

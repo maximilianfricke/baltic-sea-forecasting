@@ -5,3 +5,4 @@ hidden-h64-ckpt-on,NVIDIA GeForce GTX 1080 Ti,1,64,2,2,3,phase,True,1369.4288232
 physical-io-scratch-aggregate-telemetry-off-1080ti-h64-p2-b2-ar4-fp32-ckpt-on,NVIDIA GeForce GTX 1080 Ti,1,64,2,2,3,aggregate,True,1380.75804163469,,,1380.75804163469,1.4484797044036657,3.4084181785583496
 physical-io-scratch-aggregate-telemetry-off-1080ti-h64-p2-b2-ar4-fp32-ckpt-on,NVIDIA GeForce GTX 1080 Ti,1,64,2,2,3,aggregate,True,1428.8776049134322,,,1428.8776049134322,1.399700011479408,3.4084181785583496
 physical-io-scratch-aggregate-telemetry-off-1080ti-h64-p2-b2-ar4-fp32-ckpt-on,NVIDIA GeForce GTX 1080 Ti,1,64,2,2,3,aggregate,True,1427.3510541394353,,,1427.3510541394353,1.4011969894861083,3.4084181785583496
+physical-io-scratch-phase-telemetry-on-1080ti-h64-p2-b2-ar4-fp32-ckpt-on,NVIDIA GeForce GTX 1080 Ti,1,64,2,2,3,phase,True,1387.2143103027345,1621.592041015625,43.70095529360697,1431.1067849141546,1.3975197526018093,3.4084181785583496
