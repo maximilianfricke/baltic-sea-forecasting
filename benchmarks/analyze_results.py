@@ -4,6 +4,7 @@
 import argparse
 import json
 import os
+import re
 import statistics
 from collections import defaultdict
 from pathlib import Path
@@ -27,7 +28,8 @@ def workload(result):
 
 
 def load(paths):
-    results = []
+    completed = []
+    failed = []
     expanded = set()
     for path in paths:
         if path.is_file():
@@ -46,12 +48,14 @@ def load(paths):
             continue
         if not isinstance(result, dict) or "schema_version" not in result:
             continue
+        result["_path"] = str(path)
         if result.get("status") == "completed":
-            result["_path"] = str(path)
-            results.append(result)
-    if not results:
+            completed.append(result)
+        elif result.get("status") == "failed":
+            failed.append(result)
+    if not completed:
         raise ValueError("No completed benchmark results found")
-    return results
+    return completed, failed
 
 
 def label(result):
@@ -79,7 +83,18 @@ def fmt(value, digits=2):
     return "n/a" if value is None else f"{value:.{digits}f}"
 
 
-def make_report(results):
+def _failure_evidence(result):
+    error = result.get("error") or ""
+    match = re.search(
+        r"process has ([0-9.]+) GiB memory in use", error
+    )
+    if "OutOfMemoryError" in error:
+        used = f" at {match.group(1)} GiB in use" if match else ""
+        return f"CUDA OOM{used}"
+    return "failed; see raw JSON"
+
+
+def make_report(results, failures):
     scope_reference = next(
         (
             result
@@ -99,9 +114,10 @@ def make_report(results):
     lines = [
         "# Benchmark analysis",
         "",
-        "This report is generated from completed benchmark JSON files. "
-        "Local CPU results are exploratory and must not be compared "
-        "numerically with the official CUDA cluster baseline.",
+        "This report is generated from benchmark JSON files. Completed runs "
+        "provide timing and memory metrics; failed runs are retained as "
+        "capacity evidence. Local CPU results are exploratory and must not "
+        "be compared numerically with the official CUDA cluster baseline.",
         "",
     ]
     graph = nested(scope_reference, "model", "graph", default={})
@@ -151,6 +167,79 @@ def make_report(results):
                 "samples/s",
                 f"- Peak allocated accelerator memory: "
                 f"{fmt(peak_gib)} GiB",
+                "",
+            ]
+        )
+
+    capacity_failures = [
+        result
+        for result in failures
+        if workload(result) == "training"
+        and nested(result, "arguments", "hidden_dim") is not None
+    ]
+    if capacity_failures:
+        lines.extend(
+            [
+                "## Capacity and fit failures",
+                "",
+                "| Hidden dimension | Checkpointing | Outcome | Evidence |",
+                "|---:|:---:|:---:|---|",
+            ]
+        )
+        for result in sorted(
+            capacity_failures,
+            key=lambda item: (
+                nested(item, "arguments", "hidden_dim"),
+                bool(nested(item, "model", "gradient_checkpointing")),
+            ),
+        ):
+            checkpoint = (
+                "on"
+                if nested(result, "model", "gradient_checkpointing")
+                else "off"
+            )
+            lines.append(
+                f"| {nested(result, 'arguments', 'hidden_dim')} | "
+                f"{checkpoint} | failed | {_failure_evidence(result)} |"
+            )
+        lines.append("")
+
+    hidden_on = sorted(
+        (
+            result
+            for result in results
+            if label(result).startswith("hidden-h")
+            and nested(result, "model", "gradient_checkpointing")
+        ),
+        key=lambda item: nested(item, "arguments", "hidden_dim"),
+    )
+    if hidden_on:
+        base = hidden_on[0]
+        largest = hidden_on[-1]
+        base_e2e = mean(base, "end_to_end_wall_ms")
+        backward_share = 100 * mean(base, "backward_ms") / base_e2e
+        wait_share = 100 * mean(base, "data_wait_ms") / base_e2e
+        base_peak = nested(
+            base, "summary", "gpu_peak_memory_allocated_bytes"
+        )
+        base_parameters = nested(base, "model", "trainable_parameter_bytes")
+        lines.extend(
+            [
+                "## Decision-relevant observations",
+                "",
+                f"- Backward accounts for {backward_share:.1f}% of the h=64 "
+                "end-to-end batch time; input waiting accounts for only "
+                f"{wait_share:.1f}%.",
+                f"- From h=64 to h={nested(largest, 'arguments', 'hidden_dim')}, "
+                f"step time grows {mean(largest, 'step_ms') / mean(base, 'step_ms'):.2f}x "
+                f"and peak allocated memory grows {nested(largest, 'summary', 'gpu_peak_memory_allocated_bytes') / base_peak:.2f}x.",
+                f"- At h=64, trainable parameters occupy only "
+                f"{base_parameters / 1024**2:.2f} MiB versus "
+                f"{base_peak / 1024**3:.2f} GiB peak GPU allocation. "
+                "Activations and graph intermediates therefore dominate memory.",
+                "- The phase-timed runs synchronize every batch. Use the "
+                "separate aggregate/no-telemetry repetitions for headline "
+                "throughput.",
                 "",
             ]
         )
@@ -445,7 +534,8 @@ def main():
     parser.add_argument("results", nargs="+", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    report = make_report(load(args.results))
+    completed, failed = load(args.results)
+    report = make_report(completed, failed)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(report, encoding="utf-8")
 

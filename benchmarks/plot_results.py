@@ -5,6 +5,7 @@ import argparse
 import csv
 import json
 import os
+import re
 import statistics
 from collections import defaultdict
 from pathlib import Path
@@ -40,7 +41,7 @@ def _mean(result, metric):
     return _nested(result, "summary", metric, "mean")
 
 
-def _load(paths):
+def _load(paths, statuses=("completed",), require=True):
     results = []
     expanded = set()
     for path in paths:
@@ -60,11 +61,11 @@ def _load(paths):
             continue
         if not isinstance(result, dict) or "schema_version" not in result:
             continue
-        if result.get("status") != "completed":
+        if result.get("status") not in statuses:
             continue
         result["_path"] = str(path)
         results.append(result)
-    if not results:
+    if require and not results:
         raise ValueError("No completed benchmark results found")
     return results
 
@@ -85,7 +86,152 @@ def _representative_by_label(results):
             key=lambda item: _mean(item, "step_ms") or float("inf"),
         )
         representatives.append(subset[len(subset) // 2])
+    representatives.sort(
+        key=lambda item: (
+            _nested(item, "arguments", "hidden_dim", default=float("inf")),
+            _label(item),
+        )
+    )
     return representatives
+
+
+def _failure_memory_gib(result):
+    match = re.search(
+        r"process has ([0-9.]+) GiB memory in use",
+        result.get("error") or "",
+    )
+    return float(match.group(1)) if match else None
+
+
+def plot_capacity_outcomes(results, failures, output_dir):
+    """Show successful configurations and OOM boundaries together."""
+    completed = [
+        result
+        for result in results
+        if _workload(result) == "training"
+        and _nested(result, "arguments", "hidden_dim") is not None
+        and _nested(result, "summary", "gpu_peak_memory_allocated_bytes")
+        is not None
+    ]
+    failed = [
+        result
+        for result in failures
+        if _workload(result) == "training"
+        and _nested(result, "arguments", "hidden_dim") is not None
+    ]
+    if not completed or not failed:
+        return
+
+    fig, (memory_ax, outcome_ax) = plt.subplots(1, 2, figsize=(11, 5))
+    for state in (False, True):
+        color = COLORS["on" if state else "off"]
+        state_label = f"Checkpointing {'on' if state else 'off'}"
+        successful = [
+            item
+            for item in completed
+            if bool(_nested(item, "model", "gradient_checkpointing"))
+            == state
+        ]
+        if successful:
+            successful.sort(
+                key=lambda item: _nested(item, "arguments", "hidden_dim")
+            )
+            x = [_nested(item, "arguments", "hidden_dim") for item in successful]
+            y = [
+                _nested(item, "summary", "gpu_peak_memory_allocated_bytes")
+                / 1024**3
+                for item in successful
+            ]
+            memory_ax.plot(
+                x,
+                y,
+                marker="s" if state else "o",
+                color=color,
+                label=f"{state_label}: completed",
+            )
+        failed_state = [
+            item
+            for item in failed
+            if bool(_nested(item, "model", "gradient_checkpointing"))
+            == state
+            and _failure_memory_gib(item) is not None
+        ]
+        if failed_state:
+            memory_ax.scatter(
+                [_nested(item, "arguments", "hidden_dim") for item in failed_state],
+                [_failure_memory_gib(item) for item in failed_state],
+                marker="X",
+                s=90,
+                color=color,
+                edgecolor="black",
+                linewidth=0.6,
+                label=f"{state_label}: OOM",
+                zorder=4,
+            )
+
+    total_memory = _nested(
+        completed[0], "hardware", "gpu", "total_memory_bytes"
+    )
+    if total_memory:
+        memory_ax.axhline(
+            total_memory / 1024**3,
+            color="#555555",
+            linestyle="--",
+            linewidth=1.2,
+            label="Physical GPU memory",
+        )
+    memory_ax.set_xlabel("Hidden dimension")
+    memory_ax.set_ylabel("GPU memory [GiB]")
+    memory_ax.set_title("Measured capacity boundary")
+    memory_ax.grid(alpha=0.25)
+    memory_ax.legend(frameon=False, fontsize=8)
+
+    dimensions = sorted(
+        {
+            _nested(item, "arguments", "hidden_dim")
+            for item in completed + failed
+        }
+    )
+    for state, y in ((False, 0), (True, 1)):
+        outcome_ax.scatter(
+            dimensions,
+            [y] * len(dimensions),
+            s=55,
+            facecolor="none",
+            edgecolor="#BBBBBB",
+            linewidth=1,
+        )
+    for item in completed:
+        outcome_ax.scatter(
+            _nested(item, "arguments", "hidden_dim"),
+            int(bool(_nested(item, "model", "gradient_checkpointing"))),
+            marker="o",
+            s=90,
+            color="#228833",
+            label="Completed",
+            zorder=3,
+        )
+    for item in failed:
+        outcome_ax.scatter(
+            _nested(item, "arguments", "hidden_dim"),
+            int(bool(_nested(item, "model", "gradient_checkpointing"))),
+            marker="X",
+            s=100,
+            color="#CC3311",
+            label="OOM" if "OutOfMemoryError" in (item.get("error") or "") else "Failed",
+            zorder=3,
+        )
+    handles, labels = outcome_ax.get_legend_handles_labels()
+    unique = dict(zip(labels, handles))
+    outcome_ax.legend(unique.values(), unique.keys(), frameon=False)
+    outcome_ax.set_xticks(dimensions)
+    outcome_ax.set_yticks((0, 1), ("off", "on"))
+    outcome_ax.set_xlabel("Hidden dimension")
+    outcome_ax.set_ylabel("Gradient checkpointing")
+    outcome_ax.set_title("Configuration outcome")
+    outcome_ax.grid(alpha=0.2)
+    fig.suptitle("Single-GPU capacity on GTX 1080 Ti")
+    _save(fig, output_dir, "capacity-outcomes")
 
 
 def _workload(result):
@@ -815,7 +961,11 @@ def main():
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
     results = _load(args.results)
+    failures = _load(
+        args.results, statuses=("failed",), require=False
+    )
 
+    plot_capacity_outcomes(results, failures, args.output_dir)
     plot_time_breakdown(results, args.output_dir)
     plot_step_distributions(results, args.output_dir)
     plot_checkpoint_tradeoff(results, args.output_dir)

@@ -87,6 +87,17 @@ def _nested(mapping, *keys):
     return value
 
 
+def _compact_error(error):
+    """Keep the comparison CSV single-line; raw JSON retains the traceback."""
+    if not error:
+        return None
+    lines = [line.strip() for line in str(error).splitlines() if line.strip()]
+    for line in reversed(lines):
+        if "Error:" in line:
+            return line[-1000:]
+    return lines[-1][-1000:] if lines else None
+
+
 def _row(path):
     result = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(result, dict) or "schema_version" not in result:
@@ -112,7 +123,7 @@ def _row(path):
         "label": result.get("label"),
         "started_at_utc": result.get("started_at_utc"),
         "finished_at_utc": result.get("finished_at_utc"),
-        "error": result.get("error"),
+        "error": _compact_error(result.get("error")),
         "git_commit": _nested(result, "git", "commit"),
         "git_dirty": _nested(result, "git", "dirty"),
         "slurm_job_id": _nested(result, "hardware", "slurm_job_id"),
@@ -283,7 +294,9 @@ def main():
     parser.add_argument("results", nargs="+", type=Path)
     args = parser.parse_args()
 
-    writer = csv.DictWriter(sys.stdout, fieldnames=FIELDS)
+    writer = csv.DictWriter(
+        sys.stdout, fieldnames=FIELDS, lineterminator="\n"
+    )
     writer.writeheader()
     for path in _result_paths(args.results):
         try:
