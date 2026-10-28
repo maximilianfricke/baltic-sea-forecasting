@@ -57,6 +57,32 @@ bash jobs/publish_benchmark_results.sh --push benchmark_results
 
 Set `PUBLISH_RESULTS=0` only for a deliberately private experiment.
 
+## Physical-repeat I/O proxy
+
+`BenchmarkRepeatDataset` is correct for steady-state GPU compute, but it does
+not represent a larger physical storage workload. Build a separate dataset
+whose repeated values have independent Zarr chunks and shifted timestamps:
+
+```bash
+python benchmarks/build_physical_repeat_dataset.py \
+  --source-root data \
+  --destination-root data/physical_repeat_16 \
+  --repeats 16
+```
+
+This is deliberately labelled an I/O proxy: it expands storage access and
+epoch length but does not create new scientific observations. After copying
+the generated directory to scratch, compare direct scratch reads with an
+optional node-local staged run:
+
+```bash
+bash jobs/submit_physical_io.sh scratch
+bash jobs/submit_physical_io.sh tmpdir
+```
+
+Use the `scratch` run first. Submit the `tmpdir` comparison only if storage
+placement is still decision-relevant after inspecting the first result.
+
 With four autoregressive steps, the public 14-day training split has only
 eight valid samples, or four batches at batch size two. Restarting such a tiny
 epoch every four optimizer steps creates a roughly two-second periodic input
