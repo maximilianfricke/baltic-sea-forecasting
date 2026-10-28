@@ -35,6 +35,10 @@ def bars(ax, labels, values, colors):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("results", type=Path)
+    parser.add_argument(
+        "--output-dir", type=Path,
+        help="Figure destination (default: figures/ next to the results CSV).",
+    )
     args = parser.parse_args()
     paths = {kind: args.results.with_suffix(f".{kind}.csv")
              for kind in ("phases", "stages")}
@@ -44,8 +48,8 @@ def main():
             data[kind] = list(csv.DictReader(handle))
     configs = sorted({(r["hidden_dim"], r["processor_layers"])
                       for r in data["phases"]})
-    out = args.results.parent / "figures"
-    out.mkdir(exist_ok=True)
+    out = args.output_dir or args.results.parent / "figures"
+    out.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update({"font.size": 10, "pdf.fonttype": 42})
     for width, depth in configs:
         selected = {

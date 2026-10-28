@@ -1,0 +1,2 @@
+status,gpu,gpu_GiB,torch,config,model,graph,hidden_dim,hidden_dim_grid,hidden_dim_mesh_nodes,hidden_dim_edge,processor_layers,encoder_processor_layers,prior_processor_layers,batch_size,ar_steps,precision,kl_beta,crps_weight,checkpointing,parameters,measured_steps,step_ms,peak_allocated_GiB,peak_reserved_GiB
+ok,NVIDIA GeForce RTX 5060 Ti,15.5675048828125,2.14.1+cu130,sample_data/global_ocean_1.yaml,graph_efm,global_hierarchical_graph,128,,,,6,1,1,1,1,32-true,0.1,0.0,True,3907356,10,591.3807276170701,4.803455829620361,5.26171875

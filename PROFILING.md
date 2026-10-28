@@ -105,6 +105,17 @@ To regenerate figures:
 python scripts/plot_stage_profile.py output/stages-JOBID/results.csv
 ```
 
+For figures linked from a report on GitHub, export to a versioned directory:
+
+```bash
+python scripts/plot_stage_profile.py output/stages-JOBID/results.csv \
+  --output-dir figures/stages-JOBID
+```
+
+Commit the exported figures along with the report. Selected CSV snapshots used
+by `BASELINE_REPORT.md` are stored in `reports/baseline/`. Working files under
+`output/` remain ignored; report links should use the versioned copies.
+
 For optional Nsight, the job uses `/usr/local/bin/nsys` to avoid the older binary
 selected by the CUDA module. Set `NSYS_BIN` if the GPU node uses a different
 compatible installation. The script prints its version before capture.

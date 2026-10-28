@@ -101,13 +101,13 @@ boundary is a successful 24 and a failing 48.
 
 ### Width 128, processor depth 3
 
-A separate instrumented run, [job 1647](output/stages-1647/results.csv), measures
+A separate instrumented run, [job 1647](reports/baseline/stages-1647/results.csv), measures
 width 128 and processor depth 3 using CUDA events. It retains the same model,
 precision, checkpointing, and loss settings, with 3 warmup and 10 measured steps.
 The existing CUDA synchronization at batch end resolves all timing events;
 individual stages do not introduce additional synchronization.
 
-![Forward, backward, and optimizer timings](output/stages-1647/figures/phases-w128-d3.png)
+![Forward, backward, and optimizer timings](figures/stages-1647/phases-w128-d3.png)
 
 | Phase | Mean CUDA-event time (ms) | Sample SD (ms) |
 |---|---:|---:|
@@ -124,7 +124,7 @@ The synchronized wall-time mean is 468.96 ms, and peak allocated memory remains
 their difference does not isolate instrumentation overhead because they are
 independent runs with different runtime variability.
 
-![Graph stages in forward and checkpoint recomputation](output/stages-1647/figures/stages-w128-d3.png)
+![Graph stages in forward and checkpoint recomputation](figures/stages-1647/stages-w128-d3.png)
 
 | Selected stage | Original forward mean ± SD (ms) | Checkpoint replay mean ± SD (ms) |
 |---|---:|---:|
@@ -147,7 +147,7 @@ The stage bars must therefore not be described as a complete per-stage backward
 breakdown. Replay can stop partway through a module when its last needed tensor
 has been reconstructed.
 
-![Per-step timing variability](output/stages-1647/figures/steps-w128-d3.png)
+![Per-step timing variability](figures/stages-1647/steps-w128-d3.png)
 
 Measured step 10 has a 526.20 ms forward interval, versus 184.46–190.20 ms in
 the preceding nine steps. The long interval is within
@@ -162,13 +162,14 @@ Reproduce and regenerate the PNG/PDF figures with:
 
 ```bash
 sbatch profile_stages.sh
-python scripts/plot_stage_profile.py output/stages-1647/results.csv
+python scripts/plot_stage_profile.py reports/baseline/stages-1647/results.csv \
+  --output-dir figures/stages-1647
 # Optional replacement Nsight capture, using the annotated profiling path:
 NSYS=1 sbatch profile_stages.sh
 ```
 
-Per-step data are in [results.phases.csv](output/stages-1647/results.phases.csv)
-and [results.stages.csv](output/stages-1647/results.stages.csv); the latter retains
+Per-step data are in [results.phases.csv](reports/baseline/stages-1647/results.phases.csv)
+and [results.stages.csv](reports/baseline/stages-1647/results.stages.csv); the latter retains
 module names for encoder/prior/decoder attribution. The successful run logs
 means under `timing/` in
 [W&B](https://forge.coreweave.com/wandb/nrottstegge-eth-z-rich/baltic-sea-forecasting/runs/mz2k3yao).
@@ -176,11 +177,11 @@ See [PROFILING.md](PROFILING.md) for timing boundaries and configuration options
 
 ### Width 256, processor depth 6
 
-[Job 1649](output/stages-1649/results.csv) successfully completed all ten
+[Job 1649](reports/baseline/stages-1649/results.csv) successfully completed all ten
 measured steps. Peak allocated memory is **9.52 GiB**, peak reserved memory is
 **10.48 GiB**, and mean synchronized wall time is **1195.25 ms per step**.
 
-![Phases at width 256 and depth 6](output/stages-1649/figures/phases-w256-d6.png)
+![Phases at width 256 and depth 6](figures/stages-1649/phases-w256-d6.png)
 
 | Phase | Mean CUDA-event time (ms) | Sample SD (ms) |
 |---|---:|---:|
@@ -189,7 +190,7 @@ measured steps. Peak allocated memory is **9.52 GiB**, peak reserved memory is
 | Optimizer update | 3.55 | 0.002 |
 | Whole training step | 1195.20 | 68.03 |
 
-![Stages at width 256 and depth 6](output/stages-1649/figures/stages-w256-d6.png)
+![Stages at width 256 and depth 6](figures/stages-1649/stages-w256-d6.png)
 
 | Selected stage | Original forward mean ± SD (ms) | Checkpoint replay mean ± SD (ms) |
 |---|---:|---:|
@@ -204,7 +205,7 @@ point for investigating model partitioning; elapsed intervals alone do not
 identify a hardware bottleneck. Backward accounts for approximately 57% of the
 whole-step interval and includes replay as well as gradient computation.
 
-The [per-step figure](output/stages-1649/figures/steps-w256-d6.png) shows a
+The [per-step figure](figures/stages-1649/steps-w256-d6.png) shows a
 backward outlier at measured step 7: 877.39 ms, compared with 660.24–664.87 ms
 in the other steps. Mesh replay is correspondingly elevated to 537.31 ms in
 that step. The outlier is retained in the means and SDs. Its cause requires a
@@ -216,16 +217,17 @@ by 2.45×. **Both width and depth changed**, so this comparison cannot isolate
 the effect of either dimension; the earlier controlled sweeps serve that purpose.
 The same stage-backward attribution limits described above apply here.
 
-Raw data: [phases](output/stages-1649/results.phases.csv),
-[stages](output/stages-1649/results.stages.csv), and
+Raw data: [phases](reports/baseline/stages-1649/results.phases.csv),
+[stages](reports/baseline/stages-1649/results.stages.csv), and
 [W&B run](https://forge.coreweave.com/wandb/nrottstegge-eth-z-rich/baltic-sea-forecasting/runs/zwnlwwiy).
-PNG and PDF figures are stored in `output/stages-1649/figures/`.
+PNG and PDF figures are stored in `figures/stages-1649/`.
 
 ## Nsight Systems capture inspection
 
-The supplied [SQLite export](output/baseline.sqlite) and
-[original capture](output/baseline.nsys-rep) were inspected separately from the
-scaling runs. Capture metadata specifies width 64, batch size 1, FP32, AdamW,
+The local SQLite export `output/baseline.sqlite` and original capture
+`output/baseline.nsys-rep` were inspected separately from the
+scaling runs. These large diagnostic artifacts are excluded from Git.
+Capture metadata specifies width 64, batch size 1, FP32, AdamW,
 one forecast step, gradient checkpointing, and one epoch. However, the launch
 command **does not include `--profile_steps`**, so it follows the ordinary
 training path, whose default strategy is DDP, rather than the single-GPU
@@ -333,15 +335,19 @@ width 1024 was not tested.
 
 | Experiment | CSV |
 |---|---|
-| Initial width sweep; depth-3 reference | [Job 1613](output/profile-1613/results.csv) |
-| Refined width sweep | [Job 1615](output/profile-1615/results.csv) |
-| Depth 6 | [Job 1617](output/profile-1617/results.csv) |
-| Depth 12 | [Job 1618](output/profile-1618/results.csv) |
-| Depth 24 | [Job 1619](output/profile-1619/results.csv) |
-| Depth 48 | [Job 1620](output/profile-1620/results.csv) |
+| Initial width sweep; depth-3 reference | [Job 1613](reports/baseline/profile-1613/results.csv) |
+| Refined width sweep | [Job 1615](reports/baseline/profile-1615/results.csv) |
+| Depth 6 | [Job 1617](reports/baseline/profile-1617/results.csv) |
+| Depth 12 | [Job 1618](reports/baseline/profile-1618/results.csv) |
+| Depth 24 | [Job 1619](reports/baseline/profile-1619/results.csv) |
+| Depth 48 | [Job 1620](reports/baseline/profile-1620/results.csv) |
 
 Job 1609 is excluded because W&B logger initialization failed before training.
 Measurements use repository base revision
 `76b30d778382939963219142053fcf6f2d54c54e` with local changes in
 `train_model.py`, `custom_loggers.py`, and the added profiling script and callback
 ([profile_baseline.py](neural_lam/profile_baseline.py)).
+
+The selected CSV snapshots and report figures are versioned in
+`reports/baseline/` and `figures/`. Working logs and raw profiler captures under
+`output/` are local artifacts and are excluded from Git.
