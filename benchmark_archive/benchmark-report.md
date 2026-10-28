@@ -38,6 +38,7 @@ This report is generated from benchmark JSON files. Completed runs provide timin
 | Setting | Checkpointing | Step [ms] | End-to-end [ms] | Samples/s | Peak GiB |
 |---:|:---:|---:|---:|---:|---:|
 | 64 | on | 1369.43 | 1406.77 | 1.42 | 3.41 |
+| 64 | on | 1380.76 | 1380.76 | 1.45 | 3.41 |
 | 128 | on | 2314.21 | 2354.51 | 0.85 | 6.44 |
 | 192 | on | 3360.58 | 3393.23 | 0.59 | 9.49 |
 
