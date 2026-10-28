@@ -443,6 +443,12 @@ def main(input_args=None):
         "single-step phases. It is already enabled automatically whenever "
         "more than one step is unrolled (default: False)",
     )
+    parser.add_argument(
+        "--benchmark_disable_grad_checkpointing",
+        action="store_true",
+        help="Disable automatic unroll checkpointing for a controlled "
+        "benchmark comparison. This is rejected outside benchmark mode.",
+    )
 
     # Evaluation options
     parser.add_argument(
@@ -725,6 +731,10 @@ def main(input_args=None):
     if args.benchmark_output is not None:
         assert args.eval is None, "Do not combine --eval and benchmarking"
         assert args.scheduler is None, "Benchmarking does not support schedules"
+    if args.benchmark_disable_grad_checkpointing:
+        assert args.benchmark_output is not None, (
+            "Checkpointing may only be disabled by this flag in benchmark mode"
+        )
     benchmark_enabled = args.benchmark_output is not None
 
     benchmark_world_size = 1
@@ -1040,7 +1050,9 @@ def main(input_args=None):
         every phase, including 1-step ones.
         """
         data_module.ar_steps_train = n_steps
-        model.grad_checkpointing = args.grad_checkpointing or n_steps > 1
+        model.grad_checkpointing = (
+            args.grad_checkpointing or n_steps > 1
+        ) and not args.benchmark_disable_grad_checkpointing
 
     def _add_cosine_lr(model, max_epochs):
         """Attach a CosineAnnealingLR scheduler to the model."""

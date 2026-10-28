@@ -43,6 +43,20 @@ Every successful job preserves its raw JSON, rebuilds
 `benchmark_results/benchmark-report.md`. The JSON is the source of truth; the
 CSV and Markdown files are derived views and may be rebuilt at any time.
 
+The standard cluster job additionally archives compact evidence under the
+Git-tracked `benchmark_archive/`, regenerates plots, commits the update, and
+pushes it to the current branch. This includes raw benchmark JSONs and small
+GPU telemetry, but excludes Slurm logs, datasets, checkpoints, and large
+profiler traces. A publication failure does not turn a successful benchmark
+into a failed Slurm job; the original JSON remains in `benchmark_results/` and
+can be published later with:
+
+```bash
+bash jobs/publish_benchmark_results.sh --push benchmark_results
+```
+
+Set `PUBLISH_RESULTS=0` only for a deliberately private experiment.
+
 With four autoregressive steps, the public 14-day training split has only
 eight valid samples, or four batches at batch size two. Restarting such a tiny
 epoch every four optimizer steps creates a roughly two-second periodic input

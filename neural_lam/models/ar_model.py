@@ -379,6 +379,8 @@ class ARModel(pl.LightningModule):
         # toggle it when they change ar_steps_train between phases.
         self.grad_checkpointing = (
             args.grad_checkpointing or args.ar_steps_train > 1
+        ) and not getattr(
+            args, "benchmark_disable_grad_checkpointing", False
         )
 
     def unroll_ckpt_func(self, func, *args):

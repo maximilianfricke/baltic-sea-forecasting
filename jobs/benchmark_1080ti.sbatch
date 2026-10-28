@@ -32,6 +32,7 @@ ALLOCATED_CPUS="${SLURM_CPUS_PER_TASK:-${SLURM_CPUS_ON_NODE:-2}}"
 DEFAULT_WORKERS="$((ALLOCATED_CPUS > 1 ? ALLOCATED_CPUS - 1 : 0))"
 NUM_WORKERS="${NUM_WORKERS:-${DEFAULT_WORKERS}}"
 ENABLE_GPU_TELEMETRY="${ENABLE_GPU_TELEMETRY:-0}"
+PUBLISH_RESULTS="${PUBLISH_RESULTS:-1}"
 CHECKPOINT_LABEL="off"
 CHECKPOINT_FLAG=()
 export OMP_NUM_THREADS=1
@@ -46,6 +47,7 @@ elif [[ "${AR_STEPS_TRAIN}" -gt 1 ]]; then
 fi
 
 mkdir -p "${RESULT_DIR}"
+OUTPUT="${RESULT_DIR}/${RUN_KIND}-${SLURM_JOB_ID}.json"
 source jobs/stage_benchmark_data.sh
 source "${VENV_PATH}/bin/activate"
 if [[ "${ENABLE_GPU_TELEMETRY}" == "1" ]]; then
@@ -80,7 +82,7 @@ python -m neural_lam.train_model \
     --benchmark_timing_mode "${TIMING_MODE}" \
     --benchmark_label \
     "${RUN_KIND}-1080ti-h${HIDDEN_DIM}-p${PROCESSOR_LAYERS}-b${BATCH_SIZE}-ar${AR_STEPS_TRAIN}-fp${PRECISION}-ckpt-${CHECKPOINT_LABEL}-${TIMING_MODE}" \
-    --benchmark_output "${RESULT_DIR}/${RUN_KIND}-${SLURM_JOB_ID}.json" \
+    --benchmark_output "${OUTPUT}" \
     "${CHECKPOINT_FLAG[@]}"
 
 if [[ "${ENABLE_GPU_TELEMETRY}" == "1" ]]; then
@@ -88,3 +90,10 @@ if [[ "${ENABLE_GPU_TELEMETRY}" == "1" ]]; then
     trap - EXIT
 fi
 bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"
+
+if [[ "${PUBLISH_RESULTS}" == "1" ]]; then
+    if ! bash jobs/publish_benchmark_results.sh --push "${RESULT_DIR}"; then
+        echo "WARNING: result is safe in ${OUTPUT}, but Git publication failed" \
+            >&2
+    fi
+fi
