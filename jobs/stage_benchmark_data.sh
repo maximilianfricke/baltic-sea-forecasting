@@ -6,19 +6,23 @@ if [[ -z "${REPO_ROOT:-}" ]]; then
     return 2
 fi
 
+# Directory holding the neural-lam config, datastores and graphs/. Defaults
+# to the repository's data/ (the public 1 degree sample).
+DATA_SOURCE_DIR="${DATA_SOURCE_DIR:-${REPO_ROOT}/data}"
+
 if [[ "${STAGE_DATA:-1}" == "1" ]]; then
     JOB_DATA_DIR="${TMPDIR}/njord-data"
     mkdir -p "${JOB_DATA_DIR}"
     STAGING_START_NS="$(date +%s%N)"
-    echo "Staging benchmark data to ${JOB_DATA_DIR}"
+    echo "Staging benchmark data from ${DATA_SOURCE_DIR} to ${JOB_DATA_DIR}"
     # Preserve only timestamps (not ownership/xattrs) so MDP's YAML-vs-Zarr
     # freshness check sees the same ordering as in the source dataset.
     cp -rL --preserve=timestamps \
-        "${REPO_ROOT}/data/." "${JOB_DATA_DIR}/"
+        "${DATA_SOURCE_DIR}/." "${JOB_DATA_DIR}/"
     STAGING_END_NS="$(date +%s%N)"
     export NJORD_DATA_LOCATION="node-local-tmpdir"
 else
-    JOB_DATA_DIR="${REPO_ROOT}/data"
+    JOB_DATA_DIR="${DATA_SOURCE_DIR}"
     STAGING_START_NS="$(date +%s%N)"
     STAGING_END_NS="${STAGING_START_NS}"
     export NJORD_DATA_LOCATION="shared-scratch-symlink"

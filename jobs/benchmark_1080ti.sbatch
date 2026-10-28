@@ -19,6 +19,14 @@ cd "${REPO_ROOT}"
 VENV_PATH="${NJORD_VENV:-${REPO_ROOT}/.venv}"
 RESULT_DIR="${RESULT_DIR:-${REPO_ROOT}/benchmark_results}"
 HIDDEN_DIM="${HIDDEN_DIM:-64}"
+# Grid, bottom-mesh and edge widths default to HIDDEN_DIM. The paper's 0.25
+# degree Njord uses 256 / 128 / 128 / 32.
+HIDDEN_DIM_GRID="${HIDDEN_DIM_GRID:-${HIDDEN_DIM}}"
+HIDDEN_DIM_MESH_NODES="${HIDDEN_DIM_MESH_NODES:-${HIDDEN_DIM}}"
+HIDDEN_DIM_EDGE="${HIDDEN_DIM_EDGE:-${HIDDEN_DIM}}"
+# Neural-lam config inside the staged data directory, and graph name.
+CONFIG_FILE="${CONFIG_FILE:-global_ocean_1.yaml}"
+GRAPH="${GRAPH:-global_cluster_graph}"
 PROCESSOR_LAYERS="${PROCESSOR_LAYERS:-3}"
 BATCH_SIZE="${BATCH_SIZE:-1}"
 AR_STEPS_TRAIN="${AR_STEPS_TRAIN:-1}"
@@ -60,13 +68,13 @@ nvidia-smi --query-gpu="${GPU_QUERY}" \
     --format=csv
 
 python -m neural_lam.train_model \
-    --config_path "${JOB_DATA_DIR}/global_ocean_1.yaml" \
+    --config_path "${JOB_DATA_DIR}/${CONFIG_FILE}" \
     --model graph_efm \
-    --graph global_cluster_graph \
+    --graph "${GRAPH}" \
     --hidden_dim "${HIDDEN_DIM}" \
-    --hidden_dim_grid "${HIDDEN_DIM}" \
-    --hidden_dim_mesh_nodes "${HIDDEN_DIM}" \
-    --hidden_dim_edge "${HIDDEN_DIM}" \
+    --hidden_dim_grid "${HIDDEN_DIM_GRID}" \
+    --hidden_dim_mesh_nodes "${HIDDEN_DIM_MESH_NODES}" \
+    --hidden_dim_edge "${HIDDEN_DIM_EDGE}" \
     --processor_layers "${PROCESSOR_LAYERS}" \
     --batch_size "${BATCH_SIZE}" \
     --precision "${PRECISION}" \
