@@ -114,17 +114,22 @@ def backward_function(node):
 
 
 def find_host_event(by_thread, thread_starts, pid, tid, ts):
-    """Return the innermost host event on a thread that contains ``ts``."""
+    """Return the innermost host event on a thread that contains ``ts``.
+
+    Any event containing ``ts`` starts no later than the last event starting
+    at or before ``ts``, so with proper nesting it is that event or one of
+    its ancestors.
+    """
     thread_events = by_thread.get((pid, tid))
     if not thread_events:
         return None
     index = bisect.bisect_right(thread_starts[(pid, tid)], float(ts)) - 1
-    while index >= 0:
-        node = thread_events[index]
-        if node.start <= float(ts) <= node.end:
-            return node
-        index -= 1
-    return None
+    if index < 0:
+        return None
+    node = thread_events[index]
+    while node is not None and not node.start <= float(ts) <= node.end:
+        node = node.parent
+    return node
 
 
 def with_sequence_number(node):
@@ -139,12 +144,16 @@ def with_sequence_number(node):
     return node
 
 
-def forward_links_from_flows(events, by_thread):
-    """Map each backward function to its forward operator via fwdbwd flows."""
-    thread_starts = {
+def thread_start_index(by_thread):
+    """Return the sorted start times per thread, for bisecting."""
+    return {
         thread: [node.start for node in thread_events]
         for thread, thread_events in by_thread.items()
     }
+
+
+def forward_links_from_flows(events, by_thread, thread_starts):
+    """Map each backward function to its forward operator via fwdbwd flows."""
     starts, finishes = {}, {}
     for event in events:
         if event.get("cat") != "fwdbwd":
@@ -343,12 +352,111 @@ def complete_step_windows(by_thread, forward_links, min_linked_fraction=0.9):
     return windows
 
 
+BETWEEN_STEPS = "(between steps)"
+CUDA_DEVICE_TYPE = 1
+
+
+def attribute_memory(
+    events, by_thread, thread_starts, forward_links, contexts, windows
+):
+    """Attribute GPU memory held at the peak to (component, phase).
+
+    Replays the profiler's GPU allocation and free events in time order.
+    Each allocation is labelled with the component and phase of the host
+    operator that made it, using the same rules as for GPU time. At the
+    highest total allocation inside a complete training step, the memory
+    still held by each label is recorded. Blocks allocated before the trace
+    started (weights, optimizer state, graph tensors, cached inputs) cannot
+    be labelled and are reported as untracked.
+    """
+    memory_events = sorted(
+        (
+            event
+            for event in events
+            if event.get("name") == "[memory]"
+            and event.get("args", {}).get("Device Type") == CUDA_DEVICE_TYPE
+        ),
+        key=lambda event: float(event["ts"]),
+    )
+
+    def host_operator(event):
+        return find_host_event(
+            by_thread,
+            thread_starts,
+            event.get("pid"),
+            event.get("tid"),
+            float(event["ts"]),
+        )
+
+    live = {}
+    held = collections.defaultdict(int)
+    allocated = collections.defaultdict(int)
+    peak = {"bytes": -1, "snapshot": {}, "during": None}
+    for event in memory_events:
+        args = event["args"]
+        size = int(args.get("Bytes", 0))
+        address = args.get("Addr")
+        ts = float(event["ts"])
+        in_step = any(start <= ts <= end for start, end in windows)
+
+        if size > 0:
+            node = host_operator(event)
+            if not in_step:
+                key = (BETWEEN_STEPS, "-")
+            elif node is None:
+                key = (UNLABELLED, "-")
+            else:
+                key = classify_launch(node, forward_links, contexts)
+            live[address] = (size, key)
+            held[key] += size
+            if in_step:
+                allocated[key] += size
+        elif size < 0:
+            freed = live.pop(address, None)
+            if freed is not None:
+                held[freed[1]] -= freed[0]
+
+        total = int(args.get("Total Allocated", 0))
+        if in_step and total > peak["bytes"]:
+            node = host_operator(event)
+            peak = {
+                "bytes": total,
+                "snapshot": {k: v for k, v in held.items() if v > 0},
+                "during": (
+                    classify_launch(node, forward_links, contexts)
+                    if node is not None
+                    else (UNLABELLED, "-")
+                ),
+            }
+
+    tracked = sum(peak["snapshot"].values())
+    return {
+        "events": len(memory_events),
+        "peak_bytes": max(peak["bytes"], 0),
+        "peak_during": (
+            {"component": peak["during"][0], "phase": peak["during"][1]}
+            if peak["during"]
+            else None
+        ),
+        "untracked_at_peak_bytes": max(peak["bytes"], 0) - tracked,
+        "held_at_peak": [
+            {"component": component, "phase": phase, "bytes": size}
+            for (component, phase), size in sorted(peak["snapshot"].items())
+        ],
+        "allocated_in_steps": [
+            {"component": component, "phase": phase, "bytes": size}
+            for (component, phase), size in sorted(allocated.items())
+        ],
+    }
+
+
 def attribute(events):
     """Sum GPU time (in microseconds) per (component, phase)."""
     by_thread = build_host_nesting(events)
+    thread_starts = thread_start_index(by_thread)
 
     # Explicit flow links are preferred; sequence numbers fill the rest.
-    flow_links = forward_links_from_flows(events, by_thread)
+    flow_links = forward_links_from_flows(events, by_thread, thread_starts)
     forward_links = forward_links_from_sequence_numbers(by_thread)
     forward_links.update(flow_links)
     link_source = (
@@ -388,6 +496,10 @@ def attribute(events):
         totals[key] += duration
         counts[key] += 1
 
+    memory = attribute_memory(
+        events, by_thread, thread_starts, forward_links, contexts, windows
+    )
+
     # Step markers appear on both the CPU and GPU timelines; count CPU only.
     profiler_steps = sum(
         1
@@ -403,6 +515,7 @@ def attribute(events):
         "complete_steps": len(windows),
         "outside_window_gpu_us": outside_window_gpu_us,
         "unmatched_gpu_us": unmatched_gpu_us,
+        "memory": memory,
         "rows": [
             {
                 "component": component,
@@ -448,6 +561,45 @@ def print_table(summary):
         f"the trace edges, {summary['unmatched_gpu_us'] / 1000:.2f} ms of GPU "
         f"work not linked to a launch."
     )
+    print_memory_table(summary["memory"])
+
+
+def print_memory_table(memory):
+    """Print GPU memory held at the peak per component and phase."""
+    if not memory["events"]:
+        print("\nNo GPU memory events in trace (profile_memory disabled?)")
+        return
+    mib = 2**20
+    by_component = collections.defaultdict(dict)
+    for row in memory["held_at_peak"]:
+        by_component[row["component"]][row["phase"]] = row["bytes"]
+    during = memory["peak_during"] or {"component": "?", "phase": "?"}
+    print(
+        f"\nGPU memory held at the peak (MiB). Peak "
+        f"{memory['peak_bytes'] / mib:.1f} MiB, reached during "
+        f"{during['component']} ({during['phase']})"
+    )
+    phases = ["forward", "recompute", "backward", "-"]
+    labels = ["forward", "recompute", "backward", "other"]
+    print(
+        f"{'component':45s}"
+        + "".join(f"{p:>11s}" for p in labels)
+        + f"{'total':>11s}{'share':>8s}"
+    )
+    rows = [
+        (component, [by_component[component].get(p, 0) for p in phases])
+        for component in by_component
+    ]
+    untracked = memory["untracked_at_peak_bytes"]
+    rows.append(("(untracked: allocated before trace)", [0, 0, 0, untracked]))
+    for component, values in sorted(rows, key=lambda row: -sum(row[1])):
+        row_total = sum(values)
+        print(
+            f"{component:45s}"
+            + "".join(f"{v / mib:11.1f}" for v in values)
+            + f"{row_total / mib:11.1f}"
+            + f"{100 * row_total / max(memory['peak_bytes'], 1):7.1f}%"
+        )
 
 
 def main(argv=None):
