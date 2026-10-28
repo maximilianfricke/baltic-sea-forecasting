@@ -41,27 +41,39 @@ rsync -av --progress --partial \
 
 ## Cluster runs
 
-Use the CUDA-12.6 environment and run jobs sequentially. Concurrent jobs would
-contend for resources and could race while publishing results to Git.
+Use the CUDA-12.6 environment and run jobs sequentially. Commit and push the
+generated archive manually after every job before submitting the next one.
 
 ```bash
 source /scratch/users/mfricke/venvs/njord-py312-cu126/bin/activate
 bash jobs/submit_decision_suite.sh
-# after completion
-bash jobs/submit_physical_io.sh scratch
+# after reviewing and committing that result: clean baseline repetition 1
+bash jobs/submit_physical_io.sh scratch aggregate off
 ```
 
-The optional node-local comparison is only needed if the scratch run shows a
-material input bottleneck:
+Run the clean aggregate baseline three times, always waiting, reviewing, and
+committing before the next submission. Then run one instrumented diagnostic:
 
 ```bash
-bash jobs/submit_physical_io.sh tmpdir
+bash jobs/submit_physical_io.sh scratch phase on
 ```
+
+The optional node-local comparison is only needed if the scratch results show
+a material input bottleneck:
+
+```bash
+bash jobs/submit_physical_io.sh tmpdir aggregate off
+```
+
+`aggregate off` avoids per-batch synchronization and background telemetry, so
+it is the headline throughput measurement. `phase on` synchronizes each batch
+and samples the GPU once per second; it is used for diagnosis, not for the
+headline throughput number.
 
 Each job requests the `dphpc` account, one GTX 1080 Ti, 24 GiB host memory,
 and CUDA 12.6.3. The scripts do not request a CPU count because the course
-scheduler assigns four CPUs per GPU. Three DataLoader workers are selected,
-leaving one CPU for the training process.
+scheduler determines it. The job reads the actual allocation and assigns at
+most all but one CPU to DataLoader workers.
 
 ## Measurements
 
@@ -82,22 +94,32 @@ Phase timings synchronize every batch and are intended for bottleneck
 analysis. Their sum must not be presented as an instrumentation-free headline
 throughput number. Capacity failures are retained as evidence.
 
-## Result publication
+## Result archiving and manual publication
 
-At the end of a successful job, `publish_benchmark_results.sh`:
+At the end of every job, `update_benchmark_archive.sh`:
 
 1. copies immutable raw JSON and compact telemetry to `benchmark_archive/`;
 2. rebuilds `all-benchmarks.csv` and `benchmark-report.md`;
-3. regenerates PNG/PDF plots;
-4. commits and pushes the compact archive to the current branch.
+3. regenerates PNG/PDF plots.
 
-Datasets, Slurm logs, checkpoints, and large traces remain outside Git. If
-publication fails, the original result remains under `benchmark_results/` and
-can be retried inside a compute allocation:
+It deliberately does not stage, commit, pull, or push anything. After the job
+has completed, inspect and publish the generated files manually:
 
 ```bash
-bash jobs/publish_benchmark_results.sh --push benchmark_results
+git status --short benchmark_archive
+git add benchmark_archive
+git diff --cached --stat
+git commit -m "Archive benchmark job JOB_ID"
+git push origin max
 ```
+
+Replace `JOB_ID` with the Slurm job ID. Then run `git pull --ff-only origin max`
+on the local computer to retrieve the result and plots.
+
+Datasets, Slurm logs, checkpoints, and large traces remain outside Git. If the
+archive update fails, the original result remains under `benchmark_results/`.
+Regenerate it in a short Slurm allocation rather than running the plotting and
+analysis programs directly on the login node.
 
 ## Interpretation boundary
 

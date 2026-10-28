@@ -14,12 +14,13 @@ Raw Slurm logs, datasets, checkpoints, and PyTorch profiler traces are not
 committed. They remain in `benchmark_results/` or scratch because they are
 large, noisy, or reproducible from the archived evidence.
 
-Archive every result currently present on a machine and publish it:
+Rebuild the archive from results inside an allocated compute job:
 
 ```bash
-bash jobs/publish_benchmark_results.sh --push benchmark_results
+bash jobs/update_benchmark_archive.sh benchmark_results
 ```
 
-The decision-suite and physical-I/O jobs perform this automatically. A
-publication failure never deletes the original result under
-`benchmark_results/`; rerun the command above from a compute allocation.
+The decision-suite and physical-I/O jobs update the archive automatically but
+never run Git commands. After each job, review `git status` and manually add,
+commit, and push `benchmark_archive/`. An archive failure never deletes the
+original result under `benchmark_results/`.

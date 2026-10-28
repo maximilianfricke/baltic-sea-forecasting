@@ -22,6 +22,8 @@ DEFAULT_DATA_ROOT="/scratch/users/${USER}/baltic-sea-forecasting-data"
 DEFAULT_DATA_ROOT="${DEFAULT_DATA_ROOT}/physical_repeat_16"
 PHYSICAL_DATA_ROOT="${PHYSICAL_DATA_ROOT:-${DEFAULT_DATA_ROOT}}"
 PHYSICAL_IO_MODE="${PHYSICAL_IO_MODE:-scratch}"
+PHYSICAL_TIMING_MODE="${PHYSICAL_TIMING_MODE:-aggregate}"
+PHYSICAL_TELEMETRY="${PHYSICAL_TELEMETRY:-off}"
 RESULT_DIR="${REPO_ROOT}/benchmark_results/physical-io"
 ALLOCATED_CPUS="${SLURM_CPUS_PER_TASK:-${SLURM_CPUS_ON_NODE:-2}}"
 NUM_WORKERS="$((ALLOCATED_CPUS > 1 ? ALLOCATED_CPUS - 1 : 0))"
@@ -30,6 +32,16 @@ export MKL_NUM_THREADS=1
 
 if [[ ! -f "${PHYSICAL_DATA_ROOT}/global_ocean_1.yaml" ]]; then
     echo "Physical dataset not found: ${PHYSICAL_DATA_ROOT}" >&2
+    exit 2
+fi
+if [[ "${PHYSICAL_TIMING_MODE}" != "aggregate" \
+    && "${PHYSICAL_TIMING_MODE}" != "phase" ]]; then
+    echo "PHYSICAL_TIMING_MODE must be aggregate or phase" >&2
+    exit 2
+fi
+if [[ "${PHYSICAL_TELEMETRY}" != "off" \
+    && "${PHYSICAL_TELEMETRY}" != "on" ]]; then
+    echo "PHYSICAL_TELEMETRY must be off or on" >&2
     exit 2
 fi
 
@@ -59,19 +71,27 @@ export NJORD_DATA_STAGING_BYTES="$(du -sb "${JOB_DATA_DIR}" | cut -f1)"
 mkdir -p "${RESULT_DIR}"
 source "${VENV_PATH}/bin/activate"
 export RESULT_DIR
-export ENABLE_GPU_TELEMETRY=1
-export TELEMETRY_LABEL="physical-${PHYSICAL_IO_MODE}"
-source jobs/start_gpu_telemetry.sh
+export ENABLE_GPU_TELEMETRY=0
+if [[ "${PHYSICAL_TELEMETRY}" == "on" ]]; then
+    export ENABLE_GPU_TELEMETRY=1
+    export TELEMETRY_LABEL="physical-${PHYSICAL_IO_MODE}"
+    source jobs/start_gpu_telemetry.sh
+fi
 
 echo "I/O mode: ${PHYSICAL_IO_MODE}"
+echo "Timing mode: ${PHYSICAL_TIMING_MODE}"
+echo "GPU telemetry: ${PHYSICAL_TELEMETRY}"
 echo "Data source: ${JOB_DATA_DIR}"
 echo "Data size: $(du -sh "${JOB_DATA_DIR}" | cut -f1)"
 echo "Staging seconds: ${NJORD_DATA_STAGING_SECONDS}"
 nvidia-smi --query-gpu=name,uuid,driver_version,memory.total,power.limit \
     --format=csv
 
-OUTPUT="${RESULT_DIR}/physical-${PHYSICAL_IO_MODE}-${SLURM_JOB_ID}.json"
-RUN_LOG="${RESULT_DIR}/physical-${PHYSICAL_IO_MODE}-${SLURM_JOB_ID}.log"
+RUN_KIND="${PHYSICAL_IO_MODE}-${PHYSICAL_TIMING_MODE}"
+RUN_KIND="${RUN_KIND}-telemetry-${PHYSICAL_TELEMETRY}"
+RUN_LABEL="physical-io-${RUN_KIND}-1080ti-h64-p2-b2-ar4-fp32-ckpt-on"
+OUTPUT="${RESULT_DIR}/physical-${RUN_KIND}-${SLURM_JOB_ID}.json"
+RUN_LOG="${RESULT_DIR}/physical-${RUN_KIND}-${SLURM_JOB_ID}.log"
 set +e
 python -m neural_lam.train_model \
     --config_path "${JOB_DATA_DIR}/global_ocean_1.yaml" \
@@ -94,9 +114,8 @@ python -m neural_lam.train_model \
     --benchmark_scaling_mode io \
     --benchmark_warmup_steps 20 \
     --benchmark_steps 200 \
-    --benchmark_timing_mode phase \
-    --benchmark_label \
-    "physical-io-${PHYSICAL_IO_MODE}-1080ti-h64-p2-b2-ar4-fp32-ckpt-on" \
+    --benchmark_timing_mode "${PHYSICAL_TIMING_MODE}" \
+    --benchmark_label "${RUN_LABEL}" \
     --benchmark_output "${OUTPUT}" 2>&1 | tee "${RUN_LOG}"
 RUN_EXIT_CODE="${PIPESTATUS[0]}"
 set -e
@@ -107,8 +126,7 @@ if [[ ! -f "${OUTPUT}" ]]; then
     fi
     python benchmarks/write_failure_result.py \
         --output "${OUTPUT}" \
-        --label \
-        "physical-io-${PHYSICAL_IO_MODE}-1080ti-h64-p2-b2-ar4-fp32-ckpt-on" \
+        --label "${RUN_LABEL}" \
         --log "${RUN_LOG}" \
         --hidden-dim 64 \
         --checkpointing on \
@@ -126,10 +144,12 @@ then
     RUN_EXIT_CODE=1
 fi
 
-stop_gpu_telemetry
-trap - EXIT
-if ! bash jobs/publish_benchmark_results.sh --push \
+if [[ "${PHYSICAL_TELEMETRY}" == "on" ]]; then
+    stop_gpu_telemetry
+    trap - EXIT
+fi
+if ! bash jobs/update_benchmark_archive.sh \
     "${OUTPUT}"; then
-    echo "WARNING: result is safe in ${OUTPUT}; Git publication failed" >&2
+    echo "WARNING: result is safe in ${OUTPUT}; archive update failed" >&2
 fi
 exit "${RUN_EXIT_CODE}"

@@ -119,10 +119,10 @@ run_case hidden-h128-ckpt-on 128 on 5 15
 run_case hidden-h192-ckpt-on 192 on 3 8
 run_case hidden-h256-ckpt-on 256 on 2 5
 
-# Publish only this controlled suite. Plot generation and Git publication
-# happen on the allocated compute node, not on the shared login node.
-if ! bash jobs/publish_benchmark_results.sh --push \
+# Archive only this controlled suite. Plot generation happens on the allocated
+# compute node; the user reviews, commits, and pushes the files manually.
+if ! bash jobs/update_benchmark_archive.sh \
     "${RESULT_DIR}"; then
-    echo "WARNING: results are safe in ${RESULT_DIR}; Git publication failed" \
+    echo "WARNING: results are safe in ${RESULT_DIR}; archive update failed" \
         >&2
 fi
