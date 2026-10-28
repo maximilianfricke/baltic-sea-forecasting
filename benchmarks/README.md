@@ -320,12 +320,29 @@ sbatch --account=<course-tag> jobs/profile_1080ti.sbatch
 sbatch --account=<course-tag> jobs/profile_multi_gpu.sbatch
 ```
 
+`jobs/profile_1080ti.sbatch` defaults to the realistic baseline workload and
+accepts the same environment variables as `benchmark_1080ti.sbatch`
+(`HIDDEN_DIM`, `PROCESSOR_LAYERS`, `BATCH_SIZE`, `AR_STEPS_TRAIN`,
+`PRECISION`, `WARMUP_STEPS`, `BENCHMARK_STEPS`) plus `CRPS_WEIGHT` to profile
+the CRPS fine-tuning stage. After profiling, the job runs
+`benchmarks/attribute_profile.py` on the trace and prints, and stores as
+`benchmark_results/profiles/attribution-<job>.json`, the GPU time per
+complete training step for every model component, split into forward,
+recompute (gradient checkpointing) and backward. Backward GPU work is linked
+to the forward operator that created it, so it is attributed to the same
+component. The profiler schedule advances between a step's forward and
+backward pass, so `N` profiled steps contain `N - 1` complete training steps;
+the partial steps at the trace edges are excluded and reported separately.
+
 Do not queue these while a benchmark bundle is still running. Check `squeue`
 and cancel an incorrect job immediately with `scancel <job-id>` to preserve
 the team's course budget.
 
-The trace contains semantic GraphEFM regions for embeddings, encoder, prior,
-decoder, and loss plus PyTorch operator, memory, shape, FLOP, CUDA, and NCCL
+The trace contains semantic GraphEFM regions (`graph_efm/shared_input_embedding`,
+`graph_efm/posterior_input_embedding`, `graph_efm/posterior_encoder`,
+`graph_efm/prior_encoder`, `graph_efm/decoder`, `graph_efm/reconstruction_loss`
+and, with CRPS enabled, `graph_efm/crps_prior_rollouts`) plus PyTorch operator,
+memory, shape, FLOP, CUDA, and NCCL
 events. Inspect the Chrome trace for the critical path, kernel gaps, scatter
 operations, all-reduce duration, and communication/compute overlap. Do not use
 profiled step time as the headline performance number. Large single-GPU trace

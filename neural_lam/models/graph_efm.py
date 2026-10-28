@@ -662,7 +662,7 @@ class GraphEFM(ARProbModel):
         )
         # embed all features
         with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/embeddings"
+            self._benchmark_profiler_enabled, "graph_efm/shared_input_embedding"
         ):
             grid_prev_emb, grid_prev_interior_emb, graph_emb = self.embedd_all(
                 prev_state,
@@ -671,7 +671,13 @@ class GraphEFM(ARProbModel):
                 boundary_forcing,
                 atmosphere_forcing,
             )
-            # Embed the target-conditioned representation for the encoder.
+        # The target-conditioned embedding is only used by the posterior
+        # encoder (self.encoder), so it gets its own region to separate its
+        # cost from the embeddings shared with the prior and decoder.
+        with _profile_scope(
+            self._benchmark_profiler_enabled,
+            "graph_efm/posterior_input_embedding",
+        ):
             grid_current_emb = self.embedd_current(
                 prev_state,
                 prev_prev_state,
@@ -683,7 +689,7 @@ class GraphEFM(ARProbModel):
 
         # Compute variational approximation (encoder)
         with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/encoder"
+            self._benchmark_profiler_enabled, "graph_efm/posterior_encoder"
         ):
             var_dist = self.encoder(
                 grid_current_emb, graph_emb=graph_emb
@@ -702,7 +708,7 @@ class GraphEFM(ARProbModel):
         if self.kl_beta > 0:
             # Compute prior
             with _profile_scope(
-                self._benchmark_profiler_enabled, "graph_efm/prior"
+                self._benchmark_profiler_enabled, "graph_efm/prior_encoder"
             ):
                 prior_dist = self.prior_model(
                     grid_prev_emb, graph_emb=graph_emb
@@ -775,7 +781,7 @@ class GraphEFM(ARProbModel):
         # Note: There are some round-off errors here due to float32
         # and large values
         with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/loss"
+            self._benchmark_profiler_enabled, "graph_efm/reconstruction_loss"
         ):
             entry_likelihoods = -self.loss(
                 pred_mean,
@@ -885,15 +891,21 @@ class GraphEFM(ARProbModel):
 
         # Optionally sample trajectories and compute CRPS loss
         if self.crps_weight > 0:
-            # Sample trajectories using prior
-            pred_traj_means, pred_traj_stds = self.sample_trajectories(
-                init_states,
-                forcing,
-                boundary_forcing,
-                atmosphere_forcing,
-                target_states,
-                2,
-            )
+            # Sample trajectories using prior. The prior encoder and decoder
+            # regions inside the rollouts are nested under this region in
+            # traces.
+            with _profile_scope(
+                self._benchmark_profiler_enabled,
+                "graph_efm/crps_prior_rollouts",
+            ):
+                pred_traj_means, pred_traj_stds = self.sample_trajectories(
+                    init_states,
+                    forcing,
+                    boundary_forcing,
+                    atmosphere_forcing,
+                    target_states,
+                    2,
+                )
             # (B, S=2, pred_steps, num_grid_nodes, d_f), always 2 samples
 
             # Compute almost-fair CRPS without reduction
@@ -946,7 +958,7 @@ class GraphEFM(ARProbModel):
 
         # embed all features
         with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/embeddings"
+            self._benchmark_profiler_enabled, "graph_efm/shared_input_embedding"
         ):
             grid_prev_emb, grid_prev_interior_emb, graph_emb = self.embedd_all(
                 prev_state,
@@ -958,7 +970,7 @@ class GraphEFM(ARProbModel):
 
         # Compute prior
         with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/prior"
+            self._benchmark_profiler_enabled, "graph_efm/prior_encoder"
         ):
             prior_dist = self.prior_model(
                 grid_prev_emb, graph_emb=graph_emb
