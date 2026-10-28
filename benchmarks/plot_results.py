@@ -2,9 +2,6 @@
 
 # Standard library
 import argparse
-import csv
-import json
-import os
 import re
 import statistics
 from collections import defaultdict
@@ -17,6 +14,15 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
+from benchmarks.common import (  # noqa: E402
+    label as _label,
+    load_results,
+    mean as _mean,
+    nested as _nested,
+    timing_mode as _timing_mode,
+    workload as _workload,
+)
+
 
 COLORS = {
     "forward": "#4477AA",
@@ -26,52 +32,6 @@ COLORS = {
     "off": "#4477AA",
     "on": "#EE6677",
 }
-
-
-def _nested(mapping, *keys, default=None):
-    value = mapping
-    for key in keys:
-        if not isinstance(value, dict):
-            return default
-        value = value.get(key)
-    return default if value is None else value
-
-
-def _mean(result, metric):
-    return _nested(result, "summary", metric, "mean")
-
-
-def _load(paths, statuses=("completed",), require=True):
-    results = []
-    expanded = set()
-    for path in paths:
-        if path.is_file():
-            expanded.add(path)
-        elif path.is_dir():
-            for root, _, names in os.walk(path, followlinks=True):
-                for name in names:
-                    if name.endswith(".json") and not name.endswith(
-                        ".pt.trace.json"
-                    ):
-                        expanded.add(Path(root) / name)
-    for path in sorted(expanded):
-        try:
-            result = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        if not isinstance(result, dict) or "schema_version" not in result:
-            continue
-        if result.get("status") not in statuses:
-            continue
-        result["_path"] = str(path)
-        results.append(result)
-    if require and not results:
-        raise ValueError("No completed benchmark results found")
-    return results
-
-
-def _label(result):
-    return result.get("label") or Path(result["_path"]).stem
 
 
 def _representative_by_label(results):
@@ -234,25 +194,14 @@ def plot_capacity_outcomes(results, failures, output_dir):
     _save(fig, output_dir, "capacity-outcomes")
 
 
-def _workload(result):
-    return _nested(result, "protocol", "workload", default="training")
-
-
-def _timing_mode(result):
-    return _nested(
-        result, "instrumentation", "timing_mode", default="phase"
-    )
-
-
 def _save(fig, output_dir, name):
     if not fig.get_constrained_layout():
         fig.tight_layout()
-    for suffix in ("png", "pdf"):
-        fig.savefig(
-            output_dir / f"{name}.{suffix}",
-            dpi=220,
-            bbox_inches="tight",
-        )
+    fig.savefig(
+        output_dir / f"{name}.png",
+        dpi=220,
+        bbox_inches="tight",
+    )
     plt.close(fig)
 
 
@@ -318,6 +267,76 @@ def plot_step_distributions(results, output_dir):
     ax.tick_params(axis="x", rotation=25)
     ax.grid(axis="y", alpha=0.25)
     _save(fig, output_dir, "step-distributions")
+
+
+def plot_baseline_repeatability(results, output_dir):
+    """Visualize run-to-run variation for comparable aggregate baselines."""
+    grouped = defaultdict(list)
+    for result in results:
+        if (
+            _workload(result) != "training"
+            or _timing_mode(result) != "aggregate"
+        ):
+            continue
+        if _mean(result, "step_ms") is None:
+            continue
+        controls = (
+            _label(result),
+            _nested(result, "hardware", "gpu", "name"),
+            _nested(result, "arguments", "hidden_dim"),
+            _nested(result, "arguments", "processor_layers"),
+            _nested(result, "arguments", "batch_size"),
+            _nested(result, "arguments", "ar_steps_train"),
+            _nested(result, "arguments", "precision"),
+            bool(_nested(result, "model", "gradient_checkpointing")),
+        )
+        grouped[controls].append(result)
+
+    repeated = [subset for subset in grouped.values() if len(subset) >= 2]
+    if not repeated:
+        return
+    subset = max(repeated, key=len)
+    subset.sort(
+        key=lambda item: int(
+            _nested(item, "hardware", "slurm_job_id", default=0)
+        )
+    )
+    jobs = [
+        str(_nested(item, "hardware", "slurm_job_id", default=index + 1))
+        for index, item in enumerate(subset)
+    ]
+    step_times = [_mean(item, "step_ms") for item in subset]
+    throughputs = [
+        _nested(item, "summary", "samples_per_second") for item in subset
+    ]
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.6), layout="constrained")
+    for axis, values, ylabel in (
+        (axes[0], step_times, "End-to-end time per batch [ms]"),
+        (axes[1], throughputs, "Throughput [samples/s]"),
+    ):
+        x = np.arange(len(values))
+        mean = statistics.mean(values)
+        stdev = statistics.stdev(values) if len(values) > 1 else 0.0
+        axis.scatter(x, values, s=70, color="#4477AA", zorder=3)
+        axis.axhline(mean, color="#228833", linewidth=1.5, label="Mean")
+        axis.axhspan(
+            mean - stdev,
+            mean + stdev,
+            color="#228833",
+            alpha=0.13,
+            label="Mean ± 1 SD",
+        )
+        axis.set_xticks(x, [f"Job {job}" for job in jobs])
+        axis.set_ylabel(ylabel)
+        axis.grid(axis="y", alpha=0.25)
+        axis.legend(frameon=False, fontsize=8)
+
+    cv = statistics.stdev(throughputs) / statistics.mean(throughputs) * 100
+    fig.suptitle(
+        f"Clean single-GPU baseline repeatability (throughput CV {cv:.2f}%)"
+    )
+    _save(fig, output_dir, "baseline-repeatability")
 
 
 def plot_checkpoint_tradeoff(results, output_dir):
@@ -805,39 +824,6 @@ def plot_inference_scaling(results, output_dir):
     )
 
 
-def plot_communication_estimate(results, output_dir):
-    training = [result for result in results if _workload(result) == "training"]
-    best_by_hidden = {}
-    for result in training:
-        hidden = _nested(result, "arguments", "hidden_dim")
-        payload = _nested(
-            result,
-            "model",
-            "trainable_parameter_bytes",
-        )
-        if payload is None:
-            parameters = _nested(
-                result, "model", "parameters_trainable"
-            )
-            payload = parameters * 4 if parameters is not None else None
-        if hidden is not None and payload is not None:
-            best_by_hidden.setdefault(hidden, payload)
-    if len(best_by_hidden) < 2:
-        return
-    ordered = sorted(best_by_hidden.items())
-    fig, ax = plt.subplots(figsize=(7, 5))
-    ax.plot(
-        [hidden for hidden, _ in ordered],
-        [payload / 1024**2 for _, payload in ordered],
-        marker="o",
-    )
-    ax.set_xlabel("Hidden dimension")
-    ax.set_ylabel("Gradient payload per training step [MiB]")
-    ax.set_title("Estimated DDP gradient synchronization payload")
-    ax.grid(alpha=0.25)
-    _save(fig, output_dir, "communication-payload-estimate")
-
-
 def plot_precision_comparison(results, output_dir):
     grouped = defaultdict(list)
     for result in results:
@@ -888,86 +874,21 @@ def plot_precision_comparison(results, output_dir):
     _save(fig, output_dir, "precision-comparison")
 
 
-def write_table(results, output_dir):
-    fields = (
-        "label",
-        "gpu",
-        "gpus",
-        "hidden_dim",
-        "processor_layers",
-        "batch_size",
-        "workers",
-        "timing_mode",
-        "checkpointing",
-        "step_mean_ms",
-        "step_p95_ms",
-        "data_wait_ms",
-        "end_to_end_ms",
-        "samples_per_second",
-        "peak_memory_gib",
-    )
-    with (output_dir / "benchmark-table.csv").open(
-        "w", newline="", encoding="utf-8"
-    ) as handle:
-        writer = csv.DictWriter(handle, fieldnames=fields)
-        writer.writeheader()
-        for result in results:
-            peak = _nested(
-                result, "summary", "gpu_peak_memory_allocated_bytes"
-            )
-            writer.writerow(
-                {
-                    "label": _label(result),
-                    "gpu": _nested(result, "hardware", "gpu", "name"),
-                    "gpus": _nested(
-                        result, "distributed", "world_size", default=1
-                    ),
-                    "hidden_dim": _nested(
-                        result, "arguments", "hidden_dim"
-                    ),
-                    "processor_layers": _nested(
-                        result, "arguments", "processor_layers"
-                    ),
-                    "batch_size": _nested(
-                        result, "arguments", "batch_size"
-                    ),
-                    "workers": _nested(
-                        result, "arguments", "num_workers"
-                    ),
-                    "timing_mode": _timing_mode(result),
-                    "checkpointing": _nested(
-                        result, "model", "gradient_checkpointing"
-                    ),
-                    "step_mean_ms": _mean(result, "step_ms"),
-                    "step_p95_ms": _nested(
-                        result, "summary", "step_ms", "p95"
-                    ),
-                    "data_wait_ms": _mean(result, "data_wait_ms"),
-                    "end_to_end_ms": _mean(
-                        result, "end_to_end_wall_ms"
-                    ),
-                    "samples_per_second": _nested(
-                        result, "summary", "samples_per_second"
-                    ),
-                    "peak_memory_gib": peak / 1024**3 if peak else None,
-                }
-            )
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("results", nargs="+", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    results = _load(args.results)
-    failures = _load(
-        args.results, statuses=("failed",), require=False
+    results = load_results(
+        args.results, statuses=("completed",), require=True
     )
+    failures = load_results(args.results, statuses=("failed",))
 
     plot_capacity_outcomes(results, failures, args.output_dir)
     plot_time_breakdown(results, args.output_dir)
     plot_step_distributions(results, args.output_dir)
+    plot_baseline_repeatability(results, args.output_dir)
     plot_checkpoint_tradeoff(results, args.output_dir)
     plot_memory_compute_frontier(results, args.output_dir)
     plot_dataloader_scaling(results, args.output_dir)
@@ -1005,9 +926,7 @@ def main():
     )
     plot_multi_gpu_scaling(results, args.output_dir)
     plot_inference_scaling(results, args.output_dir)
-    plot_communication_estimate(results, args.output_dir)
     plot_precision_comparison(results, args.output_dir)
-    write_table(results, args.output_dir)
 
 
 if __name__ == "__main__":

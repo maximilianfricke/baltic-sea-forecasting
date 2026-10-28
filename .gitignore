@@ -13,6 +13,7 @@ sweeps
 *slurm*
 output
 benchmark_results/
+_doc_build/
 configs
 
 ### Python ###

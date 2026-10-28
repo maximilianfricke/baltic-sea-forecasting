@@ -3,8 +3,6 @@
 # Standard library
 import argparse
 import csv
-import json
-import os
 import re
 import statistics
 from collections import defaultdict
@@ -16,6 +14,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+
+from benchmarks.common import label, load_results  # noqa: E402
 
 
 NUMBER = re.compile(r"[-+]?\d+(?:\.\d+)?")
@@ -76,24 +76,7 @@ def _benchmark_windows(inputs):
     windows = defaultdict(list)
     if not inputs:
         return windows
-    paths = set()
-    for input_path in inputs:
-        if input_path.is_file():
-            paths.add(input_path)
-        elif input_path.is_dir():
-            for root, _, names in os.walk(input_path, followlinks=True):
-                for name in names:
-                    if name.endswith(".json") and not name.endswith(
-                        ".pt.trace.json"
-                    ):
-                        paths.add(Path(root) / name)
-    for path in sorted(paths):
-        try:
-            result = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        if not isinstance(result, dict) or "schema_version" not in result:
-            continue
+    for result in load_results(inputs):
         job_id = result.get("hardware", {}).get("slurm_job_id")
         protocol = result.get("protocol", {})
         start = protocol.get("measurement_started_at_utc")
@@ -102,7 +85,7 @@ def _benchmark_windows(inputs):
             continue
         windows[str(job_id)].append(
             {
-                "label": result.get("label", path.stem),
+                "label": label(result),
                 "start_epoch": datetime.fromisoformat(start).timestamp(),
                 "finish_epoch": datetime.fromisoformat(finish).timestamp(),
                 "steps": protocol.get("completed_measurement_steps"),
@@ -208,12 +191,11 @@ def plot(path, by_gpu, output_dir, suffix="", title=None):
     for axis in axes.flat:
         axis.legend(frameon=False)
     fig.suptitle(title or f"GPU telemetry: {path.stem}")
-    for extension in ("png", "pdf"):
-        fig.savefig(
-            output_dir / f"{path.stem}{suffix}-telemetry.{extension}",
-            dpi=220,
-            bbox_inches="tight",
-        )
+    fig.savefig(
+        output_dir / f"{path.stem}{suffix}-telemetry.png",
+        dpi=220,
+        bbox_inches="tight",
+    )
     plt.close(fig)
 
 

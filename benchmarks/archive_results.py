@@ -5,12 +5,12 @@ import argparse
 import csv
 import hashlib
 import json
-import os
 import re
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
+from benchmarks.common import result_paths
 
 SAFE_NAME = re.compile(r"[^A-Za-z0-9._-]+")
 MANIFEST_FIELDS = (
@@ -24,21 +24,6 @@ MANIFEST_FIELDS = (
     "git_commit",
     "archived_at_utc",
 )
-
-
-def _result_paths(inputs):
-    paths = set()
-    for input_path in inputs:
-        if input_path.is_file() and input_path.suffix == ".json":
-            paths.add(input_path.resolve())
-        elif input_path.is_dir():
-            for root, _, names in os.walk(input_path, followlinks=True):
-                for name in names:
-                    if name.endswith(".json") and not name.endswith(
-                        ".pt.trace.json"
-                    ):
-                        paths.add((Path(root) / name).resolve())
-    return sorted(paths)
 
 
 def _safe(value):
@@ -78,7 +63,7 @@ def archive(inputs, output_root):
     archived_at = datetime.now(timezone.utc).isoformat()
     added = 0
 
-    for source in _result_paths(inputs):
+    for source in result_paths(inputs):
         raw = source.read_bytes()
         digest = hashlib.sha256(raw).hexdigest()
         if digest in manifest:

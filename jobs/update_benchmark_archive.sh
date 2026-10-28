@@ -26,19 +26,23 @@ export MPLCONFIGDIR="${MPLCONFIGDIR:-${TMPDIR:-/tmp}/njord-matplotlib}"
 mkdir -p "${MPLCONFIGDIR}"
 
 mkdir -p "${ARCHIVE_ROOT}/runs" "${ARCHIVE_ROOT}/plots"
-"${PYTHON_EXECUTABLE}" benchmarks/archive_results.py \
+# Plots and compact tables are derived artifacts. Recreate them from the raw
+# JSON/telemetry archive so removed plot types cannot survive as stale files.
+find "${ARCHIVE_ROOT}/plots" -maxdepth 1 -type f \
+    \( -name '*.png' -o -name '*.pdf' -o -name '*.csv' \) -delete
+"${PYTHON_EXECUTABLE}" -m benchmarks.archive_results \
     "${INPUTS[@]}" --output-root "${ARCHIVE_ROOT}"
-"${PYTHON_EXECUTABLE}" benchmarks/summarize_results.py \
+"${PYTHON_EXECUTABLE}" -m benchmarks.summarize_results \
     "${ARCHIVE_ROOT}/runs" > "${ARCHIVE_ROOT}/all-benchmarks.csv"
-"${PYTHON_EXECUTABLE}" benchmarks/analyze_results.py \
+"${PYTHON_EXECUTABLE}" -m benchmarks.analyze_results \
     "${ARCHIVE_ROOT}/runs" \
     --output "${ARCHIVE_ROOT}/benchmark-report.md"
-"${PYTHON_EXECUTABLE}" benchmarks/plot_results.py \
+"${PYTHON_EXECUTABLE}" -m benchmarks.plot_results \
     "${ARCHIVE_ROOT}/runs" --output-dir "${ARCHIVE_ROOT}/plots"
 
 if find "${ARCHIVE_ROOT}/telemetry" -type f -name '*.csv' \
     -print -quit 2>/dev/null | grep -q .; then
-    "${PYTHON_EXECUTABLE}" benchmarks/plot_telemetry.py \
+    "${PYTHON_EXECUTABLE}" -m benchmarks.plot_telemetry \
         "${ARCHIVE_ROOT}/telemetry" \
         --benchmark-results "${ARCHIVE_ROOT}/runs" \
         --output-dir "${ARCHIVE_ROOT}/plots"

@@ -4,10 +4,10 @@
 import argparse
 import csv
 import json
-import os
 import sys
 from pathlib import Path
 
+from benchmarks.common import nested as _nested, result_paths
 
 FIELDS = (
     "file",
@@ -76,15 +76,6 @@ FIELDS = (
     "batches_per_epoch",
     "samples_repeated_within_epoch",
 )
-
-
-def _nested(mapping, *keys):
-    value = mapping
-    for key in keys:
-        if not isinstance(value, dict):
-            return None
-        value = value.get(key)
-    return value
 
 
 def _compact_error(error):
@@ -271,24 +262,6 @@ def _row(path):
     }
 
 
-def _result_paths(inputs):
-    """Expand files and directories, following result-directory symlinks."""
-    paths = set()
-    for input_path in inputs:
-        if input_path.is_file():
-            paths.add(input_path)
-            continue
-        if not input_path.is_dir():
-            continue
-        for root, _, names in os.walk(input_path, followlinks=True):
-            for name in names:
-                if name.endswith(".json") and not name.endswith(
-                    ".pt.trace.json"
-                ):
-                    paths.add(Path(root) / name)
-    return sorted(paths)
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("results", nargs="+", type=Path)
@@ -298,7 +271,7 @@ def main():
         sys.stdout, fieldnames=FIELDS, lineterminator="\n"
     )
     writer.writeheader()
-    for path in _result_paths(args.results):
+    for path in result_paths(args.results):
         try:
             row = _row(path)
         except (OSError, json.JSONDecodeError) as error:

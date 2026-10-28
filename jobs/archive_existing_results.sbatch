@@ -10,14 +10,8 @@
 
 set -euo pipefail
 
-. /etc/profile.d/modules.sh
-module purge
-module add cuda/12.6.3
-
-REPO_ROOT="${SLURM_SUBMIT_DIR}"
-cd "${REPO_ROOT}"
-VENV_PATH="${NJORD_VENV:-${REPO_ROOT}/.venv}"
-source "${VENV_PATH}/bin/activate"
+source "${SLURM_SUBMIT_DIR}/jobs/common.sh"
+njord_init_cluster_job
 
 BENCHMARK_INPUT="${BENCHMARK_INPUT:-benchmark_results/decision-suite}"
 bash jobs/update_benchmark_archive.sh "${BENCHMARK_INPUT}"

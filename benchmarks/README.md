@@ -19,7 +19,7 @@ The original January dataset is too short for a sustained AR=4 measurement.
 Build a self-contained physical-repeat proxy locally:
 
 ```bash
-python benchmarks/build_physical_repeat_dataset.py \
+python -m benchmarks.build_physical_repeat_dataset \
   --source-root data \
   --destination-root data/physical_repeat_16 \
   --repeats 16
@@ -100,7 +100,7 @@ At the end of every job, `update_benchmark_archive.sh`:
 
 1. copies immutable raw JSON and compact telemetry to `benchmark_archive/`;
 2. rebuilds `all-benchmarks.csv` and `benchmark-report.md`;
-3. regenerates PNG/PDF plots.
+3. regenerates the PNG plots.
 
 It deliberately does not stage, commit, pull, or push anything. After the job
 has completed, inspect and publish the generated files manually:

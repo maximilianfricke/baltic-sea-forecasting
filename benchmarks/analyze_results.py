@@ -2,64 +2,12 @@
 
 # Standard library
 import argparse
-import json
-import os
 import re
 import statistics
 from collections import defaultdict
 from pathlib import Path
 
-
-def nested(mapping, *keys, default=None):
-    value = mapping
-    for key in keys:
-        if not isinstance(value, dict):
-            return default
-        value = value.get(key)
-    return default if value is None else value
-
-
-def mean(result, metric):
-    return nested(result, "summary", metric, "mean")
-
-
-def workload(result):
-    return nested(result, "protocol", "workload", default="training")
-
-
-def load(paths):
-    completed = []
-    failed = []
-    expanded = set()
-    for path in paths:
-        if path.is_file():
-            expanded.add(path)
-        elif path.is_dir():
-            for root, _, names in os.walk(path, followlinks=True):
-                for name in names:
-                    if name.endswith(".json") and not name.endswith(
-                        ".pt.trace.json"
-                    ):
-                        expanded.add(Path(root) / name)
-    for path in sorted(expanded):
-        try:
-            result = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        if not isinstance(result, dict) or "schema_version" not in result:
-            continue
-        result["_path"] = str(path)
-        if result.get("status") == "completed":
-            completed.append(result)
-        elif result.get("status") == "failed":
-            failed.append(result)
-    if not completed:
-        raise ValueError("No completed benchmark results found")
-    return completed, failed
-
-
-def label(result):
-    return result.get("label") or Path(result["_path"]).stem
+from benchmarks.common import label, load_results, mean, nested, workload
 
 
 def controlled_training(results, **values):
@@ -534,7 +482,10 @@ def main():
     parser.add_argument("results", nargs="+", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    completed, failed = load(args.results)
+    completed = load_results(
+        args.results, statuses=("completed",), require=True
+    )
+    failed = load_results(args.results, statuses=("failed",))
     report = make_report(completed, failed)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(report, encoding="utf-8")

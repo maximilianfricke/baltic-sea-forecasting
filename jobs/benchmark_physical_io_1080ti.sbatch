@@ -11,29 +11,15 @@
 set -euo pipefail
 
 export NJORD_JOB_STARTED_EPOCH_SECONDS="$(date +%s.%N)"
-. /etc/profile.d/modules.sh
-module purge
-module add cuda/12.6.3
-
-REPO_ROOT="${SLURM_SUBMIT_DIR}"
-cd "${REPO_ROOT}"
-VENV_PATH="${NJORD_VENV:-${REPO_ROOT}/.venv}"
-DEFAULT_DATA_ROOT="/scratch/users/${USER}/baltic-sea-forecasting-data"
-DEFAULT_DATA_ROOT="${DEFAULT_DATA_ROOT}/physical_repeat_16"
+source "${SLURM_SUBMIT_DIR}/jobs/common.sh"
+njord_init_cluster_job
+njord_configure_training_job
 PHYSICAL_DATA_ROOT="${PHYSICAL_DATA_ROOT:-${DEFAULT_DATA_ROOT}}"
 PHYSICAL_IO_MODE="${PHYSICAL_IO_MODE:-scratch}"
 PHYSICAL_TIMING_MODE="${PHYSICAL_TIMING_MODE:-aggregate}"
 PHYSICAL_TELEMETRY="${PHYSICAL_TELEMETRY:-off}"
 RESULT_DIR="${REPO_ROOT}/benchmark_results/physical-io"
-ALLOCATED_CPUS="${SLURM_CPUS_PER_TASK:-${SLURM_CPUS_ON_NODE:-2}}"
-NUM_WORKERS="$((ALLOCATED_CPUS > 1 ? ALLOCATED_CPUS - 1 : 0))"
-export OMP_NUM_THREADS=1
-export MKL_NUM_THREADS=1
-
-if [[ ! -f "${PHYSICAL_DATA_ROOT}/global_ocean_1.yaml" ]]; then
-    echo "Physical dataset not found: ${PHYSICAL_DATA_ROOT}" >&2
-    exit 2
-fi
+njord_require_dataset "${PHYSICAL_DATA_ROOT}"
 if [[ "${PHYSICAL_TIMING_MODE}" != "aggregate" \
     && "${PHYSICAL_TIMING_MODE}" != "phase" ]]; then
     echo "PHYSICAL_TIMING_MODE must be aggregate or phase" >&2
@@ -69,7 +55,6 @@ export NJORD_DATA_STAGING_SECONDS="${STAGING_ELAPSED_NS}e-9"
 export NJORD_DATA_STAGING_BYTES="$(du -sb "${JOB_DATA_DIR}" | cut -f1)"
 
 mkdir -p "${RESULT_DIR}"
-source "${VENV_PATH}/bin/activate"
 export RESULT_DIR
 export ENABLE_GPU_TELEMETRY=0
 if [[ "${PHYSICAL_TELEMETRY}" == "on" ]]; then
@@ -93,24 +78,7 @@ RUN_LABEL="physical-io-${RUN_KIND}-1080ti-h64-p2-b2-ar4-fp32-ckpt-on"
 OUTPUT="${RESULT_DIR}/physical-${RUN_KIND}-${SLURM_JOB_ID}.json"
 RUN_LOG="${RESULT_DIR}/physical-${RUN_KIND}-${SLURM_JOB_ID}.log"
 set +e
-python -m neural_lam.train_model \
-    --config_path "${JOB_DATA_DIR}/global_ocean_1.yaml" \
-    --model graph_efm \
-    --graph global_cluster_graph \
-    --hidden_dim 64 \
-    --hidden_dim_grid 64 \
-    --hidden_dim_mesh_nodes 64 \
-    --hidden_dim_edge 64 \
-    --processor_layers 2 \
-    --batch_size 2 \
-    --precision 32 \
-    --epochs 100 \
-    --ar_steps_train 4 \
-    --ar_steps_eval 4 \
-    --num_workers "${NUM_WORKERS}" \
-    --num_nodes 1 \
-    --devices auto \
-    --n_example_pred 0 \
+njord_run_graph_efm_benchmark "${JOB_DATA_DIR}" 64 "${NUM_WORKERS}" \
     --benchmark_scaling_mode io \
     --benchmark_warmup_steps 20 \
     --benchmark_steps 200 \
@@ -132,14 +100,7 @@ if [[ ! -f "${OUTPUT}" ]]; then
         --checkpointing on \
         --scaling-mode io \
         --exit-code "${RUN_EXIT_CODE}"
-elif ! python -c '
-import json
-import sys
-
-with open(sys.argv[1], encoding="utf-8") as handle:
-    result = json.load(handle)
-sys.exit(0 if result.get("status") == "completed" else 1)
-' "${OUTPUT}"
+elif ! njord_result_completed "${OUTPUT}"
 then
     RUN_EXIT_CODE=1
 fi
