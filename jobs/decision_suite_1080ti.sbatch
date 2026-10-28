@@ -20,13 +20,22 @@ cd "${REPO_ROOT}"
 VENV_PATH="${NJORD_VENV:-${REPO_ROOT}/.venv}"
 RESULT_DIR="${REPO_ROOT}/benchmark_results/decision-suite"
 LOG_DIR="${RESULT_DIR}/logs"
+DEFAULT_DATA_ROOT="/scratch/users/${USER}/baltic-sea-forecasting-data"
+DEFAULT_DATA_ROOT="${DEFAULT_DATA_ROOT}/physical_repeat_16"
+PHYSICAL_DATA_ROOT="${PHYSICAL_DATA_ROOT:-${DEFAULT_DATA_ROOT}}"
 ALLOCATED_CPUS="${SLURM_CPUS_PER_TASK:-${SLURM_CPUS_ON_NODE:-2}}"
 NUM_WORKERS="$((ALLOCATED_CPUS > 1 ? ALLOCATED_CPUS - 1 : 0))"
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 
 mkdir -p "${RESULT_DIR}" "${LOG_DIR}"
-source jobs/stage_benchmark_data.sh
+if [[ ! -f "${PHYSICAL_DATA_ROOT}/global_ocean_1.yaml" ]]; then
+    echo "Physical dataset not found: ${PHYSICAL_DATA_ROOT}" >&2
+    exit 2
+fi
+export NJORD_DATA_LOCATION="physical-repeat-shared-scratch"
+export NJORD_DATA_STAGING_SECONDS=0
+export NJORD_DATA_STAGING_BYTES="$(du -sb "${PHYSICAL_DATA_ROOT}" | cut -f1)"
 source "${VENV_PATH}/bin/activate"
 export NJORD_GPU_NAME="$(nvidia-smi --query-gpu=name \
     --format=csv,noheader | head -n 1)"
@@ -51,7 +60,7 @@ run_case() {
     echo "Running ${label}: h=${hidden_dim}, checkpointing=${checkpointing}"
     set +e
     python -m neural_lam.train_model \
-        --config_path "${JOB_DATA_DIR}/global_ocean_1.yaml" \
+        --config_path "${PHYSICAL_DATA_ROOT}/global_ocean_1.yaml" \
         --model graph_efm \
         --graph global_cluster_graph \
         --hidden_dim "${hidden_dim}" \
@@ -77,7 +86,10 @@ run_case() {
         "${checkpoint_flag[@]}" > "${log}" 2>&1
     local exit_code=$?
     set -e
-    if [[ "${exit_code}" -ne 0 && ! -f "${output}" ]]; then
+    if [[ ! -f "${output}" ]]; then
+        if [[ "${exit_code}" == "0" ]]; then
+            exit_code=1
+        fi
         python benchmarks/write_failure_result.py \
             --output "${output}" \
             --label "${label}" \
@@ -85,6 +97,15 @@ run_case() {
             --hidden-dim "${hidden_dim}" \
             --checkpointing "${checkpointing}" \
             --exit-code "${exit_code}"
+    elif ! python -c '
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    result = json.load(handle)
+sys.exit(0 if result.get("status") == "completed" else 1)
+' "${output}"; then
+        exit_code=1
     fi
     echo "${label} exit code: ${exit_code}"
 }
@@ -98,12 +119,10 @@ run_case hidden-h128-ckpt-on 128 on 5 15
 run_case hidden-h192-ckpt-on 192 on 3 8
 run_case hidden-h256-ckpt-on 256 on 2 5
 
-bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"
-# Import the existing cluster history as well as this suite. Plot generation
-# and Git publication therefore happen on the allocated compute node, not on
-# the shared login node.
+# Publish only this controlled suite. Plot generation and Git publication
+# happen on the allocated compute node, not on the shared login node.
 if ! bash jobs/publish_benchmark_results.sh --push \
-    "${REPO_ROOT}/benchmark_results"; then
+    "${RESULT_DIR}"; then
     echo "WARNING: results are safe in ${RESULT_DIR}; Git publication failed" \
         >&2
 fi

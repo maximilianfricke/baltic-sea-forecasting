@@ -1,6 +1,5 @@
 # Standard library
 import json
-import os
 import random
 import time
 from argparse import ArgumentParser
@@ -14,7 +13,7 @@ from loguru import logger
 
 # Local
 from . import utils
-from .benchmarking import BaselineBenchmark, InferenceBenchmarkModule
+from .benchmarking import BaselineBenchmark
 from .config import load_config_and_datastores
 from .models import EDM, FM, SI, GraphCast, GraphCRPS, GraphEFM, GraphFM, GraphDET
 from .weather_dataset import WeatherDataModule
@@ -31,7 +30,7 @@ MODELS = {
 }
 
 
-@logger.catch(reraise=True)
+@logger.catch
 def main(input_args=None):
     """Main function for training and evaluating models."""
     parser = ArgumentParser(
@@ -671,43 +670,10 @@ def main(input_args=None):
         help="Human-readable label stored with a benchmark result.",
     )
     parser.add_argument(
-        "--benchmark_strategy",
-        type=str,
-        choices=["auto", "ddp"],
-        default="auto",
-        help="Lightning strategy for benchmarking (default: auto).",
-    )
-    parser.add_argument(
         "--benchmark_scaling_mode",
-        choices=["single", "strong", "weak", "capacity"],
+        choices=["single", "strong", "weak", "capacity", "io"],
         default="single",
         help="Experiment family stored in the result metadata.",
-    )
-    parser.add_argument(
-        "--benchmark_global_batch_size",
-        type=int,
-        default=None,
-        help="Global batch size used for throughput. By default this is the "
-        "local batch size multiplied by world size.",
-    )
-    parser.add_argument(
-        "--benchmark_profiler_dir",
-        type=str,
-        default=None,
-        help="Optional directory for a PyTorch operator trace. Profiling is "
-        "separate from reportable timing runs because it adds overhead.",
-    )
-    parser.add_argument(
-        "--benchmark_workload",
-        choices=["training", "inference"],
-        default="training",
-        help="Benchmark a full training step or forecast-only inference.",
-    )
-    parser.add_argument(
-        "--benchmark_inference_ensemble_size",
-        type=int,
-        default=1,
-        help="Number of parallel forecast members in an inference benchmark.",
     )
 
     args = parser.parse_args(input_args)
@@ -736,18 +702,6 @@ def main(input_args=None):
             "Checkpointing may only be disabled by this flag in benchmark mode"
         )
     benchmark_enabled = args.benchmark_output is not None
-
-    benchmark_world_size = 1
-    if benchmark_enabled:
-        distributed_world_size = os.environ.get(
-            "WORLD_SIZE", os.environ.get("SLURM_NTASKS")
-        )
-        if distributed_world_size is not None:
-            benchmark_world_size = int(distributed_world_size)
-        elif args.devices != ["auto"]:
-            benchmark_world_size = len(args.devices) * args.num_nodes
-        elif torch.cuda.is_available():
-            benchmark_world_size = torch.cuda.device_count() * args.num_nodes
 
     # Get an (actual) random run id as a unique identifier
     random_run_id = random.randint(0, 9999)
@@ -792,14 +746,6 @@ def main(input_args=None):
         use_atmosphere_g2m=args.use_atmosphere_g2m,
         density_channel=getattr(config.training, "density_channel", None),
         train_distr_crps=args.train_distr_crps,
-        benchmark_samples_per_epoch=(
-            (args.benchmark_warmup_steps + args.benchmark_steps)
-            * args.batch_size
-            * benchmark_world_size
-            if benchmark_enabled
-            else None
-        ),
-        benchmark_world_size=benchmark_world_size,
     )
 
     # Instantiate model + trainer
@@ -808,8 +754,6 @@ def main(input_args=None):
         torch.set_float32_matmul_precision(
             "high"
         )  # Allows using Tensor Cores on A100s
-    elif torch.backends.mps.is_available():
-        device_name = "mps"
     else:
         device_name = "cpu"
 
@@ -904,24 +848,6 @@ def main(input_args=None):
         cbs = list(callbacks)
         if extra_callbacks:
             cbs.extend(extra_callbacks)
-        profiler = None
-        if args.benchmark_profiler_dir:
-            active_steps = min(5, args.benchmark_steps)
-            profiler = pl.profilers.PyTorchProfiler(
-                dirpath=args.benchmark_profiler_dir,
-                filename=args.benchmark_label,
-                schedule=torch.profiler.schedule(
-                    wait=max(args.benchmark_warmup_steps - 1, 0),
-                    warmup=1,
-                    active=active_steps,
-                    repeat=1,
-                ),
-                export_to_chrome=True,
-                record_shapes=True,
-                profile_memory=True,
-                with_stack=True,
-                with_flops=True,
-            )
         return pl.Trainer(
             max_epochs=max_epochs,
             max_steps=(
@@ -929,10 +855,7 @@ def main(input_args=None):
                 if benchmark_enabled
                 else -1
             ),
-            # PyG scatter reductions have no deterministic MPS kernel. Allow
-            # them for local Apple-GPU performance experiments while keeping
-            # strict determinism for the official CUDA baseline.
-            deterministic=False if device_name == "mps" else True,
+            deterministic=True,
             strategy=strategy,
             accelerator=device_name,
             num_nodes=args.num_nodes,
@@ -947,15 +870,9 @@ def main(input_args=None):
             ),
             use_distributed_sampler=not args.train_distr_crps,
             limit_val_batches=0 if benchmark_enabled else 1.0,
-            limit_test_batches=(
-                args.benchmark_warmup_steps + args.benchmark_steps
-                if benchmark_enabled
-                and args.benchmark_workload == "inference"
-                else 1.0
-            ),
+            limit_test_batches=1.0,
             enable_checkpointing=not benchmark_enabled,
             enable_progress_bar=not benchmark_enabled,
-            profiler=profiler,
         )
 
     def _run_phase(
@@ -1110,23 +1027,7 @@ def main(input_args=None):
 
         model.configure_optimizers = configure_optimizers_finetune
 
-    if benchmark_enabled and args.benchmark_workload == "inference":
-        strategy = args.benchmark_strategy
-        trainer = _make_trainer(args.epochs, strategy)
-        inference_model = InferenceBenchmarkModule(
-            model,
-            ensemble_size=args.benchmark_inference_ensemble_size,
-        )
-        # Performance runs use the larger training split to guarantee the
-        # same requested sample count even for long autoregressive horizons.
-        # No optimization or gradients are performed by trainer.test().
-        data_module.setup("fit")
-        trainer.test(
-            model=inference_model,
-            dataloaders=data_module.train_dataloader(),
-        )
-
-    elif args.eval:
+    if args.eval:
         strategy = (
             "ddp" if args.kl_beta > 0 else "ddp_find_unused_parameters_true"
         )
@@ -1345,7 +1246,7 @@ def main(input_args=None):
     else:
         # Default: single-phase training
         if benchmark_enabled:
-            strategy = args.benchmark_strategy
+            strategy = "auto"
         else:
             strategy = (
                 "ddp"

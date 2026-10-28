@@ -18,17 +18,10 @@ import pytorch_lightning as pl
 import torch
 
 
-def _mps_available():
-    """Return whether this process can use the Apple Metal backend."""
-    return hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
-
-
 def _synchronize():
     """Wait for queued accelerator work."""
     if torch.cuda.is_available():
         torch.cuda.synchronize()
-    elif _mps_available():
-        torch.mps.synchronize()
 
 
 def _summary(values):
@@ -180,64 +173,9 @@ def _hardware_metadata():
             result["gpu"]["nvidia_smi"] = nvidia_smi
         except (OSError, subprocess.CalledProcessError):
             result["gpu"]["nvidia_smi"] = None
-    elif _mps_available():
-        result["gpu"] = {
-            "index": 0,
-            "name": "Apple MPS",
-            "compute_capability": None,
-            "total_memory_bytes": torch.mps.recommended_max_memory(),
-            "device_count": 1,
-        }
     else:
         result["gpu"] = None
     return result
-
-
-class InferenceBenchmarkModule(pl.LightningModule):
-    """Run forecasting only, without metric aggregation or plotting."""
-
-    def __init__(self, forecast_model, ensemble_size=1):
-        super().__init__()
-        self.forecast_model = forecast_model
-        self.ensemble_size = ensemble_size
-
-    def test_step(self, batch, batch_idx):
-        del batch_idx
-        (
-            init_states,
-            _,
-            forcing,
-            boundary_forcing,
-            atmosphere_forcing,
-            _,
-        ) = batch
-
-        def expand(tensor):
-            return tensor.repeat_interleave(self.ensemble_size, dim=0)
-
-        init_states = expand(init_states)
-        forcing = expand(forcing)
-        boundary_forcing = expand(boundary_forcing)
-        atmosphere_forcing = expand(atmosphere_forcing)
-        if self.forecast_model.input_steps == 1:
-            previous = init_states[:, 0]
-            previous_previous = None
-        else:
-            previous_previous = init_states[:, 0]
-            previous = init_states[:, 1]
-
-        for step in range(forcing.shape[1]):
-            prediction, _ = self.forecast_model.predict_step(
-                previous,
-                previous_previous,
-                forcing[:, step],
-                boundary_forcing[:, step],
-                atmosphere_forcing[:, step],
-            )
-            if self.forecast_model.input_steps > 1:
-                previous_previous = previous
-            previous = prediction
-        return None
 
 
 class BaselineBenchmark(pl.Callback):
@@ -261,7 +199,7 @@ class BaselineBenchmark(pl.Callback):
         self.measurement_steps = measurement_steps
         self.run_label = run_label
         self.args = vars(args).copy()
-        self.workload = self.args.get("benchmark_workload", "training")
+        self.workload = "training"
         self.timing_mode = self.args.get(
             "benchmark_timing_mode", "phase"
         )
@@ -277,26 +215,31 @@ class BaselineBenchmark(pl.Callback):
         self.startup = {}
         self.aggregate_start = None
         self.error = None
-        self._mps_peak_allocated = 0
-        self._mps_peak_reserved = 0
-        self._mps_batch_memory = []
-
-    def _sample_mps_memory(self):
-        if _mps_available():
-            self._mps_batch_memory.append(
-                (
-                    torch.mps.current_allocated_memory(),
-                    torch.mps.driver_allocated_memory(),
-                )
-            )
+        self.dataset_metadata = {}
 
     def on_fit_start(self, trainer, pl_module):
-        del trainer, pl_module
+        del pl_module
+        self._capture_dataset_metadata(trainer)
         self._run_start()
 
-    def on_test_start(self, trainer, pl_module):
-        del trainer, pl_module
-        self._run_start()
+    def _capture_dataset_metadata(self, trainer):
+        if self.dataset_metadata:
+            return
+        loader = trainer.train_dataloader
+        dataset = getattr(loader, "dataset", None)
+        if dataset is not None:
+            samples = len(dataset)
+            samples_per_rank = (
+                samples + trainer.world_size - 1
+            ) // trainer.world_size
+            self.dataset_metadata = {
+                "original_samples": samples,
+                "effective_samples_per_epoch": samples,
+                "world_size_hint": trainer.world_size,
+                "samples_per_rank_per_epoch": samples_per_rank,
+                "batches_per_epoch": len(loader),
+                "samples_repeated_within_epoch": False,
+            }
 
     def _run_start(self):
         now = datetime.now(timezone.utc)
@@ -328,7 +271,8 @@ class BaselineBenchmark(pl.Callback):
         self.last_batch_end = time.perf_counter()
 
     def on_train_batch_start(self, trainer, pl_module, batch, batch_idx):
-        del trainer, pl_module, batch, batch_idx
+        self._capture_dataset_metadata(trainer)
+        del pl_module, batch, batch_idx
         if self.timing_mode == "aggregate":
             if self.seen_steps == self.warmup_steps:
                 _synchronize()
@@ -345,8 +289,6 @@ class BaselineBenchmark(pl.Callback):
             0.0 if self.last_batch_end is None else now - self.last_batch_end
         )
         self._times = {"start": now, "data_wait": data_wait}
-        self._mps_batch_memory = []
-        self._sample_mps_memory()
         if (
             self.seen_steps == self.warmup_steps
             and self.measurement_started_at is None
@@ -363,9 +305,6 @@ class BaselineBenchmark(pl.Callback):
             }
             self._events["start"].record()
 
-    def on_test_batch_start(self, trainer, pl_module, batch, batch_idx):
-        self.on_train_batch_start(trainer, pl_module, batch, batch_idx)
-
     def on_before_backward(self, trainer, pl_module, loss):
         del trainer, pl_module, loss
         self._mark("forward_end")
@@ -377,10 +316,6 @@ class BaselineBenchmark(pl.Callback):
     def _mark(self, name):
         if self._events is not None:
             self._events[name].record()
-        elif _mps_available():
-            # MPS is asynchronous but does not expose CUDA-style timing events.
-            torch.mps.synchronize()
-            self._sample_mps_memory()
         if self._times is not None:
             self._times[name] = time.perf_counter()
 
@@ -488,35 +423,6 @@ class BaselineBenchmark(pl.Callback):
                         ),
                     }
                 )
-            elif _mps_available():
-                allocated = torch.mps.current_allocated_memory()
-                reserved = torch.mps.driver_allocated_memory()
-                sampled_peak_allocated = max(
-                    sample[0] for sample in self._mps_batch_memory
-                )
-                sampled_peak_reserved = max(
-                    sample[1] for sample in self._mps_batch_memory
-                )
-                self._mps_peak_allocated = max(
-                    self._mps_peak_allocated, sampled_peak_allocated
-                )
-                self._mps_peak_reserved = max(
-                    self._mps_peak_reserved, sampled_peak_reserved
-                )
-                record.update(
-                    {
-                        "gpu_memory_allocated_bytes": allocated,
-                        "gpu_memory_reserved_bytes": reserved,
-                        # MPS exposes no resettable peak counter. These are the
-                        # largest observations at synchronized phase borders.
-                        "gpu_peak_memory_allocated_bytes": (
-                            self._mps_peak_allocated
-                        ),
-                        "gpu_peak_memory_reserved_bytes": (
-                            self._mps_peak_reserved
-                        ),
-                    }
-                )
             self.records.append(record)
             self.measured_steps += 1
             self.measurement_finished_at = datetime.now(
@@ -524,23 +430,11 @@ class BaselineBenchmark(pl.Callback):
             ).isoformat()
         self.seen_steps += 1
 
-    def on_test_batch_end(
-        self, trainer, pl_module, outputs, batch, batch_idx
-    ):
-        self._mark("forward_end")
-        self._mark("backward_end")
-        self.on_train_batch_end(
-            trainer, pl_module, outputs, batch, batch_idx
-        )
-
     def on_exception(self, trainer, pl_module, exception):
         del trainer, pl_module
         self.error = f"{type(exception).__name__}: {exception}"
 
     def on_fit_end(self, trainer, pl_module):
-        self._finish(trainer, pl_module)
-
-    def on_test_end(self, trainer, pl_module):
         self._finish(trainer, pl_module)
 
     def _finish(self, trainer, pl_module):
@@ -644,10 +538,6 @@ class BaselineBenchmark(pl.Callback):
         global_batch_size = self.args.get("benchmark_global_batch_size")
         if global_batch_size is None and batch_size is not None:
             global_batch_size = batch_size * trainer.world_size
-            if self.workload == "inference":
-                global_batch_size *= self.args.get(
-                    "benchmark_inference_ensemble_size", 1
-                )
         compute_samples_per_second = (
             global_batch_size * 1000.0 / step_mean
             if step_mean and global_batch_size is not None
@@ -674,18 +564,14 @@ class BaselineBenchmark(pl.Callback):
         trainable_bytes = model_metadata["trainable_parameter_bytes"]
         world_size = trainer.world_size
         # DDP synchronizes one gradient value per trainable parameter. The
-        # ring-all-reduce wire-volume formula is an estimate; communication
-        # time is measured separately by the PyTorch/NCCL profiler trace.
+        # ring-all-reduce wire-volume formula is an estimate, not a measured
+        # communication time.
         estimated_ring_bytes = (
             2 * (world_size - 1) / world_size * trainable_bytes
-            if self.workload == "training" and world_size > 1
+            if world_size > 1
             else 0
         )
-        data_module = trainer.datamodule
-        split = "test" if self.workload == "inference" else "train"
-        dataset_metadata = getattr(
-            data_module, "benchmark_dataset_metadata", {}
-        ).get(split, {})
+        split = "train"
         result = {
             "schema_version": 4,
             "label": self.run_label,
@@ -703,9 +589,7 @@ class BaselineBenchmark(pl.Callback):
                     "benchmark_scaling_mode", "single"
                 ),
                 "global_batch_size": global_batch_size,
-                "estimated_gradient_payload_bytes_per_step": (
-                    trainable_bytes if self.workload == "training" else 0
-                ),
+                "estimated_gradient_payload_bytes_per_step": trainable_bytes,
                 "estimated_ring_allreduce_bytes_per_rank_per_step": (
                     estimated_ring_bytes
                 ),
@@ -715,7 +599,7 @@ class BaselineBenchmark(pl.Callback):
             "arguments": self.args,
             "dataset": {
                 "split": split,
-                **dataset_metadata,
+                **self.dataset_metadata,
             },
             "startup": self.startup,
             "instrumentation": {
@@ -729,9 +613,7 @@ class BaselineBenchmark(pl.Callback):
                 "gpu_telemetry_interval_ms": (
                     os.environ.get("TELEMETRY_INTERVAL_MS")
                 ),
-                "pytorch_profiler_enabled": bool(
-                    self.args.get("benchmark_profiler_dir")
-                ),
+                "pytorch_profiler_enabled": False,
             },
             "protocol": {
                 "warmup_steps": self.warmup_steps,
@@ -749,15 +631,11 @@ class BaselineBenchmark(pl.Callback):
                 "phase_timing_source": (
                     "cuda_events"
                     if torch.cuda.is_available()
-                    else "synchronized_wall_clock"
-                    if _mps_available()
                     else "wall_clock"
                 ),
                 "memory_measurement": (
                     "allocator_peak"
                     if torch.cuda.is_available()
-                    else "maximum_synchronized_phase_boundary"
-                    if _mps_available()
                     else None
                 ),
                 "deterministic_algorithms": (

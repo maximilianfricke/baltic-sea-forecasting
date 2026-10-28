@@ -1,5 +1,4 @@
 # Standard library
-from contextlib import nullcontext
 from typing import Union
 
 # Third-party
@@ -20,11 +19,6 @@ from .graph_latent_decoder import GraphLatentDecoder
 from .graph_latent_encoder import GraphLatentEncoder
 from .hi_graph_latent_decoder import HiGraphLatentDecoder
 from .hi_graph_latent_encoder import HiGraphLatentEncoder
-
-
-def _profile_scope(enabled, name):
-    """Add semantic regions only when an explicit profiler is active."""
-    return torch.profiler.record_function(name) if enabled else nullcontext()
 
 
 class GraphEFM(ARProbModel):
@@ -60,9 +54,6 @@ class GraphEFM(ARProbModel):
         self.kl_beta = args.kl_beta
         self.crps_weight = args.crps_weight
         self.num_latents_plot = args.num_latents_plot
-        self._benchmark_profiler_enabled = bool(
-            getattr(args, "benchmark_profiler_dir", None)
-        )
 
         # Load graph with static features
         graph_dir_path = datastore.root_path / "graphs" / args.graph
@@ -661,33 +652,27 @@ class GraphEFM(ARProbModel):
             prev_states[:, 0] if prev_states.shape[1] > 1 else None
         )
         # embed all features
-        with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/embeddings"
-        ):
-            grid_prev_emb, grid_prev_interior_emb, graph_emb = self.embedd_all(
-                prev_state,
-                prev_prev_state,
-                forcing_features,
-                boundary_forcing,
-                atmosphere_forcing,
-            )
-            # Embed the target-conditioned representation for the encoder.
-            grid_current_emb = self.embedd_current(
-                prev_state,
-                prev_prev_state,
-                forcing_features,
-                boundary_forcing,
-                atmosphere_forcing,
-                current_state,
-            )  # (B, num_grid_nodes, d_h)
+        grid_prev_emb, grid_prev_interior_emb, graph_emb = self.embedd_all(
+            prev_state,
+            prev_prev_state,
+            forcing_features,
+            boundary_forcing,
+            atmosphere_forcing,
+        )
+        # embed also including current grid state, for encoder
+        grid_current_emb = self.embedd_current(
+            prev_state,
+            prev_prev_state,
+            forcing_features,
+            boundary_forcing,
+            atmosphere_forcing,
+            current_state,
+        )  # (B, num_grid_nodes, d_h)
 
         # Compute variational approximation (encoder)
-        with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/encoder"
-        ):
-            var_dist = self.encoder(
-                grid_current_emb, graph_emb=graph_emb
-            )  # Gaussian, (B, num_mesh_nodes, d_latent)
+        var_dist = self.encoder(
+            grid_current_emb, graph_emb=graph_emb
+        )  # Gaussian, (B, num_mesh_nodes, d_latent)
 
         # Compute likelihood
         last_state = prev_state
@@ -701,12 +686,9 @@ class GraphEFM(ARProbModel):
         )
         if self.kl_beta > 0:
             # Compute prior
-            with _profile_scope(
-                self._benchmark_profiler_enabled, "graph_efm/prior"
-            ):
-                prior_dist = self.prior_model(
-                    grid_prev_emb, graph_emb=graph_emb
-                )  # Gaussian, (B, num_mesh_nodes, d_latent)
+            prior_dist = self.prior_model(
+                grid_prev_emb, graph_emb=graph_emb
+            )  # Gaussian, (B, num_mesh_nodes, d_latent)
 
             # Compute KL
             kl_term = torch.sum(
@@ -749,16 +731,13 @@ class GraphEFM(ARProbModel):
         latent_samples = latent_dist.rsample()  # (B, num_mesh_nodes, d_latent)
 
         # Compute reconstruction (decoder)
-        with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/decoder"
-        ):
-            pred_mean, model_pred_std = self.decoder(
-                grid_prev_emb,
-                interior_grid_prev_emb,
-                latent_samples,
-                last_state,
-                graph_emb,
-            )  # both (B, num_grid_nodes, d_state)
+        pred_mean, model_pred_std = self.decoder(
+            grid_prev_emb,
+            interior_grid_prev_emb,
+            latent_samples,
+            last_state,
+            graph_emb,
+        )  # both (B, num_grid_nodes, d_state)
 
         # Apply output clamping
         # (decoder adds residual: pred_mean = prev + delta)
@@ -774,18 +753,15 @@ class GraphEFM(ARProbModel):
         # Compute likelihood (negative loss, exactly likelihood for nll loss)
         # Note: There are some round-off errors here due to float32
         # and large values
-        with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/loss"
-        ):
-            entry_likelihoods = -self.loss(
-                pred_mean,
-                current_state,
-                pred_std,
-                mask=self.loss_mask,
-                average_grid=False,
-                sum_vars=False,
-            )  # (B, num_grid_nodes', d_state)
-            likelihood_term = torch.sum(entry_likelihoods, dim=(1, 2))
+        entry_likelihoods = -self.loss(
+            pred_mean,
+            current_state,
+            pred_std,
+            mask=self.loss_mask,
+            average_grid=False,
+            sum_vars=False,
+        )  # (B, num_grid_nodes', d_state)
+        likelihood_term = torch.sum(entry_likelihoods, dim=(1, 2))  # (B,)
         return likelihood_term, pred_mean, pred_std
 
     def training_step(self, batch):
@@ -945,40 +921,31 @@ class GraphEFM(ARProbModel):
         """
 
         # embed all features
-        with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/embeddings"
-        ):
-            grid_prev_emb, grid_prev_interior_emb, graph_emb = self.embedd_all(
-                prev_state,
-                prev_prev_state,
-                forcing,
-                boundary_forcing,
-                atmosphere_forcing,
-            )
+        grid_prev_emb, grid_prev_interior_emb, graph_emb = self.embedd_all(
+            prev_state,
+            prev_prev_state,
+            forcing,
+            boundary_forcing,
+            atmosphere_forcing,
+        )
 
         # Compute prior
-        with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/prior"
-        ):
-            prior_dist = self.prior_model(
-                grid_prev_emb, graph_emb=graph_emb
-            )  # (B, num_mesh_nodes, d_latent)
+        prior_dist = self.prior_model(
+            grid_prev_emb, graph_emb=graph_emb
+        )  # (B, num_mesh_nodes, d_latent)
 
         # Sample from prior
         latent_samples = prior_dist.rsample()
         # (B, num_mesh_nodes, d_latent)
 
         # Compute reconstruction (decoder)
-        with _profile_scope(
-            self._benchmark_profiler_enabled, "graph_efm/decoder"
-        ):
-            pred_mean, pred_std = self.decoder(
-                grid_prev_emb,
-                grid_prev_interior_emb,
-                latent_samples,
-                prev_state,
-                graph_emb,
-            )  # (B, num_grid_nodes, d_state)
+        pred_mean, pred_std = self.decoder(
+            grid_prev_emb,
+            grid_prev_interior_emb,
+            latent_samples,
+            prev_state,
+            graph_emb,
+        )  # (B, num_grid_nodes, d_state)
 
         # TODO: Add option for pred_residual,
         # for now it is always True in the decoder

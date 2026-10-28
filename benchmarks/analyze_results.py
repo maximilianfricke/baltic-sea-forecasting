@@ -100,7 +100,7 @@ def make_report(results):
         "# Benchmark analysis",
         "",
         "This report is generated from completed benchmark JSON files. "
-        "Local Apple-MPS results are exploratory and must not be compared "
+        "Local CPU results are exploratory and must not be compared "
         "numerically with the official CUDA cluster baseline.",
         "",
     ]
@@ -183,14 +183,19 @@ def make_report(results):
         if off_mem and on_mem:
             savings.append(-percent_change(on_mem, off_mem))
     if overheads:
+        memory_sentence = (
+            "Median observed allocated-memory reduction is "
+            f"{fmt(statistics.median(savings), 1)}%."
+            if savings
+            else "Allocated-memory reduction is unavailable for this pair."
+        )
         lines.extend(
             [
                 "## Gradient checkpointing",
                 "",
                 f"Across {len(overheads)} controlled pairs, median compute "
                 f"overhead is {fmt(statistics.median(overheads), 1)}%. "
-                f"Median observed allocated-memory reduction is "
-                f"{fmt(statistics.median(savings), 1)}%.",
+                f"{memory_sentence}",
                 "",
             ]
         )
@@ -410,9 +415,9 @@ def make_report(results):
                 )
     else:
         lines.append(
-            "No multi-GPU result is present yet. Cluster scripts are ready, "
-            "but speedup, efficiency, NCCL time, and per-rank imbalance must "
-            "be measured on the target cluster before drawing conclusions."
+            "No multi-GPU result is present yet. Speedup, efficiency, "
+            "communication time, and per-rank imbalance must be measured "
+            "after the distributed implementation is available."
         )
     lines.extend(
         [
@@ -421,18 +426,13 @@ def make_report(results):
             "",
             "- CUDA timings use accelerator events and resettable allocator "
             "peaks.",
-            "- MPS timings use synchronized wall clock. Its memory value is "
-            "the largest sample at a synchronized phase boundary, not an "
-            "exact transient peak.",
-            "- Profiler runs are kept separate because tracing changes "
-            "runtime.",
-            "- DDP communication volume is estimated from trainable gradient "
-            "bytes; "
-            "NCCL duration is obtained from the multi-GPU profiler trace.",
-            "- When the public data subset is shorter than the requested "
-            "benchmark window, valid sample indices are repeated inside one "
-            "synthetic epoch. This prevents tiny-dataset epoch restarts from "
-            "dominating steady-state input timing and is recorded in JSON.",
+            "- CPU smoke tests use wall clock and are validation only.",
+            "- Distributed communication is not yet measured and no "
+            "multi-GPU performance claim is made.",
+            "- Current official runs use the physical-repeat I/O proxy. It "
+            "has independent Zarr chunks and a long epoch but repeats the "
+            "same scientific values, so it is an I/O proxy rather than new "
+            "training data.",
             "- Report medians across at least three independent cluster runs.",
             "",
         ]

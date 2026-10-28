@@ -71,6 +71,8 @@ nvidia-smi --query-gpu=name,uuid,driver_version,memory.total,power.limit \
     --format=csv
 
 OUTPUT="${RESULT_DIR}/physical-${PHYSICAL_IO_MODE}-${SLURM_JOB_ID}.json"
+RUN_LOG="${RESULT_DIR}/physical-${PHYSICAL_IO_MODE}-${SLURM_JOB_ID}.log"
+set +e
 python -m neural_lam.train_model \
     --config_path "${JOB_DATA_DIR}/global_ocean_1.yaml" \
     --model graph_efm \
@@ -95,12 +97,39 @@ python -m neural_lam.train_model \
     --benchmark_timing_mode phase \
     --benchmark_label \
     "physical-io-${PHYSICAL_IO_MODE}-1080ti-h64-p2-b2-ar4-fp32-ckpt-on" \
-    --benchmark_output "${OUTPUT}"
+    --benchmark_output "${OUTPUT}" 2>&1 | tee "${RUN_LOG}"
+RUN_EXIT_CODE="${PIPESTATUS[0]}"
+set -e
+
+if [[ ! -f "${OUTPUT}" ]]; then
+    if [[ "${RUN_EXIT_CODE}" == "0" ]]; then
+        RUN_EXIT_CODE=1
+    fi
+    python benchmarks/write_failure_result.py \
+        --output "${OUTPUT}" \
+        --label \
+        "physical-io-${PHYSICAL_IO_MODE}-1080ti-h64-p2-b2-ar4-fp32-ckpt-on" \
+        --log "${RUN_LOG}" \
+        --hidden-dim 64 \
+        --checkpointing on \
+        --scaling-mode io \
+        --exit-code "${RUN_EXIT_CODE}"
+elif ! python -c '
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    result = json.load(handle)
+sys.exit(0 if result.get("status") == "completed" else 1)
+' "${OUTPUT}"
+then
+    RUN_EXIT_CODE=1
+fi
 
 stop_gpu_telemetry
 trap - EXIT
-bash jobs/update_benchmark_summary.sh "${REPO_ROOT}/benchmark_results"
 if ! bash jobs/publish_benchmark_results.sh --push \
-    "${REPO_ROOT}/benchmark_results"; then
+    "${OUTPUT}"; then
     echo "WARNING: result is safe in ${OUTPUT}; Git publication failed" >&2
 fi
+exit "${RUN_EXIT_CODE}"

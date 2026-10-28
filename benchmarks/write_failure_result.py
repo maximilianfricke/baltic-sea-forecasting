@@ -1,4 +1,4 @@
-"""Record an expected capacity-probe failure as benchmark evidence."""
+"""Record a benchmark process failure as compact evidence."""
 
 # Standard library
 import argparse
@@ -27,6 +27,11 @@ def main():
     parser.add_argument("--hidden-dim", required=True, type=int)
     parser.add_argument("--checkpointing", required=True, choices=("on", "off"))
     parser.add_argument("--exit-code", required=True, type=int)
+    parser.add_argument(
+        "--scaling-mode",
+        default="capacity",
+        choices=("single", "strong", "weak", "capacity", "io"),
+    )
     args = parser.parse_args()
 
     error = ""
@@ -46,7 +51,10 @@ def main():
             "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
             "gpu": {"name": os.environ.get("NJORD_GPU_NAME")},
         },
-        "distributed": {"world_size": 1, "scaling_mode": "capacity"},
+        "distributed": {
+            "world_size": 1,
+            "scaling_mode": args.scaling_mode,
+        },
         "model": {
             "class": "GraphEFM",
             "gradient_checkpointing": args.checkpointing == "on",

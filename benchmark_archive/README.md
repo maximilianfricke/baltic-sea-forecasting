@@ -20,5 +20,6 @@ Archive every result currently present on a machine and publish it:
 bash jobs/publish_benchmark_results.sh --push benchmark_results
 ```
 
-The standard GTX-1080-Ti batch job performs this automatically by default.
-Set `PUBLISH_RESULTS=0` for an intentionally private or experimental run.
+The decision-suite and physical-I/O jobs perform this automatically. A
+publication failure never deletes the original result under
+`benchmark_results/`; rerun the command above from a compute allocation.

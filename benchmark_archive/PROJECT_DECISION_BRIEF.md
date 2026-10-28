@@ -32,8 +32,9 @@ automatic gradient checkpointing. Job 1453 measured 200 steps after warm-up.
 The old end-to-end input result is not a steady-state storage bottleneck. The
 public training subset has eight valid samples at this unroll length, hence
 four batches at batch size two. The observed two-second wait every fourth
-step was the DataLoader restarting the tiny epoch. Benchmark mode now repeats
-samples inside one epoch; the next cluster run must validate this correction.
+step was the DataLoader restarting the tiny epoch. The official jobs now use
+a separate 2.2-GB physical-repeat I/O proxy with 479 training time steps. This
+avoids the tiny epoch without changing the normal dataset implementation.
 
 The graph in the archived baseline contains 42,348 grid nodes and 10,553 mesh
 nodes. Its edge sets include 70,640 grid-to-mesh, 60,186 mesh-to-mesh, 126,107
@@ -87,7 +88,7 @@ themselves identify which model component dominates runtime.
 
 | Experiment | Decision it unlocks |
 |---|---|
-| Repeat-dataset validation | whether input waiting is still material |
+| Physical-dataset validation | whether input waiting is still material |
 | h64 checkpoint on vs off | exact memory saved per recomputation cost |
 | h128/h192/h256 capacity probes | scaling curve and first OOM boundary |
 | Semantic component profile | which of encoder/prior/decoder to optimize first |
