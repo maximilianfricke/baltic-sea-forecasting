@@ -125,4 +125,5 @@ if ! bash jobs/update_benchmark_archive.sh \
     "${RESULT_DIR}"; then
     echo "WARNING: results are safe in ${RESULT_DIR}; archive update failed" \
         >&2
+    exit 1
 fi

@@ -124,8 +124,8 @@ def archive(inputs, output_root):
             sorted(
                 manifest.values(),
                 key=lambda row: (
-                    row.get("started_at_utc", ""),
-                    row.get("archive_file", ""),
+                    row.get("started_at_utc") or "",
+                    row.get("archive_file") or "",
                 ),
             )
         )

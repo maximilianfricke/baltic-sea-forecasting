@@ -151,5 +151,8 @@ fi
 if ! bash jobs/update_benchmark_archive.sh \
     "${OUTPUT}"; then
     echo "WARNING: result is safe in ${OUTPUT}; archive update failed" >&2
+    if [[ "${RUN_EXIT_CODE}" == "0" ]]; then
+        RUN_EXIT_CODE=1
+    fi
 fi
 exit "${RUN_EXIT_CODE}"

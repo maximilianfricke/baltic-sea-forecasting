@@ -24,3 +24,10 @@ The decision-suite and physical-I/O jobs update the archive automatically but
 never run Git commands. After each job, review `git status` and manually add,
 commit, and push `benchmark_archive/`. An archive failure never deletes the
 original result under `benchmark_results/`.
+
+If a job completed its measurements but failed while building this archive,
+submit the lightweight recovery job instead of rerunning the measurements:
+
+```bash
+bash jobs/submit_archive_recovery.sh benchmark_results/decision-suite
+```

@@ -119,7 +119,14 @@ on the local computer to retrieve the result and plots.
 Datasets, Slurm logs, checkpoints, and large traces remain outside Git. If the
 archive update fails, the original result remains under `benchmark_results/`.
 Regenerate it in a short Slurm allocation rather than running the plotting and
-analysis programs directly on the login node.
+analysis programs directly on the login node:
+
+```bash
+bash jobs/submit_archive_recovery.sh benchmark_results/decision-suite
+```
+
+This recovery job only reads existing results and rebuilds the tracked archive;
+it does not repeat training and does not execute Git commands.
 
 ## Interpretation boundary
 
