@@ -1,0 +1,42 @@
+{
+  "name": "Realistic Graph-EFM baseline",
+  "source": {
+    "train_model_args": "--config_path sample_data/global_ocean_1.yaml --model graph_efm --graph global_cluster_graph --hidden_dim 64 --hidden_dim_grid 64 --hidden_dim_mesh_nodes 64 --hidden_dim_edge 64 --processor_layers 2 --ar_steps_train 4 --ar_steps_eval 4 --num_workers 0",
+    "graph": "global_cluster_graph",
+    "git_commit": "883c48e",
+    "measured": "2026-11-04",
+    "batch_size": 1,
+    "device": "cpu"
+  },
+  "memory": {
+    "unit": "values stored per item / hidden_dim, one checkpointed forecast step",
+    "node": {
+      "Grid": 21.938,
+      "Mesh 0": 30.531,
+      "Mesh 1": 55.312
+    },
+    "edge": {
+      "g2m": 21.125,
+      "m2g": 9.062,
+      "m2m 0": 39.219,
+      "m2m 1": 27.156,
+      "up 0->1": 30.531,
+      "down 1->0": 30.531
+    },
+    "total_per_step_values": 427177193,
+    "notes": [
+      "Mesh 0, up 0->1, down 1->0 have equal size (8456); their stored values are split evenly"
+    ]
+  },
+  "usage": {
+    "unit": "applications per forecast step",
+    "edge": {
+      "g2m": 3,
+      "m2g": 1,
+      "m2m 0": 6,
+      "m2m 1": 4,
+      "up 0->1": 3,
+      "down 1->0": 1
+    }
+  }
+}
