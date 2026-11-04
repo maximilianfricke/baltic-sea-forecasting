@@ -38,4 +38,5 @@ class ConstantLatentEncoder(BaseLatentEncoder):
             self.num_mesh_nodes,
             self.output_dim,
             device=grid_rep.device,
+            dtype=grid_rep.dtype,
         )  # (B, num_mesh_nodes, d_output)

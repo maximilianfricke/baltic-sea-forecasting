@@ -79,6 +79,23 @@ def main(input_args=None):
         help="upper epoch limit (default: 200)",
     )
     parser.add_argument(
+        "--graph_parallel_size",
+        type=int,
+        default=1,
+        help="Shard a hierarchical GraphEFM mesh across this many GPUs on one host",
+    )
+    parser.add_argument(
+        "--graph_partition_path",
+        type=str,
+        default=None,
+        help="Optional MeshPartition .pt file; otherwise use spatial bisection",
+    )
+    parser.add_argument(
+        "--graph_parallel_overlap",
+        action="store_true",
+        help="Overlap mesh halo exchange with local edge MLPs and their backward pass",
+    )
+    parser.add_argument(
         "--batch_size", type=int, default=4, help="batch size (default: 4)"
     )
     parser.add_argument(
@@ -702,6 +719,23 @@ def main(input_args=None):
             "Checkpointing may only be disabled by this flag in benchmark mode"
         )
     benchmark_enabled = args.benchmark_output is not None
+    if args.graph_parallel_size < 1:
+        raise ValueError("graph_parallel_size must be positive")
+    if args.graph_partition_path and args.graph_parallel_size == 1:
+        raise ValueError(
+            "graph_partition_path requires graph_parallel_size > 1"
+        )
+    if args.graph_parallel_overlap and args.graph_parallel_size == 1:
+        raise ValueError(
+            "graph_parallel_overlap requires graph_parallel_size > 1"
+        )
+    if args.graph_parallel_size > 1:
+        if args.model != "graph_efm" or args.num_nodes != 1:
+            raise ValueError("Graph parallelism requires GraphEFM on one host")
+        if args.train_distr_crps:
+            raise ValueError(
+                "Graph parallelism cannot be combined with distributed CRPS"
+            )
 
     # Get an (actual) random run id as a unique identifier
     random_run_id = random.randint(0, 9999)
@@ -746,6 +780,8 @@ def main(input_args=None):
         use_atmosphere_g2m=args.use_atmosphere_g2m,
         density_channel=getattr(config.training, "density_channel", None),
         train_distr_crps=args.train_distr_crps,
+        graph_parallel_size=args.graph_parallel_size,
+        graph_parallel_seed=args.seed,
     )
 
     # Instantiate model + trainer
@@ -848,6 +884,12 @@ def main(input_args=None):
         cbs = list(callbacks)
         if extra_callbacks:
             cbs.extend(extra_callbacks)
+        if args.graph_parallel_size > 1:
+            from .graph_parallel_strategy import GraphParallelStrategy
+
+            strategy = GraphParallelStrategy(
+                args.graph_parallel_size, args.graph_partition_path
+            )
         return pl.Trainer(
             max_epochs=max_epochs,
             max_steps=(
@@ -868,7 +910,9 @@ def main(input_args=None):
             num_sanity_val_steps=(
                 0 if benchmark_enabled else args.num_sanity_val_steps
             ),
-            use_distributed_sampler=not args.train_distr_crps,
+            use_distributed_sampler=(
+                not args.train_distr_crps and args.graph_parallel_size == 1
+            ),
             limit_val_batches=0 if benchmark_enabled else 1.0,
             limit_test_batches=1.0,
             enable_checkpointing=not benchmark_enabled,

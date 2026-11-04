@@ -395,6 +395,13 @@ class ARModel(pl.LightningModule):
             and self.training
             and torch.is_grad_enabled()
         ):
+            if getattr(self, "graph_parallel", None) is not None:
+                from neural_lam.graph_parallel import communicating_checkpoint
+
+                with communicating_checkpoint():
+                    return torch.utils.checkpoint.checkpoint(
+                        func, *args, use_reentrant=False
+                    )
             return torch.utils.checkpoint.checkpoint(
                 func, *args, use_reentrant=False
             )

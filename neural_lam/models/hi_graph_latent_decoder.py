@@ -137,9 +137,16 @@ class HiGraphLatentDecoder(BaseGraphLatentDecoder):
         grid_rep: (B, num_grid_nodes, d_h)
         """
         # Map to bottom mesh level
+        parallel = getattr(self, "graph_parallel", None)
+        bottom_mesh = graph_emb["mesh"][0]
+        if parallel is not None:
+            bottom_mesh = parallel.replicate(bottom_mesh, 0)
+            latent_rep = parallel.select(latent_rep, -1)
         current_mesh_rep = self.g2m_gnn(
-            original_grid_rep, graph_emb["mesh"][0], graph_emb["g2m"]
+            original_grid_rep, bottom_mesh, graph_emb["g2m"]
         )  # (B, num_mesh_nodes[0], d_h)
+        if parallel is not None:
+            current_mesh_rep = parallel.select(current_mesh_rep, 0)
 
         current_mesh_rep = self.pre_mesh_proj(current_mesh_rep)
         # Up hierarchy
@@ -205,6 +212,8 @@ class HiGraphLatentDecoder(BaseGraphLatentDecoder):
             )  # (B, num_mesh_nodes[l], d_h)
 
         current_mesh_rep = self.post_mesh_proj(current_mesh_rep)
+        if parallel is not None:
+            current_mesh_rep = parallel.replicate(current_mesh_rep, 0)
 
         # Map back to grid
         grid_rep = self.m2g_gnn(

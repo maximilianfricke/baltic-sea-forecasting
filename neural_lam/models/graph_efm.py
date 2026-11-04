@@ -369,6 +369,8 @@ class GraphEFM(ARProbModel):
         """
         Get the total number of mesh nodes in the used mesh graph
         """
+        if hasattr(self, "_global_mesh_sizes"):
+            return sum(self._global_mesh_sizes)
         if self.hierarchical_graph:
             num_mesh_nodes = sum(
                 node_feat.shape[0] for node_feat in self.mesh_static_features
@@ -383,6 +385,8 @@ class GraphEFM(ARProbModel):
         Get the total number of mesh nodes that have a connection to
         the grid (e.g. bottom level in a hierarchy)
         """
+        if hasattr(self, "_global_mesh_sizes"):
+            return self._global_mesh_sizes[0]
         if self.hierarchical_graph:
             return self.mesh_static_features[0].shape[0]  # Bottom level
         else:
@@ -395,6 +399,8 @@ class GraphEFM(ARProbModel):
 
         Single lev graph: same as total mesh nodes, hierarchical: top level only
         """
+        if hasattr(self, "_global_mesh_sizes"):
+            return self._global_mesh_sizes[-1]
         if self.hierarchical_graph:
             return self.mesh_static_features[-1].shape[0]
         return self.mesh_static_features.shape[0]
@@ -415,10 +421,69 @@ class GraphEFM(ARProbModel):
             pred_std = self.per_var_std  # (d_f,)
 
         if self.sample_obs_noise:
-            return torch.distributions.Normal(pred_mean, pred_std).rsample()
+            return self._rsample(
+                torch.distributions.Normal(pred_mean, pred_std)
+            )
             # (B, num_grid_nodes, d_state)
 
         return pred_mean  # (B, num_grid_nodes, d_state)
+
+    def _rsample(self, distribution, sample_shape=torch.Size()):
+        """One reparameterized Normal draw shared by the entire mesh group."""
+        if getattr(self, "graph_parallel", None) is None:
+            return distribution.rsample(sample_shape)
+        shape = tuple(sample_shape) + tuple(distribution.loc.shape)
+        noise = torch.randn(
+            shape, dtype=distribution.loc.dtype, device=distribution.loc.device
+        )
+        torch.distributed.broadcast(noise, src=0)
+        return distribution.loc + distribution.scale * noise
+
+    def on_before_optimizer_step(self, optimizer):
+        """Run after AMP unscaling and before clipping or optimizer transforms."""
+        if getattr(self, "graph_parallel", None) is not None:
+            from neural_lam.graph_parallel import synchronize_gradients
+
+            synchronize_gradients(self, self.graph_parameter_reductions)
+
+    def on_save_checkpoint(self, checkpoint):
+        super().on_save_checkpoint(checkpoint)
+        parallel = getattr(self, "graph_parallel", None)
+        if parallel is not None:
+            checkpoint["graph_parallel"] = {
+                "partition_identity": parallel.partition.identity,
+                "cpu_rng_state": torch.get_rng_state(),
+                "cuda_rng_state": (
+                    torch.cuda.get_rng_state(self.device)
+                    if self.device.type == "cuda"
+                    else None
+                ),
+            }
+
+    def on_load_checkpoint(self, checkpoint):
+        super().on_load_checkpoint(checkpoint)
+        metadata = checkpoint.get("graph_parallel")
+        if metadata and getattr(self, "graph_parallel", None) is not None:
+            if (
+                metadata["partition_identity"]
+                != self.graph_parallel.partition.identity
+            ):
+                raise ValueError(
+                    "Resume requires the checkpoint's mesh partition"
+                )
+            torch.set_rng_state(metadata["cpu_rng_state"].cpu())
+            if (
+                self.device.type == "cuda"
+                and metadata["cuda_rng_state"] is not None
+            ):
+                torch.cuda.set_rng_state(
+                    metadata["cuda_rng_state"].cpu(), self.device
+                )
+
+    def all_gather_cat(self, tensor_to_gather):
+        if getattr(self, "graph_parallel", None) is not None:
+            return tensor_to_gather
+        return super().all_gather_cat(tensor_to_gather)
 
     def _add_optional_grid_embeddings(
         self,
@@ -728,7 +793,9 @@ class GraphEFM(ARProbModel):
         pred_std: (B, num_grid_nodes, d_state) or (d_state,)
         """
         # Sample from variational distribution
-        latent_samples = latent_dist.rsample()  # (B, num_mesh_nodes, d_latent)
+        latent_samples = self._rsample(
+            latent_dist
+        )  # (B, num_mesh_nodes, d_latent)
 
         # Compute reconstruction (decoder)
         pred_mean, model_pred_std = self.decoder(
@@ -935,7 +1002,7 @@ class GraphEFM(ARProbModel):
         )  # (B, num_mesh_nodes, d_latent)
 
         # Sample from prior
-        latent_samples = prior_dist.rsample()
+        latent_samples = self._rsample(prior_dist)
         # (B, num_mesh_nodes, d_latent)
 
         # Compute reconstruction (decoder)
@@ -1079,7 +1146,7 @@ class GraphEFM(ARProbModel):
             )  # Gaussian, (B, num_mesh_nodes, d_latent)
 
             # Sample from var. dist.
-            latent_samples = var_dist.rsample()
+            latent_samples = self._rsample(var_dist)
             # (B, num_mesh_nodes, d_latent)
 
             # Compute reconstruction (decoder)
@@ -1191,7 +1258,10 @@ class GraphEFM(ARProbModel):
 
         # Plot some example predictions using prior and encoder
         if (
-            self.trainer.is_global_zero
+            (
+                self.trainer.is_global_zero
+                or getattr(self, "graph_parallel", None) is not None
+            )
             and batch_idx == 0
             and self.n_example_pred > 0
         ):
@@ -1214,44 +1284,6 @@ class GraphEFM(ARProbModel):
                 target_states,
                 self.ensemble_size,
                 use_encoder=True,
-            )
-
-            # For now use val_steps_to_log to determine which steps
-            # to make these plots for
-            plot_log_steps = list(
-                filter(
-                    lambda s: s <= target_states.shape[1],
-                    self.args.val_steps_to_log,
-                )
-            )
-
-            # Plot forecasts, prior samples
-            prior_plots = self.plot_ensemble_examples(
-                batch,
-                n_examples=self.n_example_pred,
-                prediction=prior_trajectories,
-                time_steps=plot_log_steps,
-                log=False,
-            )
-            # Plot forecasts, variational samples
-            vi_plots = self.plot_ensemble_examples(
-                batch,
-                n_examples=self.n_example_pred,
-                prediction=enc_trajectories,
-                time_steps=plot_log_steps,
-                log=False,
-            )
-
-            # Store plots
-            log_plot_dict = {}
-            log_plot_dict.update(
-                {
-                    f"prior_{plot_key}": plot
-                    for plot_key, plot in prior_plots.items()
-                }
-            )
-            log_plot_dict.update(
-                {f"vi_{plot_key}": plot for plot_key, plot in vi_plots.items()}
             )
 
             # Sample latent variable and plot
@@ -1281,8 +1313,8 @@ class GraphEFM(ARProbModel):
             prior_dist = self.prior_model(
                 grid_prev_emb, graph_emb=graph_emb
             )  # Gaussian, (B, num_mesh_nodes, d_latent)
-            prior_samples = prior_dist.rsample(
-                (self.num_latents_plot,)
+            prior_samples = self._rsample(
+                prior_dist, (self.num_latents_plot,)
             ).transpose(
                 0, 1
             )  # (B, samples, num_mesh_nodes, d_latent)
@@ -1290,9 +1322,41 @@ class GraphEFM(ARProbModel):
             vi_dist = self.encoder(
                 grid_current_emb, graph_emb=graph_emb
             )  # Gaussian, (B, num_mesh_nodes, d_latent)
-            vi_samples = vi_dist.rsample((self.num_latents_plot,)).transpose(
+            vi_samples = self._rsample(
+                vi_dist, (self.num_latents_plot,)
+            ).transpose(
                 0, 1
             )  # (B, samples, num_mesh_nodes, d_latent)
+
+            # Forecasts above contain collectives; only rendering and writes
+            # belong inside the rank-zero branch.
+            if not self.trainer.is_global_zero:
+                return
+            plot_log_steps = [
+                s
+                for s in self.args.val_steps_to_log
+                if s <= target_states.shape[1]
+            ]
+            prior_plots = self.plot_ensemble_examples(
+                batch,
+                n_examples=self.n_example_pred,
+                prediction=prior_trajectories,
+                time_steps=plot_log_steps,
+                log=False,
+            )
+            vi_plots = self.plot_ensemble_examples(
+                batch,
+                n_examples=self.n_example_pred,
+                prediction=enc_trajectories,
+                time_steps=plot_log_steps,
+                log=False,
+            )
+            log_plot_dict = {
+                f"prior_{key}": value for key, value in prior_plots.items()
+            }
+            log_plot_dict.update(
+                {f"vi_{key}": value for key, value in vi_plots.items()}
+            )
 
             # Make plot for each example
             for example_i, (prior_ex_samples, vi_ex_samples) in enumerate(

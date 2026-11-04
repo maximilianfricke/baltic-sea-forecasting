@@ -100,9 +100,15 @@ class HiGraphLatentEncoder(BaseLatentEncoder):
         Returns:
         parameters: (B, num_mesh_nodes, d_output)
         """
+        parallel = getattr(self, "graph_parallel", None)
+        bottom_mesh = graph_emb["mesh"][0]
+        if parallel is not None:
+            bottom_mesh = parallel.replicate(bottom_mesh, 0)
         current_mesh_rep = self.g2m_gnn(
-            grid_rep, graph_emb["mesh"][0], graph_emb["g2m"]
+            grid_rep, bottom_mesh, graph_emb["g2m"]
         )  # (B, N_mesh, d_h)
+        if parallel is not None:
+            current_mesh_rep = parallel.select(current_mesh_rep, 0)
 
         current_mesh_rep = self.pre_mesh_proj(current_mesh_rep)
 
@@ -137,6 +143,7 @@ class HiGraphLatentEncoder(BaseLatentEncoder):
             )  # (B, N_mesh[l], d_h)
 
         # At final mesh level, map to parameter dim
-        return self.latent_param_map(
-            current_mesh_rep
-        )  # (B, N_mesh[L], d_output)
+        parameters = self.latent_param_map(current_mesh_rep)
+        if parallel is not None:
+            parameters = parallel.replicate(parameters, -1)
+        return parameters  # (B, N_mesh[L], d_output)

@@ -118,6 +118,13 @@ class InteractionNet(pyg.nn.MessagePassing):
         (optionally) edge_rep: (M, d_h), updated vector representations
             of edges
         """
+        if hasattr(self, "graph_edge_partition"):
+            from .graph_parallel import partitioned_forward
+
+            return partitioned_forward(
+                self, send_rep, rec_rep, edge_rep, emb, propagation=False
+            )
+
         # Always concatenate to [rec_nodes, send_nodes] for propagation,
         # but only aggregate to rec_nodes
         node_reps = torch.cat((rec_rep, send_rep), dim=-2)
@@ -201,6 +208,13 @@ class PropagationNet(InteractionNet):
         (optionally) edge_rep: (M, d_h), updated vector representations
             of edges
         """
+        if hasattr(self, "graph_edge_partition"):
+            from .graph_parallel import partitioned_forward
+
+            return partitioned_forward(
+                self, send_rep, rec_rep, edge_rep, emb, propagation=True
+            )
+
         # Always concatenate to [rec_nodes, send_nodes] for propagation,
         # but only aggregate to rec_nodes
         node_reps = torch.cat((rec_rep, send_rep), dim=-2)

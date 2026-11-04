@@ -1114,6 +1114,8 @@ class WeatherDataModule(pl.LightningDataModule):
         statistics_datastore_boundary: BaseDatastore = None,
         statistics_datastore_atmosphere: BaseDatastore = None,
         train_distr_crps=False,
+        graph_parallel_size=1,
+        graph_parallel_seed=42,
     ):
         super().__init__()
         self._datastore = datastore
@@ -1143,6 +1145,8 @@ class WeatherDataModule(pl.LightningDataModule):
         self.val_dataset = None
         self.test_dataset = None
         self.train_distr_crps = train_distr_crps
+        self.graph_parallel_size = graph_parallel_size
+        self.graph_parallel_seed = graph_parallel_seed
         if num_workers > 0:
             # default to spawn for now, as the default on linux "fork" hangs
             # when using dask
@@ -1230,6 +1234,14 @@ class WeatherDataModule(pl.LightningDataModule):
         Determine sampler to use (samples indices from dataset for each rank)
         based on if train_distr_crps is set or not.
         """
+        if self.graph_parallel_size > 1:
+            return torch.utils.data.DistributedSampler(
+                dataset,
+                num_replicas=1,
+                rank=0,
+                shuffle=shuffle,
+                seed=self.graph_parallel_seed,
+            )
         if self.train_distr_crps:
             return PairedDistributedSampler(dataset, shuffle=shuffle, seed=seed)
         else:
@@ -1241,10 +1253,17 @@ class WeatherDataModule(pl.LightningDataModule):
             self.train_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            shuffle=None if self.train_distr_crps else True,
+            shuffle=(
+                not self.train_distr_crps and self.graph_parallel_size == 1
+            ),
             multiprocessing_context=self.multiprocessing_context,
-            persistent_workers=True,
+            persistent_workers=self.num_workers > 0,
             sampler=self._make_sampler(self.train_dataset, shuffle=True),
+            generator=(
+                torch.Generator().manual_seed(self.graph_parallel_seed)
+                if self.graph_parallel_size > 1
+                else None
+            ),
         )
 
     def val_dataloader(self):
@@ -1255,7 +1274,12 @@ class WeatherDataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
             shuffle=False,
             multiprocessing_context=self.multiprocessing_context,
-            persistent_workers=True,
+            persistent_workers=self.num_workers > 0,
+            generator=(
+                torch.Generator().manual_seed(self.graph_parallel_seed)
+                if self.graph_parallel_size > 1
+                else None
+            ),
         )
 
     def test_dataloader(self):
@@ -1266,5 +1290,10 @@ class WeatherDataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
             shuffle=False,
             multiprocessing_context=self.multiprocessing_context,
-            persistent_workers=True,
+            persistent_workers=self.num_workers > 0,
+            generator=(
+                torch.Generator().manual_seed(self.graph_parallel_seed)
+                if self.graph_parallel_size > 1
+                else None
+            ),
         )

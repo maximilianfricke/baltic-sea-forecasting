@@ -4,7 +4,6 @@
 import json
 import os
 import platform
-import resource
 import socket
 import statistics
 import subprocess
@@ -16,6 +15,11 @@ from pathlib import Path
 # Third-party
 import pytorch_lightning as pl
 import torch
+
+try:
+    import resource
+except ImportError:  # Windows development hosts; Linux jobs have resource.
+    resource = None
 
 
 def _synchronize():
@@ -109,6 +113,10 @@ def _model_metadata(model):
 
     grid_features = getattr(model, "grid_static_features", None)
     mesh_features = getattr(model, "mesh_static_features", None)
+    parallel = getattr(model, "graph_parallel", None)
+    if parallel is not None:
+        for kind, counts in parallel.global_edge_counts.items():
+            graph[f"{kind}_edge_count"] = sum(counts)
     parameters = list(model.parameters())
     trainable_parameters = [p for p in parameters if p.requires_grad]
     return {
@@ -126,7 +134,11 @@ def _model_metadata(model):
         ),
         "graph": {
             "grid_node_count": _node_count(grid_features),
-            "mesh_node_count": _node_count(mesh_features),
+            "mesh_node_count": (
+                sum(len(o) for o in parallel.partition.owners)
+                if parallel is not None
+                else _node_count(mesh_features)
+            ),
             **graph,
         },
     }
@@ -443,6 +455,11 @@ class BaselineBenchmark(pl.Callback):
             "hostname": socket.gethostname(),
             "records": self.records,
             "process_peak_rss_bytes": self._process_peak_rss_bytes(),
+            "graph_parallel": (
+                pl_module.graph_parallel.metadata()
+                if getattr(pl_module, "graph_parallel", None) is not None
+                else None
+            ),
         }
         distributed_ready = (
             torch.distributed.is_available()
@@ -458,6 +475,8 @@ class BaselineBenchmark(pl.Callback):
 
     @staticmethod
     def _process_peak_rss_bytes():
+        if resource is None:
+            return None
         max_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         # Linux reports KiB, while macOS reports bytes.
         return max_rss if sys.platform == "darwin" else max_rss * 1024
@@ -537,7 +556,11 @@ class BaselineBenchmark(pl.Callback):
         batch_size = self.args.get("batch_size")
         global_batch_size = self.args.get("benchmark_global_batch_size")
         if global_batch_size is None and batch_size is not None:
-            global_batch_size = batch_size * trainer.world_size
+            global_batch_size = batch_size * (
+                1
+                if getattr(model, "graph_parallel", None) is not None
+                else trainer.world_size
+            )
         compute_samples_per_second = (
             global_batch_size * 1000.0 / step_mean
             if step_mean and global_batch_size is not None
@@ -585,8 +608,10 @@ class BaselineBenchmark(pl.Callback):
                 "world_size": world_size,
                 "global_rank": trainer.global_rank,
                 "strategy": type(trainer.strategy).__name__,
-                "scaling_mode": self.args.get(
-                    "benchmark_scaling_mode", "single"
+                "scaling_mode": (
+                    "graph"
+                    if getattr(model, "graph_parallel", None) is not None
+                    else self.args.get("benchmark_scaling_mode", "single")
                 ),
                 "global_batch_size": global_batch_size,
                 "estimated_gradient_payload_bytes_per_step": trainable_bytes,
@@ -620,23 +645,15 @@ class BaselineBenchmark(pl.Callback):
                 "workload": self.workload,
                 "requested_measurement_steps": self.measurement_steps,
                 "completed_measurement_steps": self.measured_steps,
-                "measurement_started_at_utc": (
-                    self.measurement_started_at
-                ),
-                "measurement_finished_at_utc": (
-                    self.measurement_finished_at
-                ),
+                "measurement_started_at_utc": (self.measurement_started_at),
+                "measurement_finished_at_utc": (self.measurement_finished_at),
                 "validation_enabled": False,
                 "external_logger_enabled": False,
                 "phase_timing_source": (
-                    "cuda_events"
-                    if torch.cuda.is_available()
-                    else "wall_clock"
+                    "cuda_events" if torch.cuda.is_available() else "wall_clock"
                 ),
                 "memory_measurement": (
-                    "allocator_peak"
-                    if torch.cuda.is_available()
-                    else None
+                    "allocator_peak" if torch.cuda.is_available() else None
                 ),
                 "deterministic_algorithms": (
                     torch.are_deterministic_algorithms_enabled()
