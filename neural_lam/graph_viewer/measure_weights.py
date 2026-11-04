@@ -77,7 +77,9 @@ def _build_model_and_batch(train_args):
     model, dm = captured["model"], captured["dm"]
     model.train()
     dm.setup("fit")
-    batch = next(iter(dm.train_dataloader()))
+    # One sample straight from the dataset: dataloader settings such as
+    # persistent workers differ between branches and are not needed here
+    batch = torch.utils.data.default_collate([dm.train_dataset[0]])
     init_states, target_states, forcing, boundary, atmosphere, _ = batch
     prev_states = init_states if model.input_steps >= 2 else init_states[:, -1:]
     step_args = (

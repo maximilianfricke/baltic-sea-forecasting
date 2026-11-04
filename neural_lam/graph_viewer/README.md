@@ -106,8 +106,10 @@ dropped, so these numbers compare strategies; they are not absolute GB.
 ### Cost model file
 
 `weights/realistic_baseline.json` holds n, m and u for the realistic
-Graph-EFM baseline (`jobs/submit_realistic_baseline.sh`: hidden_dim 64, 2
-processor layers, kl_beta 1, `global_cluster_graph`):
+Graph-EFM baseline of the benchmarking work (`jobs/submit_realistic_baseline.sh`
+on the `max` branch: hidden_dim 64, 2 processor layers, kl_beta 1,
+`global_cluster_graph`). It was measured on the benchmarking branch (commit
+in `source`); measuring again on `main` gives identical values.
 
 - `memory`: values stored per node and per edge, measured by running one
   forecast step and recording every tensor saved for backward.
