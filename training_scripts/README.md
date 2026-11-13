@@ -33,6 +33,33 @@ sbatch training_scripts/train.sh training_scripts/seacast/seacast_pretrain.sh \
 Logs go to `slurm_logs/<jobid>_<jobname>.out`. The first line of the log echoes the
 resolved command, so you can always see which settings a job actually ran with.
 
+## Two-GPU distributed GraphEFM smoke
+
+Before running full model-parallel benchmarks, validate the receiver-owned
+partitioning and differentiable halo exchange on two CUDA devices:
+
+```sh
+sbatch training_scripts/distributed_cuda_smoke.sbatch
+```
+
+The job runs two NCCL checks. The first validates one distributed message-
+passing layer, including halo gradients and parameter-gradient reduction. The
+second validates the complete hierarchical distributed GraphEFM core (prior,
+posterior, Grid-to-Mesh, mesh hierarchy and Mesh-to-Grid) against the
+unpartitioned reference computation. A successful log contains both:
+
+```text
+Two-GPU NCCL distributed message-passing smoke: PASS
+Two-GPU hierarchical GraphEFM core smoke: PASS
+```
+
+This is a correctness smoke, not yet an end-to-end Lightning training or
+performance benchmark. It writes two JSON files to `benchmark_results/` with
+the commit, environment, correctness errors, per-rank memory and diagnostic
+timings. Both JSON files explicitly set
+`"comparable_to_training_baseline": false`, because the smoke uses synthetic
+toy graphs rather than the real benchmark workload.
+
 ## Running a sweep
 
 Edit the `RUNS` array at the top of [`launch_sweep.sh`](launch_sweep.sh) — one line
