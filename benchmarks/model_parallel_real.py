@@ -45,6 +45,11 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _progress(rank, message):
+    if rank == 0:
+        print(f"[{_utc_now()}] {message}", flush=True)
+
+
 def _summary(values):
     if not values:
         return None
@@ -105,6 +110,12 @@ def _parse_args():
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--warmup-steps", type=int, default=5)
     parser.add_argument("--steps", type=int, default=20)
+    parser.add_argument(
+        "--progress-interval",
+        type=int,
+        default=0,
+        help="print every Nth step; 0 disables step progress output",
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--latitude-cut", type=float, default=-5.0)
@@ -117,6 +128,8 @@ def _parse_args():
     args = parser.parse_args()
     if args.warmup_steps < 0 or args.steps < 1:
         parser.error("warmup-steps must be >=0 and steps must be >=1")
+    if args.progress_interval < 0:
+        parser.error("progress-interval must be >=0")
     if args.ar_steps != 1:
         parser.error(
             "this benchmark currently supports exactly one autoregressive "
@@ -577,6 +590,7 @@ def _step_record(
     batch,
     generator,
     world_size,
+    progress_callback=None,
 ):
     optimizer.zero_grad(set_to_none=True)
     events = {
@@ -590,6 +604,8 @@ def _step_record(
             "metric_reduce_end",
         )
     }
+    if progress_callback is not None:
+        progress_callback("forward started")
     events["start"].record()
     loss, local_nll, local_kl = _forward_local_loss(
         model,
@@ -599,15 +615,49 @@ def _step_record(
         generator,
     )
     events["forward_end"].record()
+    if progress_callback is not None:
+        torch.cuda.synchronize()
+        duration_ms = events["start"].elapsed_time(events["forward_end"])
+        progress_callback(
+            f"forward completed in {duration_ms:.1f}ms"
+        )
+        progress_callback("backward started")
     loss.backward()
     events["backward_end"].record()
+    if progress_callback is not None:
+        torch.cuda.synchronize()
+        duration_ms = events["forward_end"].elapsed_time(
+            events["backward_end"]
+        )
+        progress_callback(
+            f"backward completed in {duration_ms:.1f}ms"
+        )
+        progress_callback("gradient synchronization started")
     synchronized_bytes, all_reduce_calls = _synchronize_gradients(
         parameters,
         world_size,
     )
     events["gradient_sync_end"].record()
+    if progress_callback is not None:
+        torch.cuda.synchronize()
+        duration_ms = events["backward_end"].elapsed_time(
+            events["gradient_sync_end"]
+        )
+        progress_callback(
+            f"gradient synchronization completed in {duration_ms:.1f}ms"
+        )
+        progress_callback("optimizer started")
     optimizer.step()
     events["optimizer_end"].record()
+    if progress_callback is not None:
+        torch.cuda.synchronize()
+        duration_ms = events["gradient_sync_end"].elapsed_time(
+            events["optimizer_end"]
+        )
+        progress_callback(
+            f"optimizer completed in {duration_ms:.1f}ms"
+        )
+        progress_callback("metric reduction started")
     global_loss, global_nll, global_kl = _global_metrics(
         loss,
         local_nll,
@@ -615,6 +665,13 @@ def _step_record(
     )
     events["metric_reduce_end"].record()
     torch.cuda.synchronize()
+    if progress_callback is not None:
+        duration_ms = events["optimizer_end"].elapsed_time(
+            events["metric_reduce_end"]
+        )
+        progress_callback(
+            f"metric reduction completed in {duration_ms:.1f}ms"
+        )
 
     return {
         "forward_ms": events["start"].elapsed_time(events["forward_end"]),
@@ -733,10 +790,31 @@ def main():
     device = torch.device("cuda", local_rank)
     dist.init_process_group("nccl", device_id=device)
     started_at = _utc_now()
+    benchmark_start = time.perf_counter()
+    initialization_timings = {}
+    _progress(
+        rank,
+        f"distributed runtime ready: rank={rank}, world_size={world_size}, "
+        f"device={device}",
+    )
 
     try:
         torch.manual_seed(args.seed)
+        phase_start = time.perf_counter()
+        _progress(rank, f"loading real workload from {args.config_path}")
         dataset, reference_model = _load_workload(args)
+        initialization_timings["workload_load_ms"] = (
+            time.perf_counter() - phase_start
+        ) * 1000
+        _progress(
+            rank,
+            "real workload loaded in "
+            f"{initialization_timings['workload_load_ms'] / 1000:.2f}s; "
+            f"train_samples={len(dataset)}",
+        )
+
+        phase_start = time.perf_counter()
+        _progress(rank, "building graph partition and sharded GNN core")
         model, core, partition, strategy = _build_sharded_training_modules(
             reference_model,
             args,
@@ -746,7 +824,18 @@ def main():
         )
         del reference_model
         torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+        initialization_timings["sharded_model_build_ms"] = (
+            time.perf_counter() - phase_start
+        ) * 1000
+        _progress(
+            rank,
+            "sharded GNN core ready in "
+            f"{initialization_timings['sharded_model_build_ms'] / 1000:.2f}s; "
+            f"partition_strategy={strategy}",
+        )
 
+        phase_start = time.perf_counter()
         parameters = list(model.parameters()) + list(core.parameters())
         optimizer = torch.optim.AdamW(
             parameters,
@@ -761,14 +850,34 @@ def main():
             rank,
             device,
         )
+        initialization_timings["optimizer_and_stream_ms"] = (
+            time.perf_counter() - phase_start
+        ) * 1000
+        _progress(
+            rank,
+            "optimizer and batch stream ready in "
+            f"{initialization_timings['optimizer_and_stream_ms'] / 1000:.2f}s",
+        )
 
         # Partition-independent preflight loss on the first physical batch.
+        phase_start = time.perf_counter()
+        _progress(rank, "preflight: distributing first physical batch")
         dist.barrier()
         preflight_batch = stream.next()
+        initialization_timings["preflight_batch_ms"] = (
+            time.perf_counter() - phase_start
+        ) * 1000
+        _progress(
+            rank,
+            "preflight batch ready in "
+            f"{initialization_timings['preflight_batch_ms'] / 1000:.2f}s",
+        )
         fingerprint = _batch_fingerprint(preflight_batch) if rank == 0 else None
         preflight_generator = torch.Generator(device=device).manual_seed(
             args.seed + 100_000
         )
+        phase_start = time.perf_counter()
+        _progress(rank, "preflight: forward pass started")
         with torch.no_grad():
             preflight_local, _, _ = _forward_local_loss(
                 model,
@@ -778,12 +887,42 @@ def main():
                 preflight_generator,
             )
         preflight_loss = _global_scalar(preflight_local)
+        torch.cuda.synchronize()
+        initialization_timings["preflight_forward_ms"] = (
+            time.perf_counter() - phase_start
+        ) * 1000
+        initialization_timings["total_before_training_ms"] = (
+            time.perf_counter() - benchmark_start
+        ) * 1000
+        _progress(
+            rank,
+            "preflight forward completed in "
+            f"{initialization_timings['preflight_forward_ms'] / 1000:.2f}s; "
+            f"global_loss={preflight_loss:.6g}",
+        )
 
         generator = torch.Generator(device=device).manual_seed(args.seed + 1)
         rank_records = []
         measurement_window_start = None
         total_steps = args.warmup_steps + args.steps
         for step in range(total_steps):
+            measurement_step = step - args.warmup_steps
+            is_measurement = measurement_step >= 0
+            phase_name = "measurement" if is_measurement else "warmup"
+            phase_step = measurement_step if is_measurement else step
+            phase_total = args.steps if is_measurement else args.warmup_steps
+            show_progress = (
+                args.progress_interval > 0
+                and (
+                    phase_step % args.progress_interval == 0
+                    or phase_step + 1 == phase_total
+                )
+            )
+            if show_progress:
+                _progress(
+                    rank,
+                    f"{phase_name} step {phase_step + 1}/{phase_total} started",
+                )
             if step == args.warmup_steps:
                 dist.barrier()
                 torch.cuda.synchronize()
@@ -795,6 +934,15 @@ def main():
                 time.perf_counter() - data_start
             ) * 1000
 
+            progress_callback = None
+            if show_progress and rank == 0:
+                step_prefix = (
+                    f"{phase_name} step {phase_step + 1}/{phase_total}: "
+                )
+
+                def progress_callback(message):
+                    _progress(rank, step_prefix + message)
+
             record = _step_record(
                 model,
                 core,
@@ -804,6 +952,7 @@ def main():
                 batch,
                 generator,
                 world_size,
+                progress_callback=progress_callback,
             )
             record["data_distribution_ms"] = data_distribution_ms
             record["end_to_end_ms"] = (
@@ -812,6 +961,17 @@ def main():
             if step >= args.warmup_steps:
                 record["measurement_step"] = step - args.warmup_steps
                 rank_records.append(record)
+            if show_progress:
+                _progress(
+                    rank,
+                    f"{phase_name} step {phase_step + 1}/{phase_total} "
+                    f"completed: data={record['data_distribution_ms']:.1f}ms, "
+                    f"forward={record['forward_ms']:.1f}ms, "
+                    f"backward={record['backward_ms']:.1f}ms, "
+                    f"gradient_sync={record['gradient_sync_ms']:.1f}ms, "
+                    f"optimizer={record['optimizer_ms']:.1f}ms, "
+                    f"loss={record['loss']:.6g}",
+                )
 
         torch.cuda.synchronize()
         measurement_window_ms = (
@@ -823,8 +983,10 @@ def main():
             "records": rank_records,
             "hardware": _hardware_metadata(device, rank),
             "partition": _partition_metadata(partition),
+            "initialization_timings": initialization_timings,
             "measurement_window_ms": measurement_window_ms,
         }
+        _progress(rank, "collecting per-rank records")
         payloads = [None] * world_size
         dist.all_gather_object(payloads, payload)
 
@@ -857,8 +1019,12 @@ def main():
                     "batch_size_global": args.batch_size,
                     "ar_steps": args.ar_steps,
                     "precision": "float32",
+                    "num_workers": args.num_workers,
+                    "seed": args.seed,
+                    "learning_rate": args.lr,
                     "warmup_steps": args.warmup_steps,
                     "measurement_steps": args.steps,
+                    "progress_interval": args.progress_interval,
                     "model_parallel_same_batch_on_all_ranks": True,
                     "rank_zero_loads_and_broadcasts_batch": True,
                     "replicated_frontend": True,
@@ -896,7 +1062,9 @@ def main():
                     measurement_window_ms,
                 ),
                 "interpretation": {
-                    "comparable_across_world_sizes": True,
+                    "comparable_across_world_sizes": (
+                        args.progress_interval == 0
+                    ),
                     "global_batch_size_is_constant": True,
                     "compare_speed_with_same_gpu_model_only": True,
                     "limitations": [
@@ -904,6 +1072,8 @@ def main():
                         "embedding frontend is replicated",
                         "phase timing uses CUDA events; headline observed "
                         "throughput uses wall time",
+                        "progress output adds diagnostic synchronization "
+                        "when progress_interval is nonzero",
                     ],
                 },
             }
@@ -914,6 +1084,7 @@ def main():
                 encoding="utf-8",
             )
             temporary.replace(args.output)
+            _progress(rank, f"result JSON safely written to {args.output}")
             print(
                 "Real-data model-parallel benchmark written to "
                 f"{args.output}"

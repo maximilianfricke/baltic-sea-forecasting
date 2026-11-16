@@ -27,10 +27,14 @@ WORKLOAD_KEYS = (
     "dataset_samples",
     "graph",
     "hidden_dim",
+    "learning_rate",
+    "num_workers",
     "processor_layers",
     "batch_size_global",
     "ar_steps",
     "precision",
+    "progress_interval",
+    "seed",
     "warmup_steps",
     "measurement_steps",
 )
@@ -112,6 +116,10 @@ def compare(one, two, one_path, two_path):
     mean_loss_two = two["summary"]["loss"]["mean"]
 
     checks = {
+        "non_instrumented_results": (
+            one["interpretation"]["comparable_across_world_sizes"]
+            and two["interpretation"]["comparable_across_world_sizes"]
+        ),
         "same_workload": not workload_differences,
         "same_gpu_model": same_gpu_model,
         "same_preflight_batch": same_batch,

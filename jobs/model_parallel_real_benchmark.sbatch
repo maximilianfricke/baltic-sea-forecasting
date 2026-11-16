@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mem=32G
-#SBATCH --time=00:30:00
+#SBATCH --time=01:00:00
 #SBATCH --output=benchmark_results/slurm-real-mp-%j.out
 
 set -euo pipefail
@@ -22,7 +22,14 @@ if [[ ! -x "${VENV_PATH}/bin/python" ]]; then
 fi
 
 GPU_COUNT="${NJORD_GPU_COUNT:?NJORD_GPU_COUNT must be set by submitter}"
-DATA_ROOT="${NJORD_DATA_ROOT:-/scratch/users/${USER}/baltic-sea-forecasting-data/physical_repeat_16}"
+DATA_PARENT="/scratch/users/${USER}"
+DEFAULT_DATA_ROOT="${DATA_PARENT}/baltic-sea-forecasting-data"
+DEFAULT_DATA_ROOT="${DEFAULT_DATA_ROOT}/physical_repeat_16"
+DATA_ROOT="${NJORD_DATA_ROOT:-${DEFAULT_DATA_ROOT}}"
+NUM_WORKERS="${NJORD_NUM_WORKERS:-0}"
+WARMUP_STEPS="${NJORD_WARMUP_STEPS:-1}"
+MEASUREMENT_STEPS="${NJORD_MEASUREMENT_STEPS:-1}"
+PROGRESS_INTERVAL="${NJORD_PROGRESS_INTERVAL:-1}"
 CONFIG_PATH="${DATA_ROOT}/global_ocean_1.yaml"
 if [[ ! -f "${CONFIG_PATH}" ]]; then
     echo "Real benchmark dataset not found: ${CONFIG_PATH}" >&2
@@ -40,6 +47,10 @@ mkdir -p "${RESULT_DIR}"
 echo "World size: ${GPU_COUNT}"
 echo "Dataset: ${DATA_ROOT}"
 echo "Output: ${OUTPUT}"
+echo "Data workers: ${NUM_WORKERS}"
+echo "Warm-up steps: ${WARMUP_STEPS}"
+echo "Measurement steps: ${MEASUREMENT_STEPS}"
+echo "Progress interval: ${PROGRESS_INTERVAL}"
 nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --format=csv,noheader
 
@@ -53,9 +64,10 @@ nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --processor-layers 2 \
     --batch-size 2 \
     --ar-steps 1 \
-    --num-workers 2 \
-    --warmup-steps 5 \
-    --steps 20 \
+    --num-workers "${NUM_WORKERS}" \
+    --warmup-steps "${WARMUP_STEPS}" \
+    --steps "${MEASUREMENT_STEPS}" \
+    --progress-interval "${PROGRESS_INTERVAL}" \
     --partition-strategy auto \
     --output "${OUTPUT}"
 

@@ -77,8 +77,22 @@ training workload. Rank zero loads every batch once and broadcasts the same
 physical sample to the other model-parallel ranks. The measurement includes
 the real embedding frontend, partitioned prior/posterior/decoder, likelihood
 and KL loss, backward halo exchange, summed shared-parameter gradients and an
-AdamW step. Five steps warm up CUDA, NCCL, the data loader and optimizer; the
-next 20 are recorded individually.
+AdamW step.
+
+The submission script currently defaults to a diagnostic calibration run:
+zero data-loader workers, one warm-up step, one measured step, progress output
+for every phase and a 60-minute limit. This preserves the real per-step
+workload while exposing whether initialization, data loading, forward or
+backward computation is responsible for a slow run. Once calibration succeeds,
+submit a longer quiet measurement with identical settings for both GPU counts:
+
+```sh
+NJORD_NUM_WORKERS=2 \
+NJORD_WARMUP_STEPS=5 \
+NJORD_MEASUREMENT_STEPS=20 \
+NJORD_PROGRESS_INTERVAL=0 \
+bash jobs/submit_model_parallel_real.sh 1
+```
 
 The default dataset location is:
 
