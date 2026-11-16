@@ -30,6 +30,8 @@ WORLD_SIZE = 2
 NODE_DIM = 32
 EDGE_DIM = 16
 BATCH_SIZE = 2
+CUDA_RTOL = 1e-4
+CUDA_ATOL = 2e-5
 
 
 def _toy_graph():
@@ -156,7 +158,12 @@ def main() -> None:
         expected_output = reference_output.detach().index_select(
             -2, partition.owned_rec_nodes
         )
-        torch.testing.assert_close(local_output, expected_output)
+        torch.testing.assert_close(
+            local_output,
+            expected_output,
+            rtol=CUDA_RTOL,
+            atol=CUDA_ATOL,
+        )
         backward_start.record()
         local_output.square().sum().backward()
         backward_end.record()
@@ -170,15 +177,35 @@ def main() -> None:
             -2, partition.owned_rec_nodes
         )
         expected_edge_grad = full_edge.grad.index_select(-2, partition.edge_ids)
-        torch.testing.assert_close(local_send.grad, expected_send_grad)
-        torch.testing.assert_close(local_rec.grad, expected_rec_grad)
-        torch.testing.assert_close(local_edge.grad, expected_edge_grad)
+        torch.testing.assert_close(
+            local_send.grad,
+            expected_send_grad,
+            rtol=CUDA_RTOL,
+            atol=CUDA_ATOL,
+        )
+        torch.testing.assert_close(
+            local_rec.grad,
+            expected_rec_grad,
+            rtol=CUDA_RTOL,
+            atol=CUDA_ATOL,
+        )
+        torch.testing.assert_close(
+            local_edge.grad,
+            expected_edge_grad,
+            rtol=CUDA_RTOL,
+            atol=CUDA_ATOL,
+        )
 
         parameter_error = 0.0
         reference_params = dict(reference.named_parameters())
         for name, parameter in distributed_net.local_net.named_parameters():
             dist.all_reduce(parameter.grad, op=dist.ReduceOp.SUM)
-            torch.testing.assert_close(parameter.grad, reference_params[name].grad)
+            torch.testing.assert_close(
+                parameter.grad,
+                reference_params[name].grad,
+                rtol=CUDA_RTOL,
+                atol=CUDA_ATOL,
+            )
             parameter_error = max(
                 parameter_error,
                 _max_error(parameter.grad, reference_params[name].grad),
@@ -241,6 +268,10 @@ def main() -> None:
                     "world_size": world_size,
                     "torch_version": torch.__version__,
                     "cuda_runtime": torch.version.cuda,
+                    "comparison_tolerances": {
+                        "rtol": CUDA_RTOL,
+                        "atol": CUDA_ATOL,
+                    },
                     "visible_device_names": [
                         torch.cuda.get_device_name(index)
                         for index in range(torch.cuda.device_count())

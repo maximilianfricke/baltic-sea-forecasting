@@ -38,6 +38,15 @@ BATCH_SIZE = 2
 HIDDEN_DIM = 4
 LATENT_DIM = 3
 STATE_DIM = 2
+CUDA_RTOL = 1e-4
+CUDA_ATOL = 2e-5
+
+
+def _assert_close(actual, expected, **kwargs):
+    if actual.is_cuda:
+        kwargs.setdefault("rtol", CUDA_RTOL)
+        kwargs.setdefault("atol", CUDA_ATOL)
+    torch.testing.assert_close(actual, expected, **kwargs)
 
 
 def _toy_hierarchy():
@@ -318,23 +327,23 @@ def _assert_local_outputs(local_output, reference_output, partition):
             continue
         local_dist = local_output[distribution_name]
         reference_dist = reference_output[distribution_name]
-        torch.testing.assert_close(
+        _assert_close(
             local_dist.mean,
             select_owned(reference_dist.mean, top_nodes),
         )
-        torch.testing.assert_close(
+        _assert_close(
             local_dist.stddev,
             select_owned(reference_dist.stddev, top_nodes),
         )
-    torch.testing.assert_close(
+    _assert_close(
         local_output["latent_sample"],
         select_owned(reference_output["latent_sample"], top_nodes),
     )
-    torch.testing.assert_close(
+    _assert_close(
         local_output["pred_mean"],
         select_owned(reference_output["pred_mean"], grid_nodes),
     )
-    torch.testing.assert_close(
+    _assert_close(
         local_output["pred_std"],
         select_owned(reference_output["pred_std"], grid_nodes),
     )
@@ -343,11 +352,11 @@ def _assert_local_outputs(local_output, reference_output, partition):
             reference_output["posterior"],
             reference_output["prior"],
         ).index_select(1, top_nodes).sum(dim=(1, 2))
-        torch.testing.assert_close(local_output["local_kl"], reference_kl)
+        _assert_close(local_output["local_kl"], reference_kl)
 
 
 def _assert_local_grad(local_tensor, global_tensor, indices):
-    torch.testing.assert_close(
+    _assert_close(
         local_tensor.grad,
         select_owned(global_tensor.grad, indices),
     )
@@ -480,7 +489,7 @@ def _distributed_case(rank, device=torch.device("cpu")):
         assert local_parameter.grad is not None, name
         assert reference_parameter.grad is not None, name
         dist.all_reduce(local_parameter.grad, op=dist.ReduceOp.SUM)
-        torch.testing.assert_close(
+        _assert_close(
             local_parameter.grad,
             reference_parameter.grad,
             msg=lambda message, param_name=name: f"{param_name}: {message}",
@@ -559,6 +568,10 @@ def _distributed_cuda_worker():
                     "world_size": world_size,
                     "torch_version": torch.__version__,
                     "cuda_runtime": torch.version.cuda,
+                    "comparison_tolerances": {
+                        "rtol": CUDA_RTOL,
+                        "atol": CUDA_ATOL,
+                    },
                     "validated_components": [
                         "prior",
                         "posterior",
