@@ -2,11 +2,11 @@
 # Two-GPU NCCL correctness smoke for receiver-owned halo message passing.
 
 #SBATCH --job-name=njord-mp-smoke
-#SBATCH --account=dphpc
+#SBATCH --account=dphpc_4gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --gpus=2
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 #SBATCH --time=00:10:00
 #SBATCH --output=slurm-njord-mp-smoke-%j.out
