@@ -32,6 +32,23 @@ def _copy_module(target: nn.Module, source: nn.Module) -> None:
     target.load_state_dict(source.state_dict())
 
 
+def _common_module_device(modules: Iterable[nn.Module]) -> torch.device:
+    """Return the single device used by a collection of reference modules."""
+
+    devices = set()
+    for module in modules:
+        devices.update(parameter.device for parameter in module.parameters())
+        devices.update(buffer.device for buffer in module.buffers())
+    if len(devices) > 1:
+        raise ValueError(
+            "reference GraphEFM modules must place all parameters and "
+            "buffers on one device"
+        )
+    if not devices:
+        return torch.device("cpu")
+    return devices.pop()
+
+
 def _reference_sequence_modules(sequence: nn.Module) -> Tuple[nn.Module, ...]:
     return tuple(module for _, module in sequence.named_children())
 
@@ -802,15 +819,17 @@ def _full_grid_lon_lat(model) -> torch.Tensor:
     interior_xy = torch.as_tensor(
         model._datastore.get_xy("state", stacked=True),
         dtype=torch.float32,
+    ).detach().cpu()
+    surface_mask = (
+        torch.as_tensor(model.surface_mask, dtype=torch.bool).detach().cpu()
     )
-    surface_mask = torch.as_tensor(model.surface_mask, dtype=torch.bool)
     coordinate_parts = [interior_xy[surface_mask]]
 
     if model.boundary_forced:
         boundary_xy = torch.as_tensor(
             model._datastore_boundary.get_xy("forcing", stacked=True),
             dtype=torch.float32,
-        )
+        ).detach().cpu()
         boundary_mask = torch.as_tensor(
             model._datastore_boundary.get_mask(
                 surface=True,
@@ -818,21 +837,21 @@ def _full_grid_lon_lat(model) -> torch.Tensor:
                 invert=False,
             ),
             dtype=torch.bool,
-        )
+        ).detach().cpu()
         coordinate_parts.append(boundary_xy[boundary_mask])
 
     if model.atmosphere_forced and model.use_atmosphere_g2m:
         atmosphere_xy = torch.as_tensor(
             model._datastore_atmosphere.get_xy("forcing", stacked=True),
             dtype=torch.float32,
-        )
+        ).detach().cpu()
         atmosphere_mask = torch.as_tensor(
             model._datastore_atmosphere.get_atmosphere_mask(
                 stacked=True,
                 invert=False,
             ),
             dtype=torch.bool,
-        )
+        ).detach().cpu()
         coordinate_parts.append(atmosphere_xy[atmosphere_mask])
 
     return torch.cat(coordinate_parts, dim=0)
@@ -872,7 +891,8 @@ def _mesh_level_lon_lat(model) -> Tuple[torch.Tensor, ...]:
             return tuple(reconstructed)
 
     return tuple(
-        model.mesh_lon_lat[level] for level in range(len(model.mesh_lon_lat))
+        torch.as_tensor(model.mesh_lon_lat[level]).detach().cpu()
+        for level in range(len(model.mesh_lon_lat))
     )
 
 
@@ -897,8 +917,14 @@ def build_partition_from_graph_efm(
     if strategy not in ("latitude", "random"):
         raise ValueError("strategy must be 'latitude' or 'random'")
 
-    num_full_grid = int(model.g2m_edge_index[0].max().item() + 1)
-    num_interior_grid = int(model.m2g_edge_index[1].max().item() + 1)
+    # Partitioning is topology-only preprocessing.  Normalize graph indices to
+    # CPU so an already CUDA-loaded reference model cannot mix CUDA indices
+    # with the CPU ownership tensors created below.
+    g2m_edge_index = torch.as_tensor(model.g2m_edge_index).detach().cpu()
+    m2g_edge_index = torch.as_tensor(model.m2g_edge_index).detach().cpu()
+
+    num_full_grid = int(g2m_edge_index[0].max().item() + 1)
+    num_interior_grid = int(m2g_edge_index[1].max().item() + 1)
     if strategy == "latitude":
         full_grid_lon_lat = _full_grid_lon_lat(model)
         if full_grid_lon_lat.shape[0] != num_full_grid:
@@ -923,12 +949,23 @@ def build_partition_from_graph_efm(
         mesh_sizes = [
             features.shape[0] for features in model.mesh_static_features
         ]
-        m2m_edge_index = model.m2m_edge_index
-        mesh_up_edge_index = model.mesh_up_edge_index
-        mesh_down_edge_index = model.mesh_down_edge_index
+        m2m_edge_index = tuple(
+            torch.as_tensor(edge_index).detach().cpu()
+            for edge_index in model.m2m_edge_index
+        )
+        mesh_up_edge_index = tuple(
+            torch.as_tensor(edge_index).detach().cpu()
+            for edge_index in model.mesh_up_edge_index
+        )
+        mesh_down_edge_index = tuple(
+            torch.as_tensor(edge_index).detach().cpu()
+            for edge_index in model.mesh_down_edge_index
+        )
     else:
         mesh_sizes = [model.mesh_static_features.shape[0]]
-        m2m_edge_index = (model.m2m_edge_index,)
+        m2m_edge_index = (
+            torch.as_tensor(model.m2m_edge_index).detach().cpu(),
+        )
         mesh_up_edge_index = ()
         mesh_down_edge_index = ()
 
@@ -951,8 +988,8 @@ def build_partition_from_graph_efm(
             for level, num_nodes in enumerate(mesh_sizes)
         )
     return build_graph_partition(
-        model.g2m_edge_index,
-        model.m2g_edge_index,
+        g2m_edge_index,
+        m2g_edge_index,
         m2m_edge_index,
         full_grid_owners,
         interior_grid_owners,
@@ -970,6 +1007,9 @@ def distributed_core_from_graph_efm(model, partition: GraphPartition):
     This is the bridge for existing checkpoints: first load the normal model,
     then create one sharded core per rank with the same parameters.
     """
+
+    reference_models = (model.prior_model, model.encoder, model.decoder)
+    reference_device = _common_module_device(reference_models)
 
     args = model.args
     hidden_dim = args.hidden_dim
@@ -1059,6 +1099,8 @@ def distributed_core_from_graph_efm(model, partition: GraphPartition):
             hidden_dim_edge=hidden_dim_edge,
         )
 
-    core = DistributedGraphEFMCore(prior_model, encoder, decoder)
-    core.load_from_reference(model.prior_model, model.encoder, model.decoder)
+    core = DistributedGraphEFMCore(prior_model, encoder, decoder).to(
+        reference_device
+    )
+    core.load_from_reference(*reference_models)
     return core

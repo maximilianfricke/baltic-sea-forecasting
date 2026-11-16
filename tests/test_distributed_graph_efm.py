@@ -23,9 +23,6 @@ from neural_lam.distributed_message_passing import (
     select_owned,
 )
 from neural_lam.models.distributed_graph_efm import (
-    DistributedGraphEFMCore,
-    DistributedHiGraphLatentDecoder,
-    DistributedHiGraphLatentEncoder,
     build_partition_from_graph_efm,
     distributed_core_from_graph_efm,
 )
@@ -185,44 +182,35 @@ def _reference_models(graph):
     return prior, encoder, decoder
 
 
-def _distributed_core(partition, reference_models):
-    prior = DistributedHiGraphLatentEncoder(
-        partition,
-        LATENT_DIM,
-        HIDDEN_DIM,
-        HIDDEN_DIM,
-        HIDDEN_DIM,
-        HIDDEN_DIM,
-        intra_level_layers=1,
+def _graph_efm_model(graph, reference_models):
+    args = SimpleNamespace(
+        hidden_dim=HIDDEN_DIM,
+        hidden_dim_grid=HIDDEN_DIM,
+        hidden_dim_mesh_nodes=HIDDEN_DIM,
+        hidden_dim_edge=HIDDEN_DIM,
+        latent_dim=LATENT_DIM,
+        learn_prior=True,
+        prior_processor_layers=1,
+        encoder_processor_layers=1,
+        processor_layers=1,
         hidden_layers=1,
-        output_dist="isotropic",
-    )
-    encoder = DistributedHiGraphLatentEncoder(
-        partition,
-        LATENT_DIM,
-        HIDDEN_DIM,
-        HIDDEN_DIM,
-        HIDDEN_DIM,
-        HIDDEN_DIM,
-        intra_level_layers=1,
-        hidden_layers=1,
-        output_dist="diagonal",
-    )
-    decoder = DistributedHiGraphLatentDecoder(
-        partition,
-        HIDDEN_DIM,
-        HIDDEN_DIM,
-        HIDDEN_DIM,
-        HIDDEN_DIM,
-        LATENT_DIM,
-        STATE_DIM,
-        intra_level_layers=1,
-        hidden_layers=1,
+        prior_dist="isotropic",
         output_std=True,
     )
-    core = DistributedGraphEFMCore(prior, encoder, decoder)
-    core.load_from_reference(*reference_models)
-    return core
+    return SimpleNamespace(
+        args=args,
+        hierarchical_graph=True,
+        g2m_edge_index=graph["g2m"],
+        m2g_edge_index=graph["m2g"],
+        m2m_edge_index=graph["m2m"],
+        mesh_up_edge_index=graph["mesh_up"],
+        mesh_down_edge_index=graph["mesh_down"],
+        mesh_static_features=(torch.zeros(4, 1), torch.zeros(2, 1)),
+        num_state_vars=STATE_DIM,
+        prior_model=reference_models[0],
+        encoder=reference_models[1],
+        decoder=reference_models[2],
+    )
 
 
 def _reference_training_forward(models, inputs):
@@ -432,7 +420,13 @@ def _distributed_case(rank, device=torch.device("cpu")):
     reference_models = tuple(
         model.to(device) for model in _reference_models(graph)
     )
-    core = _distributed_core(partition, reference_models)
+    model = _graph_efm_model(graph, reference_models)
+    core = distributed_core_from_graph_efm(model, partition)
+    core_devices = {
+        tensor.device
+        for tensor in (*core.parameters(), *core.buffers())
+    }
+    assert core_devices == {device}
 
     reference_inputs = _global_inputs(requires_grad=True, device=device)
     local_inputs = _local_inputs(reference_inputs, partition)
@@ -635,34 +629,7 @@ def test_latitude_cut_owners_split_at_equator():
 def test_existing_graph_efm_can_be_converted_to_distributed_core():
     graph = _toy_hierarchy()
     reference_models = _reference_models(graph)
-    args = SimpleNamespace(
-        hidden_dim=HIDDEN_DIM,
-        hidden_dim_grid=HIDDEN_DIM,
-        hidden_dim_mesh_nodes=HIDDEN_DIM,
-        hidden_dim_edge=HIDDEN_DIM,
-        latent_dim=LATENT_DIM,
-        learn_prior=True,
-        prior_processor_layers=1,
-        encoder_processor_layers=1,
-        processor_layers=1,
-        hidden_layers=1,
-        prior_dist="isotropic",
-        output_std=True,
-    )
-    model = SimpleNamespace(
-        args=args,
-        hierarchical_graph=True,
-        g2m_edge_index=graph["g2m"],
-        m2g_edge_index=graph["m2g"],
-        m2m_edge_index=graph["m2m"],
-        mesh_up_edge_index=graph["mesh_up"],
-        mesh_down_edge_index=graph["mesh_down"],
-        mesh_static_features=(torch.zeros(4, 1), torch.zeros(2, 1)),
-        num_state_vars=STATE_DIM,
-        prior_model=reference_models[0],
-        encoder=reference_models[1],
-        decoder=reference_models[2],
-    )
+    model = _graph_efm_model(graph, reference_models)
 
     partition = build_partition_from_graph_efm(
         model,
@@ -674,7 +641,7 @@ def test_existing_graph_efm_can_be_converted_to_distributed_core():
     for _, local_parameter, reference_parameter in core.parameter_pairs(
         *reference_models
     ):
-        torch.testing.assert_close(local_parameter, reference_parameter)
+        assert torch.equal(local_parameter, reference_parameter)
 
 
 @pytest.mark.skipif(
