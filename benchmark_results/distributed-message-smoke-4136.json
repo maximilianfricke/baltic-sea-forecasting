@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "status": "completed",
+  "test": "distributed_message_passing_cuda_smoke",
+  "comparable_to_training_baseline": false,
+  "comparison_note": "Synthetic toy graph correctness/micro-timing only; do not compare throughput with full GraphEFM runs.",
+  "started_at_utc": "2026-11-16T13:57:16.105353+00:00",
+  "finished_at_utc": "2026-11-16T13:57:20.143500+00:00",
+  "git_commit": "06e211f1cdcd938ade4fb2c4a65578a8d761c815",
+  "git_dirty": "true",
+  "slurm_job_id": "4136",
+  "backend": "nccl",
+  "world_size": 2,
+  "torch_version": "2.14.1+cu126",
+  "cuda_runtime": "12.6",
+  "comparison_tolerances": {
+    "rtol": 0.0001,
+    "atol": 2e-05
+  },
+  "visible_device_names": [
+    "NVIDIA GeForce GTX 1080 Ti",
+    "NVIDIA GeForce GTX 1080 Ti"
+  ],
+  "toy_workload": {
+    "batch_size": 2,
+    "sender_nodes": 8,
+    "receiver_nodes": 6,
+    "edges": 12,
+    "node_dim": 32,
+    "edge_dim": 16
+  },
+  "rank_metrics": [
+    {
+      "rank": 0,
+      "output_max_abs_error": 9.5367431640625e-07,
+      "send_gradient_max_abs_error": 1.9073486328125e-06,
+      "receiver_gradient_max_abs_error": 1.7881393432617188e-06,
+      "edge_gradient_max_abs_error": 9.5367431640625e-07,
+      "parameter_gradient_max_abs_error": 4.57763671875e-05,
+      "peak_allocated_mib": 16.4326171875,
+      "incremental_peak_mib": 0.076171875,
+      "forward_ms": 3326.656494140625,
+      "backward_ms": 3.0357439517974854
+    },
+    {
+      "rank": 1,
+      "output_max_abs_error": 7.152557373046875e-07,
+      "send_gradient_max_abs_error": 1.7881393432617188e-06,
+      "receiver_gradient_max_abs_error": 2.4437904357910156e-06,
+      "edge_gradient_max_abs_error": 8.344650268554688e-07,
+      "parameter_gradient_max_abs_error": 4.57763671875e-05,
+      "peak_allocated_mib": 16.4326171875,
+      "incremental_peak_mib": 0.076171875,
+      "forward_ms": 191.7920684814453,
+      "backward_ms": 2.9255359172821045
+    }
+  ]
+}

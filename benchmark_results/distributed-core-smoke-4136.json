@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "status": "completed",
+  "test": "hierarchical_distributed_graph_efm_core_smoke",
+  "comparable_to_training_baseline": false,
+  "comparison_note": "Synthetic hierarchical toy graph correctness test; wall time includes reference and assertion work.",
+  "started_at_utc": "2026-11-16T13:57:36.512830+00:00",
+  "finished_at_utc": "2026-11-16T13:57:42.084207+00:00",
+  "git_commit": "06e211f1cdcd938ade4fb2c4a65578a8d761c815",
+  "git_dirty": "true",
+  "slurm_job_id": "4136",
+  "backend": "nccl",
+  "world_size": 2,
+  "torch_version": "2.14.1+cu126",
+  "cuda_runtime": "12.6",
+  "comparison_tolerances": {
+    "rtol": 0.0001,
+    "atol": 2e-05
+  },
+  "validated_components": [
+    "prior",
+    "posterior",
+    "grid_to_mesh",
+    "mesh_up",
+    "mesh_intra_level",
+    "mesh_down",
+    "mesh_to_grid",
+    "forward",
+    "backward",
+    "input_gradients",
+    "summed_parameter_gradients"
+  ],
+  "rank_metrics": [
+    {
+      "rank": 0,
+      "wall_clock_smoke_seconds": 5.536606770940125,
+      "peak_allocated_mib": 16.744140625
+    },
+    {
+      "rank": 1,
+      "wall_clock_smoke_seconds": 1.201668274588883,
+      "peak_allocated_mib": 16.744140625
+    }
+  ]
+}
