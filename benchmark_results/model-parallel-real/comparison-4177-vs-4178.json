@@ -1,0 +1,90 @@
+{
+  "checks": {
+    "non_instrumented_results": true,
+    "preflight_loss_numerically_close": true,
+    "same_gpu_model": true,
+    "same_preflight_batch": true,
+    "same_workload": true
+  },
+  "comparison": "real_data_model_parallel_1_vs_2_gpu",
+  "hardware": {
+    "one_gpu_models": [
+      "NVIDIA GeForce GTX 1080 Ti"
+    ],
+    "two_gpu_models": [
+      "NVIDIA GeForce GTX 1080 Ti",
+      "NVIDIA GeForce GTX 1080 Ti"
+    ]
+  },
+  "headline": {
+    "observed_speedup": 1.2229601991239565,
+    "one_gpu_observed_samples_per_second": 0.9796476863533271,
+    "one_gpu_peak_memory_bytes_per_gpu": 3815351296,
+    "parallel_efficiency": 0.6114800995619782,
+    "two_gpu_observed_samples_per_second": 1.1980701295739882,
+    "two_gpu_peak_memory_bytes_per_gpu": 2292563456
+  },
+  "inputs": {
+    "one_gpu": "benchmark_results/model-parallel-real/real-mp-1gpu-4177.json",
+    "two_gpu": "benchmark_results/model-parallel-real/real-mp-2gpu-4178.json"
+  },
+  "numerical_equivalence": {
+    "accuracy_note": "This checks numerical training equivalence, not forecast accuracy. Accuracy requires equal-length validation rollouts.",
+    "measured_mean_loss_one_gpu": 2185324.6625,
+    "measured_mean_loss_relative_difference": 2.7169875088247626e-08,
+    "measured_mean_loss_two_gpu": 2185324.721875,
+    "preflight_loss_one_gpu": 40980620.0,
+    "preflight_loss_two_gpu": 40980616.0,
+    "preflight_relative_difference": 9.760711282552582e-08
+  },
+  "phases": {
+    "backward_ms": {
+      "one_gpu_mean_ms": 102.18536987304688,
+      "speedup": 1.5748429898867948,
+      "two_gpu_mean_ms": 64.88606834411621
+    },
+    "compute_ms": {
+      "one_gpu_mean_ms": 221.91101150512696,
+      "speedup": 1.5985369695115101,
+      "two_gpu_mean_ms": 138.82131958007812
+    },
+    "data_distribution_ms": {
+      "one_gpu_mean_ms": 1817.114761449989,
+      "speedup": 1.1888458821701562,
+      "two_gpu_mean_ms": 1528.4695760000204
+    },
+    "end_to_end_ms": {
+      "one_gpu_mean_ms": 2039.1350548765026,
+      "speedup": 1.2229598610795738,
+      "two_gpu_mean_ms": 1667.376926889854
+    },
+    "forward_ms": {
+      "one_gpu_mean_ms": 119.48597602844238,
+      "speedup": 1.6234361961196013,
+      "two_gpu_mean_ms": 73.60066032409668
+    },
+    "gradient_sync_ms": {
+      "one_gpu_mean_ms": 0.0035840000375173984,
+      "speedup": 0.004614066383640115,
+      "two_gpu_mean_ms": 0.7767551958560943
+    },
+    "metric_reduce_ms": {
+      "one_gpu_mean_ms": 0.109281599894166,
+      "speedup": 0.9208213031040766,
+      "two_gpu_mean_ms": 0.11867840103805065
+    },
+    "optimizer_ms": {
+      "one_gpu_mean_ms": 0.23608320206403732,
+      "speedup": 0.9846252382977083,
+      "two_gpu_mean_ms": 0.23976960256695748
+    },
+    "step_ms": {
+      "one_gpu_mean_ms": 222.02029342651366,
+      "speedup": 1.59801931152075,
+      "two_gpu_mean_ms": 138.93467483520507
+    }
+  },
+  "schema_version": 1,
+  "valid_comparison": true,
+  "workload_differences": {}
+}
