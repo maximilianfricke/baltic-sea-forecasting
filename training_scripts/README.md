@@ -60,6 +60,59 @@ timings. Both JSON files explicitly set
 `"comparable_to_training_baseline": false`, because the smoke uses synthetic
 toy graphs rather than the real benchmark workload.
 
+## Real-data 1-vs-2-GPU model-parallel benchmark
+
+After the synthetic smoke passes, run the controlled strong-scaling pair on
+the physical 1-degree Njord Zarr data and the real `global_cluster_graph`:
+
+```sh
+bash jobs/submit_model_parallel_real.sh 1
+# Wait for completion and inspect the JSON before submitting the next job.
+bash jobs/submit_model_parallel_real.sh 2
+```
+
+Both cases use the same global batch size (2), initial seed, GraphEFM model
+(hidden dimension 64, two processor layers), FP32 precision and one-step ELBO
+training workload. Rank zero loads every batch once and broadcasts the same
+physical sample to the other model-parallel ranks. The measurement includes
+the real embedding frontend, partitioned prior/posterior/decoder, likelihood
+and KL loss, backward halo exchange, summed shared-parameter gradients and an
+AdamW step. Five steps warm up CUDA, NCCL, the data loader and optimizer; the
+next 20 are recorded individually.
+
+The default dataset location is:
+
+```text
+/scratch/users/$USER/baltic-sea-forecasting-data/physical_repeat_16
+```
+
+Override it at submission time with `NJORD_DATA_ROOT=/path/to/data`. The
+physical-repeat dataset retains real Njord fields, graph geometry and Zarr I/O
+but repeats the available January sequence to create a stable performance
+window; it must not be described as additional scientific observations.
+
+Results are written under `benchmark_results/model-parallel-real/`. The JSON
+records per-rank partitions, environment, batch fingerprint, preflight loss,
+per-step data/forward/backward/gradient-sync/optimizer times, memory and
+throughput. Compare the finished pair with:
+
+```sh
+python benchmarks/compare_model_parallel_real.py \
+  --one-gpu benchmark_results/model-parallel-real/real-mp-1gpu-JOBID.json \
+  --two-gpu benchmark_results/model-parallel-real/real-mp-2gpu-JOBID.json \
+  --output benchmark_results/model-parallel-real/comparison-1-vs-2.json
+```
+
+The comparison checks that workload, GPU model and first physical batch match,
+then reports observed wall-time speedup, parallel efficiency, phase times,
+memory and numerical loss equivalence. It does not call a timing result an
+accuracy result; forecast accuracy requires separate validation rollouts.
+
+In this first stage the embedding frontend is replicated and the GNN core is
+partitioned. Autoregressive rollouts longer than one step are intentionally
+rejected until differentiable full-grid reconstruction across ranks is
+implemented.
+
 ## Running a sweep
 
 Edit the `RUNS` array at the top of [`launch_sweep.sh`](launch_sweep.sh) — one line

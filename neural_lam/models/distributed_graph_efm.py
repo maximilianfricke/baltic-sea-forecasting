@@ -1001,15 +1001,25 @@ def build_partition_from_graph_efm(
     )
 
 
-def distributed_core_from_graph_efm(model, partition: GraphPartition):
+def distributed_core_from_graph_efm(
+    model,
+    partition: GraphPartition,
+    device: torch.device = None,
+):
     """Construct a sharded core and copy weights from a loaded GraphEFM.
 
     This is the bridge for existing checkpoints: first load the normal model,
-    then create one sharded core per rank with the same parameters.
+    then create one sharded core per rank with the same parameters.  By
+    default the core stays on the reference modules' device.  ``device`` can
+    place the sharded copy directly on a rank's accelerator while the full
+    reference model remains on CPU, avoiding a transient full-model GPU copy.
     """
 
     reference_models = (model.prior_model, model.encoder, model.decoder)
     reference_device = _common_module_device(reference_models)
+    target_device = (
+        reference_device if device is None else torch.device(device)
+    )
 
     args = model.args
     hidden_dim = args.hidden_dim
@@ -1100,7 +1110,7 @@ def distributed_core_from_graph_efm(model, partition: GraphPartition):
         )
 
     core = DistributedGraphEFMCore(prior_model, encoder, decoder).to(
-        reference_device
+        target_device
     )
     core.load_from_reference(*reference_models)
     return core
