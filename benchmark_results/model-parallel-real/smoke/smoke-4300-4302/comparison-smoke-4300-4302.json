@@ -1,0 +1,218 @@
+{
+  "checks": {
+    "non_instrumented_results": true,
+    "preflight_loss_numerically_close": true,
+    "same_global_preflight_batch": true,
+    "same_gpu_model": true,
+    "same_workload": true
+  },
+  "comparison": "real_data_model_parallel_1_vs_2_vs_4_gpu",
+  "hardware": {
+    "1_gpu": [
+      "NVIDIA GeForce GTX 1080 Ti"
+    ],
+    "2_gpu": [
+      "NVIDIA GeForce GTX 1080 Ti",
+      "NVIDIA GeForce GTX 1080 Ti"
+    ],
+    "4_gpu": [
+      "NVIDIA GeForce GTX 1080 Ti",
+      "NVIDIA GeForce GTX 1080 Ti",
+      "NVIDIA GeForce GTX 1080 Ti",
+      "NVIDIA GeForce GTX 1080 Ti"
+    ]
+  },
+  "headline": {
+    "data_staging_ms": {
+      "1_gpu": 7489.0,
+      "2_gpu": 9837.0,
+      "4_gpu": 13106.0
+    },
+    "observed_samples_per_second": {
+      "1_gpu": 0.7342089894945928,
+      "2_gpu": 1.20057480347763,
+      "4_gpu": 1.3482463663574973
+    },
+    "observed_speedup": {
+      "1_gpu": 1.0,
+      "2_gpu": 1.635194911334536,
+      "4_gpu": 1.836325059552307
+    },
+    "parallel_efficiency": {
+      "1_gpu": 1.0,
+      "2_gpu": 0.817597455667268,
+      "4_gpu": 0.45908126488807677
+    },
+    "peak_memory_bytes_per_gpu": {
+      "1_gpu": 3576931840,
+      "2_gpu": 1811650048,
+      "4_gpu": 944537600
+    }
+  },
+  "inputs": {
+    "1_gpu": "benchmark_results/model-parallel-real/real-mp-smoke-rank-local-1gpu-4300.json",
+    "2_gpu": "benchmark_results/model-parallel-real/real-mp-smoke-rank-local-2gpu-4301.json",
+    "4_gpu": "benchmark_results/model-parallel-real/real-mp-smoke-rank-local-4gpu-4302.json"
+  },
+  "numerical_equivalence": {
+    "accuracy_note": "This checks one-step numerical training equivalence, not forecast accuracy. Accuracy requires equal validation rollouts.",
+    "preflight_loss": {
+      "1_gpu": 40980620.0,
+      "2_gpu": 40980616.0,
+      "4_gpu": 40980620.0
+    },
+    "relative_difference_from_1_gpu": {
+      "2_gpu": 9.760711282552582e-08,
+      "4_gpu": 0.0
+    }
+  },
+  "phases": {
+    "backward_ms": {
+      "mean_ms": {
+        "1_gpu": 915.2583618164062,
+        "2_gpu": 351.1562194824219,
+        "4_gpu": 281.22418212890625
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 2.606413644518183,
+        "4_gpu": 3.254550710709772
+      }
+    },
+    "batch_broadcast_ms": {
+      "mean_ms": {
+        "1_gpu": 0.0,
+        "2_gpu": 0.0,
+        "4_gpu": 0.0
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": null,
+        "4_gpu": null
+      }
+    },
+    "compute_ms": {
+      "mean_ms": {
+        "1_gpu": 1330.474365234375,
+        "2_gpu": 513.0084838867188,
+        "4_gpu": 416.8168029785156
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 2.593474390821511,
+        "4_gpu": 3.1919883165145646
+      }
+    },
+    "data_distribution_ms": {
+      "mean_ms": {
+        "1_gpu": 1388.7113584205508,
+        "2_gpu": 1186.1468832939863,
+        "4_gpu": 1076.789429411292
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.1707752032901972,
+        "4_gpu": 1.2896777405957582
+      }
+    },
+    "data_read_ms": {
+      "mean_ms": {
+        "1_gpu": 1385.38474496454,
+        "2_gpu": 1184.3288075178862,
+        "4_gpu": 1075.8100291714072
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.1697636130864928,
+        "4_gpu": 1.2877596484497995
+      }
+    },
+    "end_to_end_ms": {
+      "mean_ms": {
+        "1_gpu": 2719.9688047096133,
+        "2_gpu": 1664.0683158636093,
+        "4_gpu": 1481.236695036292
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.6345295314982415,
+        "4_gpu": 1.83628235367405
+      }
+    },
+    "forward_ms": {
+      "mean_ms": {
+        "1_gpu": 133.52896118164062,
+        "2_gpu": 116.2883529663086,
+        "4_gpu": 93.88044738769531
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.1482573944471208,
+        "4_gpu": 1.422329834349958
+      }
+    },
+    "gradient_sync_ms": {
+      "mean_ms": {
+        "1_gpu": 0.002047999994829297,
+        "2_gpu": 1.4305280447006226,
+        "4_gpu": 7.513088226318359
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 0.0014316391785649317,
+        "4_gpu": 0.0002725909683391112
+      }
+    },
+    "host_to_device_ms": {
+      "mean_ms": {
+        "1_gpu": 3.2928185537457466,
+        "2_gpu": 1.7847493290901184,
+        "4_gpu": 0.9791851043701172
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.844975369972239,
+        "4_gpu": 3.3628152011809105
+      }
+    },
+    "metric_reduce_ms": {
+      "mean_ms": {
+        "1_gpu": 0.7830399870872498,
+        "2_gpu": 24.78972816467285,
+        "4_gpu": 29.913536071777344
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 0.03158727606392789,
+        "4_gpu": 0.02617677780414693
+      }
+    },
+    "optimizer_ms": {
+      "mean_ms": {
+        "1_gpu": 281.68499755859375,
+        "2_gpu": 44.13337707519531,
+        "4_gpu": 58.643455505371094
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 6.38258425315274,
+        "4_gpu": 4.8033492421467985
+      }
+    },
+    "step_ms": {
+      "mean_ms": {
+        "1_gpu": 1331.2574462890625,
+        "2_gpu": 513.52392578125,
+        "4_gpu": 442.19757080078125
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 2.5923961464185976,
+        "4_gpu": 3.0105489812580184
+      }
+    }
+  },
+  "schema_version": 2,
+  "valid_comparison": true,
+  "workload_differences": {}
+}

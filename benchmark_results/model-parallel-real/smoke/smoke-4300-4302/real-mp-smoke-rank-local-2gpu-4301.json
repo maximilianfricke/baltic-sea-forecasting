@@ -1,0 +1,524 @@
+{
+  "backend": "nccl",
+  "benchmark": "real_data_model_parallel_graph_efm",
+  "finished_at_utc": "2026-11-17T18:34:24.564449+00:00",
+  "git": {
+    "commit": "a43bf568d56d64c1eda9e1318763e3bec8cd4f13",
+    "tracked_dirty": false,
+    "untracked_file_count": 43
+  },
+  "interpretation": {
+    "comparable_across_world_sizes": true,
+    "compare_speed_with_same_gpu_model_only": true,
+    "global_batch_size_is_constant": true,
+    "limitations": [
+      "one autoregressive training step",
+      "embedding parameters are replicated; rank-local mode computes embeddings only for owned nodes and edges",
+      "phase timing uses CUDA events; headline observed throughput uses wall time",
+      "progress output adds diagnostic synchronization when progress_interval is nonzero"
+    ]
+  },
+  "model": {
+    "core_parameters_per_rank": 585628,
+    "frontend_parameters": 59392,
+    "gradient_sync_rule": "sum model-parallel contributions",
+    "trainable_parameters_per_rank": 645020
+  },
+  "partition_strategy": "geographic",
+  "preflight": {
+    "batch_fingerprint": {
+      "dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.float32",
+        "torch.float32",
+        "torch.float32",
+        "torch.int64"
+      ],
+      "shapes": [
+        [
+          2,
+          2,
+          42348,
+          28
+        ],
+        [
+          2,
+          1,
+          42348,
+          28
+        ],
+        [
+          2,
+          1,
+          42348,
+          6
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          42348,
+          24
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "sums": [
+        26401.539197755345,
+        11858.000987684773,
+        -48521.73994517326,
+        0.0,
+        -6476.6788371784205,
+        3.3454944e+18
+      ]
+    },
+    "loss": 40980616.0
+  },
+  "rank_metadata": [
+    {
+      "hardware": {
+        "cuda_runtime": "12.6",
+        "gpu": {
+          "compute_capability": "6.1",
+          "index": 0,
+          "name": "NVIDIA GeForce GTX 1080 Ti",
+          "total_memory_bytes": 11707809792
+        },
+        "hostname": "studgpu-node06.inf.ethz.ch",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3",
+        "rank": 0,
+        "torch": "2.14.1+cu126"
+      },
+      "initialization_timings": {
+        "data_staging_ms": 9837.0,
+        "optimizer_and_stream_ms": 3.2658595591783524,
+        "preflight_batch_ms": 1281.9001721218228,
+        "preflight_forward_ms": 434.8370525985956,
+        "rank_local_dataset_load_ms": 501.13397743552923,
+        "sharded_model_build_ms": 174.706413410604,
+        "total_before_training_ms": 8633.279514499009,
+        "workload_load_ms": 6186.119573190808
+      },
+      "measurement_window_ms": 1665.8687107264996,
+      "partition": {
+        "owned_full_grid_nodes": 21174,
+        "owned_interior_grid_nodes": 21174,
+        "owned_mesh_nodes_by_level": [
+          4228,
+          1049
+        ],
+        "rank": 0,
+        "relations": {
+          "g2m": [
+            {
+              "halo_nodes": 0,
+              "owned_edges": 34807
+            }
+          ],
+          "m2g": [
+            {
+              "halo_nodes": 268,
+              "owned_edges": 63392
+            }
+          ],
+          "m2m": [
+            {
+              "halo_nodes": 150,
+              "owned_edges": 24833
+            },
+            {
+              "halo_nodes": 76,
+              "owned_edges": 6039
+            }
+          ],
+          "mesh_down": [
+            {
+              "halo_nodes": 25,
+              "owned_edges": 4228
+            }
+          ],
+          "mesh_up": [
+            {
+              "halo_nodes": 45,
+              "owned_edges": 4237
+            }
+          ]
+        }
+      },
+      "rank": 0,
+      "records": [
+        {
+          "backward_ms": 349.6109619140625,
+          "batch_broadcast_ms": 0.0,
+          "compute_ms": 453.0479431152344,
+          "data_distribution_ms": 1186.1468832939863,
+          "data_read_ms": 1184.3288075178862,
+          "end_to_end_ms": 1663.9845602959394,
+          "forward_ms": 82.93545532226562,
+          "gradient_all_reduce_calls": 1,
+          "gradient_sync_bytes": 2580080,
+          "gradient_sync_ms": 0.7587839961051941,
+          "host_to_device_ms": 1.7847493290901184,
+          "kl": 54205.953125,
+          "loss": 38829264.0,
+          "measurement_step": 0,
+          "memory_allocated_bytes": 91118592,
+          "memory_reserved_bytes": 2032140288,
+          "metric_reduce_ms": 24.78972816467285,
+          "negative_likelihood": 38775056.0,
+          "optimizer_ms": 19.742719650268555,
+          "peak_memory_allocated_bytes": 1811650048,
+          "peak_memory_reserved_bytes": 2032140288,
+          "step_ms": 477.8376770019531
+        }
+      ]
+    },
+    {
+      "hardware": {
+        "cuda_runtime": "12.6",
+        "gpu": {
+          "compute_capability": "6.1",
+          "index": 1,
+          "name": "NVIDIA GeForce GTX 1080 Ti",
+          "total_memory_bytes": 11707809792
+        },
+        "hostname": "studgpu-node06.inf.ethz.ch",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3",
+        "rank": 1,
+        "torch": "2.14.1+cu126"
+      },
+      "initialization_timings": {
+        "data_staging_ms": 9837.0,
+        "optimizer_and_stream_ms": 3.5699494183063507,
+        "preflight_batch_ms": 6341.008006595075,
+        "preflight_forward_ms": 434.70876663923264,
+        "rank_local_dataset_load_ms": 568.0384878069162,
+        "sharded_model_build_ms": 269.9092822149396,
+        "total_before_training_ms": 8633.101544342935,
+        "workload_load_ms": 976.7933525145054
+      },
+      "measurement_window_ms": 1665.8339612185955,
+      "partition": {
+        "owned_full_grid_nodes": 21174,
+        "owned_interior_grid_nodes": 21174,
+        "owned_mesh_nodes_by_level": [
+          4228,
+          1048
+        ],
+        "rank": 1,
+        "relations": {
+          "g2m": [
+            {
+              "halo_nodes": 652,
+              "owned_edges": 35833
+            }
+          ],
+          "m2g": [
+            {
+              "halo_nodes": 1,
+              "owned_edges": 62715
+            }
+          ],
+          "m2m": [
+            {
+              "halo_nodes": 149,
+              "owned_edges": 23713
+            },
+            {
+              "halo_nodes": 78,
+              "owned_edges": 5601
+            }
+          ],
+          "mesh_down": [
+            {
+              "halo_nodes": 31,
+              "owned_edges": 4228
+            }
+          ],
+          "mesh_up": [
+            {
+              "halo_nodes": 36,
+              "owned_edges": 4219
+            }
+          ]
+        }
+      },
+      "rank": 1,
+      "records": [
+        {
+          "backward_ms": 351.1562194824219,
+          "batch_broadcast_ms": 0.0,
+          "compute_ms": 513.0084838867188,
+          "data_distribution_ms": 1150.5443900823593,
+          "data_read_ms": 1148.7386683002114,
+          "end_to_end_ms": 1664.0683158636093,
+          "forward_ms": 116.2883529663086,
+          "gradient_all_reduce_calls": 1,
+          "gradient_sync_bytes": 2580080,
+          "gradient_sync_ms": 1.4305280447006226,
+          "host_to_device_ms": 1.7751334235072136,
+          "kl": 54205.953125,
+          "loss": 38829264.0,
+          "measurement_step": 0,
+          "memory_allocated_bytes": 90766848,
+          "memory_reserved_bytes": 1962934272,
+          "metric_reduce_ms": 0.5154240131378174,
+          "negative_likelihood": 38775056.0,
+          "optimizer_ms": 44.13337707519531,
+          "peak_memory_allocated_bytes": 1800772608,
+          "peak_memory_reserved_bytes": 1962934272,
+          "step_ms": 513.52392578125
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "backward_ms": 351.1562194824219,
+      "batch_broadcast_ms": 0.0,
+      "compute_ms": 513.0084838867188,
+      "data_distribution_ms": 1186.1468832939863,
+      "data_read_ms": 1184.3288075178862,
+      "end_to_end_ms": 1664.0683158636093,
+      "forward_ms": 116.2883529663086,
+      "gradient_all_reduce_calls": 1,
+      "gradient_sync_bytes": 2580080,
+      "gradient_sync_ms": 1.4305280447006226,
+      "host_to_device_ms": 1.7847493290901184,
+      "kl": 54205.953125,
+      "loss": 38829264.0,
+      "measurement_step": 0,
+      "memory_allocated_bytes": 91118592,
+      "memory_reserved_bytes": 2032140288,
+      "metric_reduce_ms": 24.78972816467285,
+      "negative_likelihood": 38775056.0,
+      "optimizer_ms": 44.13337707519531,
+      "peak_memory_allocated_bytes": 1811650048,
+      "peak_memory_reserved_bytes": 2032140288,
+      "step_ms": 513.52392578125
+    }
+  ],
+  "scaling_mode": "strong",
+  "schema_version": 2,
+  "slurm_job_id": "4301",
+  "started_at_utc": "2026-11-17T18:34:14.262509+00:00",
+  "status": "completed",
+  "summary": {
+    "backward_ms": {
+      "count": 1,
+      "max": 351.1562194824219,
+      "mean": 351.1562194824219,
+      "median": 351.1562194824219,
+      "min": 351.1562194824219,
+      "p95": 351.1562194824219,
+      "std": 0.0
+    },
+    "batch_broadcast_ms": {
+      "count": 1,
+      "max": 0.0,
+      "mean": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "p95": 0.0,
+      "std": 0.0
+    },
+    "compute_ms": {
+      "count": 1,
+      "max": 513.0084838867188,
+      "mean": 513.0084838867188,
+      "median": 513.0084838867188,
+      "min": 513.0084838867188,
+      "p95": 513.0084838867188,
+      "std": 0.0
+    },
+    "compute_samples_per_second": 3.8985710038308743,
+    "data_distribution_ms": {
+      "count": 1,
+      "max": 1186.1468832939863,
+      "mean": 1186.1468832939863,
+      "median": 1186.1468832939863,
+      "min": 1186.1468832939863,
+      "p95": 1186.1468832939863,
+      "std": 0.0
+    },
+    "data_read_ms": {
+      "count": 1,
+      "max": 1184.3288075178862,
+      "mean": 1184.3288075178862,
+      "median": 1184.3288075178862,
+      "min": 1184.3288075178862,
+      "p95": 1184.3288075178862,
+      "std": 0.0
+    },
+    "end_to_end_ms": {
+      "count": 1,
+      "max": 1664.0683158636093,
+      "mean": 1664.0683158636093,
+      "median": 1664.0683158636093,
+      "min": 1664.0683158636093,
+      "p95": 1664.0683158636093,
+      "std": 0.0
+    },
+    "end_to_end_samples_per_second": 1.2018737337487557,
+    "forward_ms": {
+      "count": 1,
+      "max": 116.2883529663086,
+      "mean": 116.2883529663086,
+      "median": 116.2883529663086,
+      "min": 116.2883529663086,
+      "p95": 116.2883529663086,
+      "std": 0.0
+    },
+    "global_batch_size": 2,
+    "gradient_sync_ms": {
+      "count": 1,
+      "max": 1.4305280447006226,
+      "mean": 1.4305280447006226,
+      "median": 1.4305280447006226,
+      "min": 1.4305280447006226,
+      "p95": 1.4305280447006226,
+      "std": 0.0
+    },
+    "host_to_device_ms": {
+      "count": 1,
+      "max": 1.7847493290901184,
+      "mean": 1.7847493290901184,
+      "median": 1.7847493290901184,
+      "min": 1.7847493290901184,
+      "p95": 1.7847493290901184,
+      "std": 0.0
+    },
+    "loss": {
+      "count": 1,
+      "max": 38829264.0,
+      "mean": 38829264.0,
+      "median": 38829264.0,
+      "min": 38829264.0,
+      "p95": 38829264.0,
+      "std": 0.0
+    },
+    "metric_reduce_ms": {
+      "count": 1,
+      "max": 24.78972816467285,
+      "mean": 24.78972816467285,
+      "median": 24.78972816467285,
+      "min": 24.78972816467285,
+      "p95": 24.78972816467285,
+      "std": 0.0
+    },
+    "observed_samples_per_second": 1.20057480347763,
+    "observed_window_ms": 1665.8687107264996,
+    "optimizer_ms": {
+      "count": 1,
+      "max": 44.13337707519531,
+      "mean": 44.13337707519531,
+      "median": 44.13337707519531,
+      "min": 44.13337707519531,
+      "p95": 44.13337707519531,
+      "std": 0.0
+    },
+    "peak_memory_allocated_bytes_per_gpu": 1811650048,
+    "peak_memory_reserved_bytes_per_gpu": 2032140288,
+    "step_ms": {
+      "count": 1,
+      "max": 513.52392578125,
+      "mean": 513.52392578125,
+      "median": 513.52392578125,
+      "min": 513.52392578125,
+      "p95": 513.52392578125,
+      "std": 0.0
+    }
+  },
+  "workload": {
+    "ar_steps": 1,
+    "batch_size_global": 2,
+    "config_path": "/scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16/global_ocean_1.yaml",
+    "data_kind": "physical Njord Zarr samples",
+    "data_mode": "rank-local",
+    "dataset": {
+      "forcing_variables": [
+        "day_of_year_sin",
+        "day_of_year_cos"
+      ],
+      "root": "/scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16",
+      "source_benchmark_attributes": {
+        "benchmark_data_kind": "physical_repeat_io_proxy",
+        "benchmark_effective_time_steps": 496,
+        "benchmark_original_time_steps": 31,
+        "benchmark_repeat_count": 16,
+        "benchmark_source_store": "global_ocean_1_mdp_config.zarr"
+      },
+      "state_variables": [
+        "zos",
+        "siconc",
+        "sithick",
+        "thetao_0m",
+        "thetao_47m",
+        "thetao_92m",
+        "thetao_222m",
+        "thetao_318m",
+        "thetao_541m",
+        "so_0m",
+        "so_47m",
+        "so_92m",
+        "so_222m",
+        "so_318m",
+        "so_541m",
+        "uo_0m",
+        "uo_47m",
+        "uo_92m",
+        "uo_222m",
+        "uo_318m",
+        "uo_541m",
+        "vo_0m",
+        "vo_47m",
+        "vo_92m",
+        "vo_222m",
+        "vo_318m",
+        "vo_541m"
+      ],
+      "train_samples": 476,
+      "train_time_end": "2024-04-23T00:00:00.000000000",
+      "train_time_start": "2023-01-01T00:00:00.000000000",
+      "train_time_steps": 479
+    },
+    "dataset_root": "/scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16",
+    "dataset_samples": 476,
+    "global_surface_grid_nodes": 42348,
+    "graph": "global_cluster_graph",
+    "hidden_dim": 64,
+    "learning_rate": 0.001,
+    "measurement_steps": 1,
+    "model_parallel_same_batch_on_all_ranks": true,
+    "num_workers": 0,
+    "partitioned_components": [
+      "prior",
+      "posterior",
+      "grid_to_mesh",
+      "mesh_up",
+      "mesh_intra_level",
+      "mesh_down",
+      "mesh_to_grid"
+    ],
+    "precision": "float32",
+    "processor_layers": 2,
+    "progress_interval": 0,
+    "rank_data_root": "/tmp/njord-partitioned/geographic_rcb_ws2/rank_0",
+    "rank_local_frontend_compute": true,
+    "rank_zero_loads_and_broadcasts_batch": false,
+    "replicated_frontend_parameters": true,
+    "seed": 42,
+    "warmup_steps": 0
+  },
+  "world_size": 2
+}
