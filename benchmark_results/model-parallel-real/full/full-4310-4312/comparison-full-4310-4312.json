@@ -50,9 +50,9 @@
     }
   },
   "inputs": {
-    "1_gpu": "benchmark_results/model-parallel-real/real-mp-full-rank-local-1gpu-4310.json",
-    "2_gpu": "benchmark_results/model-parallel-real/real-mp-full-rank-local-2gpu-4311.json",
-    "4_gpu": "benchmark_results/model-parallel-real/real-mp-full-rank-local-4gpu-4312.json"
+    "1_gpu": "benchmark_results/model-parallel-real/full/full-4310-4312/real-mp-full-rank-local-1gpu-4310.json",
+    "2_gpu": "benchmark_results/model-parallel-real/full/full-4310-4312/real-mp-full-rank-local-2gpu-4311.json",
+    "4_gpu": "benchmark_results/model-parallel-real/full/full-4310-4312/real-mp-full-rank-local-4gpu-4312.json"
   },
   "numerical_equivalence": {
     "accuracy_note": "This checks one-step numerical training equivalence, not forecast accuracy. Accuracy requires equal validation rollouts.",
