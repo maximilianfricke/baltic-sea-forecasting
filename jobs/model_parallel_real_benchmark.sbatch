@@ -27,6 +27,7 @@ DEFAULT_DATA_ROOT="${DATA_PARENT}/baltic-sea-forecasting-data"
 DEFAULT_DATA_ROOT="${DEFAULT_DATA_ROOT}/physical_repeat_16"
 DATA_ROOT="${NJORD_DATA_ROOT:-${DEFAULT_DATA_ROOT}}"
 NUM_WORKERS="${NJORD_NUM_WORKERS:-0}"
+PREFETCH_FACTOR="${NJORD_PREFETCH_FACTOR:-2}"
 DATA_MODE="${NJORD_DATA_MODE:-rank-local}"
 WARMUP_STEPS="${NJORD_WARMUP_STEPS:-1}"
 MEASUREMENT_STEPS="${NJORD_MEASUREMENT_STEPS:-1}"
@@ -74,6 +75,7 @@ echo "World size: ${GPU_COUNT}"
 echo "Dataset: ${DATA_ROOT}"
 echo "Output: ${OUTPUT}"
 echo "Data workers: ${NUM_WORKERS}"
+echo "Prefetch factor: ${PREFETCH_FACTOR}"
 echo "Data mode: ${DATA_MODE}"
 echo "Data staging: ${NJORD_STAGING_MS} ms"
 echo "Warm-up steps: ${WARMUP_STEPS}"
@@ -93,6 +95,7 @@ nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --batch-size 2 \
     --ar-steps 1 \
     --num-workers "${NUM_WORKERS}" \
+    --prefetch-factor "${PREFETCH_FACTOR}" \
     --warmup-steps "${WARMUP_STEPS}" \
     --steps "${MEASUREMENT_STEPS}" \
     --progress-interval "${PROGRESS_INTERVAL}" \

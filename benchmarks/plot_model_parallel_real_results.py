@@ -516,6 +516,17 @@ def _table_rows(results):
         ("End-to-end (mean)", "ms", "end_to_end_ms", "mean", "lower"),
         ("End-to-end (median)", "ms", "end_to_end_ms", "median", "lower"),
     ]
+    if all("data_rank_wait_ms" in result["summary"] for result in results):
+        timing_specs.insert(
+            1,
+            (
+                "Data rank wait (mean)",
+                "ms",
+                "data_rank_wait_ms",
+                "mean",
+                "overhead",
+            ),
+        )
     rows = []
     for label, unit, key, statistic, direction in timing_specs:
         values = [result["summary"][key][statistic] for result in results]

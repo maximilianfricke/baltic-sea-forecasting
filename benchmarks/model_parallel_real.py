@@ -109,7 +109,13 @@ def _parse_args():
     parser.add_argument("--hidden-dim", type=int, default=64)
     parser.add_argument("--processor-layers", type=int, default=2)
     parser.add_argument("--batch-size", type=int, default=2)
-    parser.add_argument("--num-workers", type=int, default=2)
+    parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument(
+        "--prefetch-factor",
+        type=int,
+        default=2,
+        help="batches prefetched by each DataLoader worker",
+    )
     parser.add_argument("--warmup-steps", type=int, default=5)
     parser.add_argument("--steps", type=int, default=20)
     parser.add_argument(
@@ -146,6 +152,10 @@ def _parse_args():
         parser.error("warmup-steps must be >=0 and steps must be >=1")
     if args.progress_interval < 0:
         parser.error("progress-interval must be >=0")
+    if args.num_workers < 0:
+        parser.error("num-workers must be >=0")
+    if args.prefetch_factor < 1:
+        parser.error("prefetch-factor must be >=1")
     if args.ar_steps != 1:
         parser.error(
             "this benchmark currently supports exactly one autoregressive "
@@ -340,10 +350,34 @@ def _open_rank_local_datastore(config_path, store_path):
     return datastore
 
 
+def _data_loader_options(num_workers, prefetch_factor, device):
+    options = {
+        "num_workers": num_workers,
+        "pin_memory": device.type == "cuda",
+        "persistent_workers": num_workers > 0,
+    }
+    if num_workers > 0:
+        options.update(
+            {
+                "multiprocessing_context": "spawn",
+                "prefetch_factor": prefetch_factor,
+            }
+        )
+    return options
+
+
 class RankZeroBatchStream:
     """Load each real batch once on rank zero and broadcast it to all ranks."""
 
-    def __init__(self, dataset, batch_size, num_workers, rank, device):
+    def __init__(
+        self,
+        dataset,
+        batch_size,
+        num_workers,
+        prefetch_factor,
+        rank,
+        device,
+    ):
         self.rank = rank
         self.device = device
         self.metadata = None
@@ -355,13 +389,12 @@ class RankZeroBatchStream:
                 dataset,
                 batch_size=batch_size,
                 shuffle=False,
-                num_workers=num_workers,
-                pin_memory=device.type == "cuda",
-                persistent_workers=num_workers > 0,
-                multiprocessing_context=(
-                    "spawn" if num_workers > 0 else None
-                ),
                 drop_last=True,
+                **_data_loader_options(
+                    num_workers,
+                    prefetch_factor,
+                    device,
+                ),
             )
             self.iterator = iter(self.loader)
 
@@ -442,17 +475,25 @@ class RankZeroBatchStream:
 class RankLocalBatchStream:
     """Load the same temporal samples from each rank's spatial Zarr shard."""
 
-    def __init__(self, dataset, batch_size, num_workers, device):
+    def __init__(
+        self,
+        dataset,
+        batch_size,
+        num_workers,
+        prefetch_factor,
+        device,
+    ):
         self.device = device
         self.loader = torch.utils.data.DataLoader(
             dataset,
             batch_size=batch_size,
             shuffle=False,
-            num_workers=num_workers,
-            pin_memory=device.type == "cuda",
-            persistent_workers=num_workers > 0,
-            multiprocessing_context="spawn" if num_workers > 0 else None,
             drop_last=True,
+            **_data_loader_options(
+                num_workers,
+                prefetch_factor,
+                device,
+            ),
         )
         self.iterator = iter(self.loader)
         self.last_timings = {}
@@ -481,6 +522,17 @@ class RankLocalBatchStream:
             "batch_broadcast_ms": 0.0,
         }
         return device_batch
+
+
+def _synchronize_data_phase(device, world_size):
+    """Align ranks before forward and return synchronization wait time."""
+
+    wait_start = time.perf_counter()
+    if world_size > 1:
+        dist.barrier()
+        if device.type == "cuda":
+            torch.cuda.synchronize(device)
+    return (time.perf_counter() - wait_start) * 1000
 
 
 def _partition_strategy(requested, world_size):
@@ -1080,6 +1132,7 @@ def _aggregate_records(rank_payloads):
         "data_read_ms",
         "host_to_device_ms",
         "batch_broadcast_ms",
+        "data_rank_wait_ms",
         "forward_ms",
         "backward_ms",
         "gradient_sync_ms",
@@ -1121,6 +1174,7 @@ def _result_summary(records, batch_size, measurement_window_ms):
             "data_read_ms",
             "host_to_device_ms",
             "batch_broadcast_ms",
+            "data_rank_wait_ms",
             "forward_ms",
             "backward_ms",
             "gradient_sync_ms",
@@ -1265,6 +1319,7 @@ def main():
                 dataset,
                 args.batch_size,
                 args.num_workers,
+                args.prefetch_factor,
                 device,
             )
         else:
@@ -1272,6 +1327,7 @@ def main():
                 dataset,
                 args.batch_size,
                 args.num_workers,
+                args.prefetch_factor,
                 rank,
                 device,
             )
@@ -1289,6 +1345,7 @@ def main():
         _progress(rank, "preflight: distributing first physical batch")
         dist.barrier()
         preflight_batch = stream.next()
+        _synchronize_data_phase(device, world_size)
         initialization_timings["preflight_batch_ms"] = (
             time.perf_counter() - phase_start
         ) * 1000
@@ -1361,6 +1418,10 @@ def main():
                 torch.cuda.reset_peak_memory_stats(device)
             data_start = time.perf_counter()
             batch = stream.next()
+            data_rank_wait_ms = _synchronize_data_phase(
+                device,
+                world_size,
+            )
             data_distribution_ms = (
                 time.perf_counter() - data_start
             ) * 1000
@@ -1387,6 +1448,7 @@ def main():
                 progress_callback=progress_callback,
             )
             record["data_distribution_ms"] = data_distribution_ms
+            record["data_rank_wait_ms"] = data_rank_wait_ms
             record.update(stream.last_timings)
             record["end_to_end_ms"] = (
                 data_distribution_ms + record["step_ms"]
@@ -1399,6 +1461,7 @@ def main():
                     rank,
                     f"{phase_name} step {phase_step + 1}/{phase_total} "
                     f"completed: data={record['data_distribution_ms']:.1f}ms, "
+                    f"data_wait={record['data_rank_wait_ms']:.1f}ms, "
                     f"forward={record['forward_ms']:.1f}ms, "
                     f"backward={record['backward_ms']:.1f}ms, "
                     f"gradient_sync={record['gradient_sync_ms']:.1f}ms, "
@@ -1429,7 +1492,7 @@ def main():
                 payload["measurement_window_ms"] for payload in payloads
             )
             result = {
-                "schema_version": 2,
+                "schema_version": 3,
                 "status": "completed",
                 "benchmark": "real_data_model_parallel_graph_efm",
                 "scaling_mode": "strong",
@@ -1459,6 +1522,9 @@ def main():
                     "ar_steps": args.ar_steps,
                     "precision": "float32",
                     "num_workers": args.num_workers,
+                    "prefetch_factor": (
+                        args.prefetch_factor if args.num_workers > 0 else None
+                    ),
                     "seed": args.seed,
                     "learning_rate": args.lr,
                     "warmup_steps": args.warmup_steps,
@@ -1471,6 +1537,7 @@ def main():
                     ),
                     "replicated_frontend_parameters": True,
                     "rank_local_frontend_compute": batch_is_local,
+                    "data_phase_rank_barrier": True,
                     "partitioned_components": [
                         "prior",
                         "posterior",
@@ -1516,6 +1583,8 @@ def main():
                         "computes embeddings only for owned nodes and edges",
                         "phase timing uses CUDA events; headline observed "
                         "throughput uses wall time",
+                        "a rank barrier after batch loading attributes loader "
+                        "imbalance to data_rank_wait_ms instead of forward_ms",
                         "progress output adds diagnostic synchronization "
                         "when progress_interval is nonzero",
                     ],

@@ -14,6 +14,7 @@ PHASES = (
     "data_read_ms",
     "host_to_device_ms",
     "batch_broadcast_ms",
+    "data_rank_wait_ms",
     "forward_ms",
     "backward_ms",
     "gradient_sync_ms",
@@ -33,6 +34,8 @@ WORKLOAD_KEYS = (
     "hidden_dim",
     "learning_rate",
     "num_workers",
+    "prefetch_factor",
+    "data_phase_rank_barrier",
     "processor_layers",
     "batch_size_global",
     "ar_steps",
@@ -121,6 +124,8 @@ def compare(results, paths):
     phases = {}
     labels = ("1_gpu", "2_gpu", "4_gpu")
     for phase in PHASES:
+        if not all(phase in result["summary"] for result in results):
+            continue
         means = [result["summary"][phase]["mean"] for result in results]
         phases[phase] = {
             "mean_ms": dict(zip(labels, means)),
