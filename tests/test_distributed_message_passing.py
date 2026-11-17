@@ -20,6 +20,7 @@ from neural_lam.interaction_net import FlexibleNet
 
 
 WORLD_SIZE = 2
+FOUR_RANK_WORLD_SIZE = 4
 NODE_DIM = 4
 EDGE_DIM = 3
 
@@ -254,6 +255,133 @@ def _distributed_worker(rank, init_method):
         dist.destroy_process_group()
 
 
+def _four_rank_distributed_case(rank):
+    num_nodes = 8
+    receivers = torch.arange(num_nodes).repeat_interleave(2)
+    senders = torch.stack(
+        (
+            torch.arange(num_nodes),
+            torch.remainder(torch.arange(num_nodes) - 1, num_nodes),
+        ),
+        dim=1,
+    ).flatten()
+    edge_index = torch.stack((senders, receivers), dim=0)
+    owners = torch.arange(num_nodes, dtype=torch.long) // 2
+    partition = build_bipartite_partition(
+        edge_index,
+        owners,
+        owners,
+        rank=rank,
+        world_size=FOUR_RANK_WORLD_SIZE,
+    )
+
+    torch.manual_seed(9102)
+    reference = FlexibleNet(
+        edge_index=edge_index,
+        send_node_dim=NODE_DIM,
+        rec_node_dim=NODE_DIM,
+        edge_dim=EDGE_DIM,
+        hidden_layers=1,
+        num_rec=num_nodes,
+        propagation=True,
+        aggr="mean",
+    )
+    distributed_net = _partition_net(
+        partition,
+        reference,
+        propagation=True,
+        aggr="mean",
+    )
+
+    generator = torch.Generator().manual_seed(1204)
+    full_send = torch.randn(
+        2,
+        num_nodes,
+        NODE_DIM,
+        generator=generator,
+        requires_grad=True,
+    )
+    full_rec = torch.randn(
+        2,
+        num_nodes,
+        NODE_DIM,
+        generator=generator,
+        requires_grad=True,
+    )
+    full_edge = torch.randn(
+        2,
+        edge_index.shape[1],
+        EDGE_DIM,
+        generator=generator,
+        requires_grad=True,
+    )
+    reference_output = reference(full_send, full_rec, full_edge)
+    reference_output.square().sum().backward()
+
+    local_send = (
+        full_send.detach()
+        .index_select(-2, partition.owned_send_nodes)
+        .clone()
+        .requires_grad_()
+    )
+    local_rec = (
+        full_rec.detach()
+        .index_select(-2, partition.owned_rec_nodes)
+        .clone()
+        .requires_grad_()
+    )
+    local_edge = (
+        full_edge.detach()
+        .index_select(-2, partition.edge_ids)
+        .clone()
+        .requires_grad_()
+    )
+    local_output = distributed_net(local_send, local_rec, local_edge)
+    torch.testing.assert_close(
+        local_output,
+        reference_output.detach().index_select(
+            -2,
+            partition.owned_rec_nodes,
+        ),
+    )
+    local_output.square().sum().backward()
+
+    torch.testing.assert_close(
+        local_send.grad,
+        full_send.grad.index_select(-2, partition.owned_send_nodes),
+    )
+    torch.testing.assert_close(
+        local_rec.grad,
+        full_rec.grad.index_select(-2, partition.owned_rec_nodes),
+    )
+    torch.testing.assert_close(
+        local_edge.grad,
+        full_edge.grad.index_select(-2, partition.edge_ids),
+    )
+    reference_parameters = dict(reference.named_parameters())
+    for name, parameter in distributed_net.local_net.named_parameters():
+        dist.all_reduce(parameter.grad, op=dist.ReduceOp.SUM)
+        torch.testing.assert_close(
+            parameter.grad,
+            reference_parameters[name].grad,
+        )
+
+
+def _four_rank_distributed_worker(rank, init_method):
+    os.environ.setdefault("OMP_NUM_THREADS", "1")
+    dist.init_process_group(
+        backend="gloo",
+        init_method=init_method,
+        rank=rank,
+        world_size=FOUR_RANK_WORLD_SIZE,
+    )
+    try:
+        _four_rank_distributed_case(rank)
+        dist.barrier()
+    finally:
+        dist.destroy_process_group()
+
+
 @pytest.mark.skipif(
     not dist.is_available() or not dist.is_gloo_available(),
     reason="Gloo is required for the local multi-process test",
@@ -264,6 +392,20 @@ def test_two_process_gloo_forward_and_backward(tmp_path):
         _distributed_worker,
         args=(init_method,),
         nprocs=WORLD_SIZE,
+        join=True,
+    )
+
+
+@pytest.mark.skipif(
+    not dist.is_available() or not dist.is_gloo_available(),
+    reason="Gloo is required for the local multi-process test",
+)
+def test_four_process_gloo_forward_and_backward(tmp_path):
+    init_method = f"file://{tmp_path / 'four_rank_gloo_init'}"
+    mp.spawn(
+        _four_rank_distributed_worker,
+        args=(init_method,),
+        nprocs=FOUR_RANK_WORLD_SIZE,
         join=True,
     )
 

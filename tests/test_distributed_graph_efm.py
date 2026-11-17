@@ -22,6 +22,10 @@ from neural_lam.distributed_message_passing import (
     select_graph_embeddings,
     select_owned,
 )
+from neural_lam.geographic_partitioning import (
+    geographic_rcb_owners,
+    partition_indices,
+)
 from neural_lam.models.distributed_graph_efm import (
     build_partition_from_graph_efm,
     distributed_core_from_graph_efm,
@@ -624,6 +628,69 @@ def test_latitude_cut_owners_split_at_equator():
         latitude_cut_owners(lon_lat),
         torch.tensor([0, 0, 1, 1]),
     )
+
+
+@pytest.mark.parametrize("world_size", [1, 2, 4])
+def test_geographic_rcb_is_balanced_complete_and_deterministic(world_size):
+    longitude = torch.linspace(-179.0, 179.0, 13)
+    latitude = torch.linspace(-80.0, 80.0, 7)
+    lon_grid, lat_grid = torch.meshgrid(
+        longitude,
+        latitude,
+        indexing="ij",
+    )
+    lon_lat = torch.stack((lon_grid.flatten(), lat_grid.flatten()), dim=1)
+
+    owners = geographic_rcb_owners(
+        lon_lat,
+        world_size=world_size,
+        longitude_seam=120.0,
+    )
+    torch.testing.assert_close(
+        owners,
+        geographic_rcb_owners(
+            lon_lat,
+            world_size=world_size,
+            longitude_seam=120.0,
+        ),
+    )
+    counts = torch.bincount(owners, minlength=world_size)
+    assert int(counts.max() - counts.min()) <= 1
+
+    indices = partition_indices(owners, world_size)
+    combined = torch.cat(indices)
+    assert combined.numel() == lon_lat.shape[0]
+    assert torch.unique(combined).numel() == lon_lat.shape[0]
+    torch.testing.assert_close(
+        torch.sort(combined).values,
+        torch.arange(lon_lat.shape[0]),
+    )
+
+
+def test_geographic_rcb_four_way_partitions_are_geographically_ordered():
+    lon_lat = torch.tensor(
+        [
+            [130.0, -60.0],
+            [-80.0, -60.0],
+            [130.0, -20.0],
+            [-80.0, -20.0],
+            [130.0, 20.0],
+            [-80.0, 20.0],
+            [130.0, 60.0],
+            [-80.0, 60.0],
+        ]
+    )
+    owners = geographic_rcb_owners(
+        lon_lat,
+        world_size=4,
+        longitude_seam=120.0,
+    )
+    assert set(owners[:4].tolist()) == {0, 1}
+    assert set(owners[4:].tolist()) == {2, 3}
+    assert owners[0] == owners[2]
+    assert owners[1] == owners[3]
+    assert owners[4] == owners[6]
+    assert owners[5] == owners[7]
 
 
 def test_existing_graph_efm_can_be_converted_to_distributed_core():

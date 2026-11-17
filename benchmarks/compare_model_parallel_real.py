@@ -1,4 +1,4 @@
-"""Compare the controlled one- and two-GPU real-data benchmark results."""
+"""Compare controlled one-, two- and four-GPU Graph-EFM benchmarks."""
 
 from __future__ import annotations
 
@@ -11,6 +11,9 @@ from pathlib import Path
 
 PHASES = (
     "data_distribution_ms",
+    "data_read_ms",
+    "host_to_device_ms",
+    "batch_broadcast_ms",
     "forward_ms",
     "backward_ms",
     "gradient_sync_ms",
@@ -23,8 +26,9 @@ PHASES = (
 
 WORKLOAD_KEYS = (
     "data_kind",
-    "dataset",
+    "data_mode",
     "dataset_samples",
+    "global_surface_grid_nodes",
     "graph",
     "hidden_dim",
     "learning_rate",
@@ -44,6 +48,7 @@ def _parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--one-gpu", type=Path, required=True)
     parser.add_argument("--two-gpu", type=Path, required=True)
+    parser.add_argument("--four-gpu", type=Path, required=True)
     parser.add_argument("--output", type=Path)
     return parser.parse_args()
 
@@ -80,142 +85,151 @@ def _gpu_names(result):
     )
 
 
-def compare(one, two, one_path, two_path):
-    if one["world_size"] != 1 or two["world_size"] != 2:
-        raise ValueError("expected a world-size-1 and a world-size-2 result")
+def compare(results, paths):
+    expected_world_sizes = (1, 2, 4)
+    actual_world_sizes = tuple(result["world_size"] for result in results)
+    if actual_world_sizes != expected_world_sizes:
+        raise ValueError(
+            f"expected world sizes {expected_world_sizes}, got "
+            f"{actual_world_sizes}"
+        )
 
-    workload_differences = {
-        key: [one["workload"].get(key), two["workload"].get(key)]
-        for key in WORKLOAD_KEYS
-        if one["workload"].get(key) != two["workload"].get(key)
-    }
-    one_gpu_names = _gpu_names(one)
-    two_gpu_names = _gpu_names(two)
-    same_gpu_model = len(set(one_gpu_names + two_gpu_names)) == 1
-    same_batch = _fingerprints_match(
-        one["preflight"]["batch_fingerprint"],
-        two["preflight"]["batch_fingerprint"],
+    workload_differences = {}
+    for key in WORKLOAD_KEYS:
+        values = [result["workload"].get(key) for result in results]
+        serialized = {json.dumps(value, sort_keys=True) for value in values}
+        if len(serialized) != 1:
+            workload_differences[key] = values
+
+    all_gpu_names = [_gpu_names(result) for result in results]
+    same_gpu_model = len(
+        {name for names in all_gpu_names for name in names}
+    ) == 1
+    fingerprints = [
+        result["preflight"]["batch_fingerprint"] for result in results
+    ]
+    same_batch = all(
+        _fingerprints_match(fingerprints[0], fingerprint)
+        for fingerprint in fingerprints[1:]
+    )
+    losses = [result["preflight"]["loss"] for result in results]
+    losses_close = all(
+        math.isclose(losses[0], loss, rel_tol=1e-4, abs_tol=1e-2)
+        for loss in losses[1:]
     )
 
-    phase_comparison = {}
+    phases = {}
+    labels = ("1_gpu", "2_gpu", "4_gpu")
     for phase in PHASES:
-        one_mean = one["summary"][phase]["mean"]
-        two_mean = two["summary"][phase]["mean"]
-        phase_comparison[phase] = {
-            "one_gpu_mean_ms": one_mean,
-            "two_gpu_mean_ms": two_mean,
-            "speedup": one_mean / two_mean if two_mean else None,
+        means = [result["summary"][phase]["mean"] for result in results]
+        phases[phase] = {
+            "mean_ms": dict(zip(labels, means)),
+            "speedup": {
+                "1_gpu": 1.0,
+                "2_gpu": means[0] / means[1] if means[1] else None,
+                "4_gpu": means[0] / means[2] if means[2] else None,
+            },
         }
 
-    one_throughput = one["summary"]["observed_samples_per_second"]
-    two_throughput = two["summary"]["observed_samples_per_second"]
-    observed_speedup = two_throughput / one_throughput
-    preflight_one = one["preflight"]["loss"]
-    preflight_two = two["preflight"]["loss"]
-    mean_loss_one = one["summary"]["loss"]["mean"]
-    mean_loss_two = two["summary"]["loss"]["mean"]
-
+    throughputs = [
+        result["summary"]["observed_samples_per_second"]
+        for result in results
+    ]
+    speedups = [throughput / throughputs[0] for throughput in throughputs]
     checks = {
-        "non_instrumented_results": (
-            one["interpretation"]["comparable_across_world_sizes"]
-            and two["interpretation"]["comparable_across_world_sizes"]
+        "non_instrumented_results": all(
+            result["interpretation"]["comparable_across_world_sizes"]
+            for result in results
         ),
         "same_workload": not workload_differences,
         "same_gpu_model": same_gpu_model,
-        "same_preflight_batch": same_batch,
-        "preflight_loss_numerically_close": math.isclose(
-            preflight_one,
-            preflight_two,
-            rel_tol=1e-4,
-            abs_tol=1e-2,
-        ),
+        "same_global_preflight_batch": same_batch,
+        "preflight_loss_numerically_close": losses_close,
     }
+
     return {
-        "schema_version": 1,
-        "comparison": "real_data_model_parallel_1_vs_2_gpu",
-        "inputs": {
-            "one_gpu": str(one_path),
-            "two_gpu": str(two_path),
-        },
+        "schema_version": 2,
+        "comparison": "real_data_model_parallel_1_vs_2_vs_4_gpu",
+        "inputs": dict(zip(labels, map(str, paths))),
         "valid_comparison": all(checks.values()),
         "checks": checks,
         "workload_differences": workload_differences,
-        "hardware": {
-            "one_gpu_models": one_gpu_names,
-            "two_gpu_models": two_gpu_names,
-        },
+        "hardware": dict(zip(labels, all_gpu_names)),
         "headline": {
-            "one_gpu_observed_samples_per_second": one_throughput,
-            "two_gpu_observed_samples_per_second": two_throughput,
-            "observed_speedup": observed_speedup,
-            "parallel_efficiency": observed_speedup / 2,
-            "one_gpu_peak_memory_bytes_per_gpu": one["summary"][
-                "peak_memory_allocated_bytes_per_gpu"
-            ],
-            "two_gpu_peak_memory_bytes_per_gpu": two["summary"][
-                "peak_memory_allocated_bytes_per_gpu"
-            ],
+            "observed_samples_per_second": dict(zip(labels, throughputs)),
+            "observed_speedup": dict(zip(labels, speedups)),
+            "parallel_efficiency": {
+                "1_gpu": 1.0,
+                "2_gpu": speedups[1] / 2,
+                "4_gpu": speedups[2] / 4,
+            },
+            "peak_memory_bytes_per_gpu": {
+                label: result["summary"][
+                    "peak_memory_allocated_bytes_per_gpu"
+                ]
+                for label, result in zip(labels, results)
+            },
+            "data_staging_ms": {
+                label: result["rank_metadata"][0][
+                    "initialization_timings"
+                ].get("data_staging_ms", 0.0)
+                for label, result in zip(labels, results)
+            },
         },
         "numerical_equivalence": {
-            "preflight_loss_one_gpu": preflight_one,
-            "preflight_loss_two_gpu": preflight_two,
-            "preflight_relative_difference": _relative_difference(
-                preflight_one,
-                preflight_two,
-            ),
-            "measured_mean_loss_one_gpu": mean_loss_one,
-            "measured_mean_loss_two_gpu": mean_loss_two,
-            "measured_mean_loss_relative_difference": _relative_difference(
-                mean_loss_one,
-                mean_loss_two,
-            ),
+            "preflight_loss": dict(zip(labels, losses)),
+            "relative_difference_from_1_gpu": {
+                "2_gpu": _relative_difference(losses[0], losses[1]),
+                "4_gpu": _relative_difference(losses[0], losses[2]),
+            },
             "accuracy_note": (
-                "This checks numerical training equivalence, not forecast "
-                "accuracy. Accuracy requires equal-length validation rollouts."
+                "This checks one-step numerical training equivalence, not "
+                "forecast accuracy. Accuracy requires equal validation "
+                "rollouts."
             ),
         },
-        "phases": phase_comparison,
+        "phases": phases,
     }
 
 
 def _print_summary(result):
-    headline = result["headline"]
-    numerical = result["numerical_equivalence"]
     print(f"Valid controlled comparison: {result['valid_comparison']}")
-    print(
-        "Observed throughput: "
-        f"{headline['one_gpu_observed_samples_per_second']:.3f} -> "
-        f"{headline['two_gpu_observed_samples_per_second']:.3f} samples/s"
-    )
-    print(
-        f"Speedup: {headline['observed_speedup']:.3f}x; "
-        f"parallel efficiency: {headline['parallel_efficiency']:.1%}"
-    )
-    print(
-        "Preflight loss relative difference: "
-        f"{numerical['preflight_relative_difference']:.3e}"
-    )
-    print("\nPhase means and speedups:")
-    print(f"{'phase':<24} {'1 GPU ms':>12} {'2 GPU ms':>12} {'speedup':>10}")
-    for phase, values in result["phases"].items():
-        speedup = values["speedup"]
-        speedup_text = "n/a" if speedup is None else f"{speedup:.3f}x"
+    headline = result["headline"]
+    print("\nThroughput, speedup and parallel efficiency:")
+    print(f"{'GPUs':>4} {'samples/s':>12} {'speedup':>10} {'efficiency':>12}")
+    for label, gpu_count in (("1_gpu", 1), ("2_gpu", 2), ("4_gpu", 4)):
         print(
-            f"{phase:<24} {values['one_gpu_mean_ms']:>12.3f} "
-            f"{values['two_gpu_mean_ms']:>12.3f} {speedup_text:>10}"
+            f"{gpu_count:>4} "
+            f"{headline['observed_samples_per_second'][label]:>12.3f} "
+            f"{headline['observed_speedup'][label]:>9.3f}x "
+            f"{headline['parallel_efficiency'][label]:>11.1%}"
+        )
+
+    numerical = result["numerical_equivalence"]
+    print("\nPreflight loss:")
+    for label, value in numerical["preflight_loss"].items():
+        print(f"  {label}: {value:.8g}")
+
+    print("\nPhase means:")
+    print(f"{'phase':<24} {'1 GPU':>11} {'2 GPU':>11} {'4 GPU':>11}")
+    for phase, values in result["phases"].items():
+        means = values["mean_ms"]
+        print(
+            f"{phase:<24} {means['1_gpu']:>10.3f} "
+            f"{means['2_gpu']:>10.3f} {means['4_gpu']:>10.3f}"
         )
 
 
 def main():
     args = _parse_args()
-    one = _load(args.one_gpu)
-    two = _load(args.two_gpu)
-    result = compare(one, two, args.one_gpu, args.two_gpu)
-    _print_summary(result)
+    paths = (args.one_gpu, args.two_gpu, args.four_gpu)
+    results = tuple(_load(path) for path in paths)
+    comparison = compare(results, paths)
+    _print_summary(comparison)
     if args.output is not None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(
-            json.dumps(result, indent=2, sort_keys=True) + "\n",
+            json.dumps(comparison, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
         print(f"\nComparison written to {args.output}")

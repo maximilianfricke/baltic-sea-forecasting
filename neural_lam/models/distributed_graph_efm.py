@@ -24,6 +24,7 @@ from neural_lam.distributed_message_passing import (
     build_graph_partition,
     latitude_cut_owners,
 )
+from neural_lam.geographic_partitioning import geographic_rcb_owners
 from neural_lam.models.base_graph_latent_decoder import BaseGraphLatentDecoder
 from neural_lam.models.base_latent_encoder import BaseLatentEncoder
 
@@ -901,21 +902,30 @@ def build_partition_from_graph_efm(
     rank: int,
     world_size: int,
     seed: int = 0,
-    strategy: str = "latitude",
+    strategy: str = "geographic",
     latitude_cut: float = -5.0,
+    longitude_seam: float = 120.0,
 ) -> GraphPartition:
     """Create a geographic or random partition from a loaded GraphEFM.
 
-    ``strategy="latitude"`` is the default and uses the fixed experimental
-    cut at latitude -5 degrees.  ``strategy="random"`` retains the earlier
-    balanced baseline for comparisons.  The final partitioning policy remains
-    intentionally external to the message-passing implementation.
+    ``strategy="geographic"`` is the balanced one-, two- or four-way RCB
+    baseline.
+    ``strategy="latitude"`` retains the fixed experimental cut at latitude
+    -5 degrees, while ``strategy="random"`` retains the communication-heavy
+    baseline.  The final production policy remains intentionally external to
+    the message-passing implementation.
     """
 
     if world_size != 2 and strategy == "latitude":
         raise ValueError("latitude strategy currently supports exactly 2 ranks")
-    if strategy not in ("latitude", "random"):
-        raise ValueError("strategy must be 'latitude' or 'random'")
+    if strategy == "geographic" and world_size not in (1, 2, 4):
+        raise ValueError(
+            "geographic strategy currently supports exactly 1, 2 or 4 ranks"
+        )
+    if strategy not in ("geographic", "latitude", "random"):
+        raise ValueError(
+            "strategy must be 'geographic', 'latitude' or 'random'"
+        )
 
     # Partitioning is topology-only preprocessing.  Normalize graph indices to
     # CPU so an already CUDA-loaded reference model cannot mix CUDA indices
@@ -925,16 +935,23 @@ def build_partition_from_graph_efm(
 
     num_full_grid = int(g2m_edge_index[0].max().item() + 1)
     num_interior_grid = int(m2g_edge_index[1].max().item() + 1)
-    if strategy == "latitude":
+    if strategy in ("geographic", "latitude"):
         full_grid_lon_lat = _full_grid_lon_lat(model)
         if full_grid_lon_lat.shape[0] != num_full_grid:
             raise ValueError(
                 "grid coordinate count does not match g2m sender count"
             )
-        full_grid_owners = latitude_cut_owners(
-            full_grid_lon_lat,
-            latitude_cut=latitude_cut,
-        )
+        if strategy == "geographic":
+            full_grid_owners = geographic_rcb_owners(
+                full_grid_lon_lat,
+                world_size=world_size,
+                longitude_seam=longitude_seam,
+            )
+        else:
+            full_grid_owners = latitude_cut_owners(
+                full_grid_lon_lat,
+                latitude_cut=latitude_cut,
+            )
     else:
         full_grid_owners = balanced_random_owners(
             num_full_grid,
@@ -969,15 +986,25 @@ def build_partition_from_graph_efm(
         mesh_up_edge_index = ()
         mesh_down_edge_index = ()
 
-    if strategy == "latitude":
+    if strategy in ("geographic", "latitude"):
         mesh_lon_lat = _mesh_level_lon_lat(model)
-        mesh_owners = tuple(
-            latitude_cut_owners(
-                mesh_lon_lat[level],
-                latitude_cut=latitude_cut,
+        if strategy == "geographic":
+            mesh_owners = tuple(
+                geographic_rcb_owners(
+                    mesh_lon_lat[level],
+                    world_size=world_size,
+                    longitude_seam=longitude_seam,
+                )
+                for level in range(len(mesh_sizes))
             )
-            for level in range(len(mesh_sizes))
-        )
+        else:
+            mesh_owners = tuple(
+                latitude_cut_owners(
+                    mesh_lon_lat[level],
+                    latitude_cut=latitude_cut,
+                )
+                for level in range(len(mesh_sizes))
+            )
     else:
         mesh_owners = tuple(
             balanced_random_owners(
