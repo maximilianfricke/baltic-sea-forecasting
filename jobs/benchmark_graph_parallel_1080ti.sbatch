@@ -63,8 +63,12 @@ export NJORD_DATA_STAGING_SECONDS=0
 export NJORD_DATA_STAGING_BYTES="$(du -sb "${DATA_ROOT}" | cut -f1)"
 
 case "${RUN_KIND}" in
-    smoke) WARMUP=1; STEPS=2 ;;
-    timed) WARMUP=20; STEPS=200 ;;
+    # Include the first training step in smoke-test peak memory.
+    smoke) WARMUP=0; STEPS=3 ;;
+    timed)
+        WARMUP="${GRAPH_PARALLEL_WARMUP_STEPS:-10}"
+        STEPS="${GRAPH_PARALLEL_MEASUREMENT_STEPS:-40}"
+        ;;
     capacity) WARMUP=1; STEPS=4 ;;
 esac
 OVERLAP_ARGS=()

@@ -33,6 +33,8 @@ halo gradient return with the independent local edge MLP work. Benchmark both
 modes: smaller kernels and extra autograd dispatch may outweigh the overlap.
 Both modes reuse communication buffers. Overlap supports first-order training;
 higher-order derivatives and `torch.compile` are outside this milestone.
+The overlap backward pass rebuilds the local and remote edge MLP graphs from
+saved inputs. Each checkpointed autoregressive step still replays once.
 
 ```bash
 python -m pytest --noconftest tests/test_graph_parallel.py -q
@@ -103,8 +105,13 @@ bash jobs/submit_graph_parallel.sh validate 2
 bash jobs/submit_graph_parallel.sh validate 4
 ```
 
-Run `smoke` jobs at each GPU count before collecting `timed` results. For
-example, `bash jobs/submit_graph_parallel.sh timed 4 overlap 64 1` submits
+Run `smoke` jobs at each GPU count before collecting `timed` results.
+Smoke jobs measure peak memory from the first training step. Timed jobs
+default to 10 warmup and 40 measured steps in aggregate mode. Use the same
+counts for both modes. If the throughput difference is small, repeat the
+matched pair on the same node. Set `GRAPH_PARALLEL_WARMUP_STEPS` and
+`GRAPH_PARALLEL_MEASUREMENT_STEPS` at submission to override the defaults.
+For example, `bash jobs/submit_graph_parallel.sh timed 4 overlap 64 1` submits
 the first timed repetition at hidden dimension 64 with four GPUs and overlap.
 Use `blocking` for the baseline and blocking runs. Use `capacity` for the
 short higher-dimension runs. The launcher uses zero DataLoader workers per rank

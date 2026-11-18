@@ -10,6 +10,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 # Third-party
 import pytest
@@ -298,13 +299,20 @@ def _check_model(
     expected = reference.training_step(batch)
     expected.backward()
     torch.manual_seed(123)
-    actual = local.training_step(batch)
+    with patch.object(
+        local, "compute_step_loss", wraps=local.compute_step_loss
+    ) as step_loss:
+        actual = local.training_step(batch)
+        forward_calls = step_loss.call_count
+        actual.backward()
+        if checkpoint:
+            assert forward_calls == batch[1].shape[1]
+            assert step_loss.call_count - forward_calls == forward_calls
     torch.testing.assert_close(actual, expected, rtol=rtol, atol=atol)
     for key in reference.logged:
         torch.testing.assert_close(
             local.logged[key], reference.logged[key], rtol=rtol, atol=atol
         )
-    actual.backward()
     synchronize_gradients(local, reductions)
     for (name, param), (_, expected_param) in zip(
         local.named_parameters(), reference.named_parameters()

@@ -150,56 +150,72 @@ class _Halo(torch.autograd.Function):
 class _OverlapMessages(torch.autograd.Function):
     """Overlap halo transfers with independent local edge MLPs in both passes.
 
-    The inner autograd graphs use the original MLP weights. The outer function
-    returns their gradients explicitly, preserving names and optimizer semantics.
-    Communication buffers never back saved MLP inputs: gathered features are
-    copied before the reusable buffers can be overwritten by the next layer.
+    Rebuild each edge MLP graph in backward so its nested gradient computation
+    does not replay the enclosing autoregressive checkpoint. The edge MLP
+    uses no random operations.
     """
+
+    @staticmethod
+    def _messages(net, sender, inputs, send_ids, rec_ids, edge_ids):
+        receiver, edges, emb = inputs
+        return net.message(
+            sender.index_select(-2, send_ids),
+            receiver.index_select(-2, rec_ids),
+            edges.index_select(-2, edge_ids),
+            emb,
+        )
 
     @staticmethod
     def forward(ctx, owned, receiver, edges, emb, net, *parameters):
         plan = net.graph_edge_partition
         started = _start_timing(plan, owned)
         _halo_slices(plan)
-        ctx.plan = plan
+        ctx.net = net
         send_index, rec_index, _ = plan.indices(owned.device)
         local_ids = plan.local_edge_ids.to(owned.device)
         remote_ids = plan.remote_edge_ids.to(owned.device)
         ctx.edge_ids = (local_ids, remote_ids)
         ctx.parameter_flags = [p.requires_grad for p in parameters]
         ctx.parameters = tuple(p for p in parameters if p.requires_grad)
+        device_type = owned.device.type
+        if hasattr(torch, "get_autocast_dtype"):
+            ctx.autocast_enabled = torch.is_autocast_enabled(device_type)
+            ctx.autocast_dtype = torch.get_autocast_dtype(device_type)
+        elif device_type == "cpu":
+            ctx.autocast_enabled = torch.is_autocast_cpu_enabled()
+            ctx.autocast_dtype = torch.get_autocast_cpu_dtype()
+        else:
+            ctx.autocast_enabled = torch.is_autocast_enabled()
+            ctx.autocast_dtype = torch.get_autocast_gpu_dtype()
+
         works, received, buffers = _exchange(owned, plan)
-        with torch.enable_grad():
-            sender = owned.detach().requires_grad_(True)
-            rec = receiver.detach().requires_grad_(True)
-            edge = edges.detach().requires_grad_(True)
-            condition = (
-                emb.detach().requires_grad_(True) if emb is not None else None
-            )
-            local_message = net.message(
-                sender.index_select(-2, send_index[local_ids]),
-                rec.index_select(-2, rec_index[local_ids]),
-                edge.index_select(-2, local_ids),
-                condition,
-            )
-            for work in works:
-                work.wait()
-            _finish_timing(plan, started, "forward_halo_window_ms")
-            halo = (
-                torch.cat([received[p] for p in plan.recv_ids], dim=-2)
-                if plan.recv_ids
-                else owned.new_empty((*owned.shape[:-2], 0, owned.shape[-1]))
-            ).requires_grad_(True)
-            remote_message = net.message(
-                halo.index_select(
-                    -2, send_index[remote_ids] - len(plan.owned_senders)
-                ),
-                rec.index_select(-2, rec_index[remote_ids]),
-                edge.index_select(-2, remote_ids),
-                condition,
-            )
-        ctx.inputs = (sender, rec, edge, condition, halo)
-        ctx.messages = (local_message, remote_message)
+        inputs = (receiver, edges, emb)
+        local_message = _OverlapMessages._messages(
+            net,
+            owned,
+            inputs,
+            send_index[local_ids],
+            rec_index[local_ids],
+            local_ids,
+        )
+        for work in works:
+            work.wait()
+        _finish_timing(plan, started, "forward_halo_window_ms")
+        # Copy out of the receive buffers, which other layers will reuse.
+        halo = (
+            torch.cat([received[p] for p in plan.recv_ids], dim=-2)
+            if plan.recv_ids
+            else owned.new_empty((*owned.shape[:-2], 0, owned.shape[-1]))
+        )
+        remote_message = _OverlapMessages._messages(
+            net,
+            halo,
+            inputs,
+            send_index[remote_ids] - len(plan.owned_senders),
+            rec_index[remote_ids],
+            remote_ids,
+        )
+        ctx.save_for_backward(owned, receiver, edges, emb, halo)
         result = local_message.new_empty(
             (*edges.shape[:-1], local_message.shape[-1])
         )
@@ -209,35 +225,53 @@ class _OverlapMessages(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad):
-        plan = ctx.plan
+        # A checkpoint replay can exchange forward halos. Unpack in the outer
+        # backward task before issuing any halo gradient communications.
+        sender, rec, edge, condition, halo = ctx.saved_tensors
+        plan = ctx.net.graph_edge_partition
         started = _start_timing(plan, grad)
-        sender, rec, edge, condition, halo = ctx.inputs
+        rec = rec.detach().requires_grad_(True)
+        edge = edge.detach().requires_grad_(True)
+        if condition is not None:
+            condition = condition.detach().requires_grad_(True)
+        inputs = (rec, edge, condition)
         condition_inputs = (condition,) if condition is not None else ()
         common = (rec, edge) + condition_inputs + ctx.parameters
         local_ids, remote_ids = ctx.edge_ids
-        remote_grads = torch.autograd.grad(
-            ctx.messages[1],
-            (halo,) + common,
-            grad.index_select(-2, remote_ids),
-            allow_unused=True,
+        send_index, rec_index, send_ids = plan.indices(grad.device)
+
+        def message_grads(values, senders, ids):
+            values = values.detach().requires_grad_(True)
+            with torch.enable_grad(), torch.autocast(
+                grad.device.type,
+                enabled=ctx.autocast_enabled,
+                dtype=ctx.autocast_dtype,
+                cache_enabled=False,
+            ):
+                messages = _OverlapMessages._messages(
+                    ctx.net, values, inputs, senders, rec_index[ids], ids
+                )
+            return torch.autograd.grad(
+                messages,
+                (values,) + common,
+                grad.index_select(-2, ids),
+                allow_unused=True,
+            )
+
+        remote_grads = message_grads(
+            halo, send_index[remote_ids] - len(plan.owned_senders), remote_ids
         )
         halo_grad = remote_grads[0]
         if halo_grad is None:
             halo_grad = torch.zeros_like(halo)
         works, received, buffers = _exchange(halo_grad, plan, backward=True)
         # This MLP backward is independent of incoming sender gradients.
-        local_grads = torch.autograd.grad(
-            ctx.messages[0],
-            (sender,) + common,
-            grad.index_select(-2, local_ids),
-            allow_unused=True,
-        )
+        local_grads = message_grads(sender, send_index[local_ids], local_ids)
         sender_grad = local_grads[0]
         if sender_grad is None:
             sender_grad = torch.zeros_like(sender)
         for work in works:
             work.wait()
-        _, _, send_ids = plan.indices(grad.device)
         for peer, contribution in received.items():
             sender_grad.index_add_(-2, send_ids[peer], contribution)
         _finish_timing(plan, started, "backward_halo_window_ms")
