@@ -29,6 +29,8 @@ from neural_lam.geographic_partitioning import (
 from neural_lam.models.distributed_graph_efm import (
     build_partition_from_graph_efm,
     distributed_core_from_graph_efm,
+    graph_fingerprint_from_graph_efm,
+    load_partition_file,
 )
 from neural_lam.models.hi_graph_latent_decoder import HiGraphLatentDecoder
 from neural_lam.models.hi_graph_latent_encoder import HiGraphLatentEncoder
@@ -709,6 +711,105 @@ def test_existing_graph_efm_can_be_converted_to_distributed_core():
         *reference_models
     ):
         assert torch.equal(local_parameter, reference_parameter)
+
+
+def _assert_same_partition(a, b):
+    """Recursively compare two partition dataclasses field by field."""
+
+    if isinstance(a, torch.Tensor):
+        assert torch.equal(a, b)
+    elif isinstance(a, tuple):
+        assert len(a) == len(b)
+        for x, y in zip(a, b):
+            _assert_same_partition(x, y)
+    elif hasattr(a, "__dataclass_fields__"):
+        for name in a.__dataclass_fields__:
+            _assert_same_partition(getattr(a, name), getattr(b, name))
+    else:
+        assert a == b
+
+
+def _write_random_owners_file(path, model, world_size, seed):
+    """The owners strategy 'random' would draw, saved as a partition file."""
+
+    # Third-party
+    import numpy as np
+
+    num_full_grid = int(torch.as_tensor(model.g2m_edge_index)[0].max()) + 1
+    mesh_sizes = [f.shape[0] for f in model.mesh_static_features]
+    arrays = {
+        "world_size": np.array(world_size),
+        "name": np.array("random-test"),
+        "grid": balanced_random_owners(num_full_grid, world_size, seed).numpy(),
+    }
+    for level, size in enumerate(mesh_sizes):
+        arrays[f"mesh_{level}"] = balanced_random_owners(
+            size, world_size, seed + level + 1
+        ).numpy()
+    np.savez(path, **arrays)
+    return num_full_grid, mesh_sizes
+
+
+def test_partition_file_reproduces_builtin_strategy(tmp_path):
+    graph = _toy_hierarchy()
+    model = _graph_efm_model(graph, _reference_models(graph))
+    path = tmp_path / "random.npz"
+    _write_random_owners_file(path, model, world_size=2, seed=3)
+    for rank in range(2):
+        from_file = build_partition_from_graph_efm(
+            model, rank=rank, world_size=2, strategy="file", partition_file=path
+        )
+        builtin = build_partition_from_graph_efm(
+            model, rank=rank, world_size=2, seed=3, strategy="random"
+        )
+        _assert_same_partition(from_file, builtin)
+
+
+def test_partition_file_validation(tmp_path):
+    # Third-party
+    import numpy as np
+
+    graph = _toy_hierarchy()
+    model = _graph_efm_model(graph, _reference_models(graph))
+    path = tmp_path / "p.npz"
+    num_full_grid, mesh_sizes = _write_random_owners_file(path, model, 2, 0)
+
+    with pytest.raises(ValueError, match="is for 2 ranks"):
+        load_partition_file(path, 3, num_full_grid, mesh_sizes)
+    with pytest.raises(ValueError, match="expected"):
+        load_partition_file(path, 2, num_full_grid + 1, mesh_sizes)
+    with pytest.raises(ValueError, match="partition_file is required"):
+        build_partition_from_graph_efm(model, 0, 2, strategy="file")
+
+    data = dict(np.load(path))
+    data["mesh_0"] = np.zeros_like(data["mesh_0"])  # rank 1 owns no mesh
+    np.savez(path, **data)
+    with pytest.raises(ValueError, match="at least one node"):
+        load_partition_file(path, 2, num_full_grid, mesh_sizes)
+
+
+def test_partition_file_graph_fingerprint(tmp_path):
+    # Third-party
+    import numpy as np
+
+    graph = _toy_hierarchy()
+    model = _graph_efm_model(graph, _reference_models(graph))
+    path = tmp_path / "p.npz"
+    _write_random_owners_file(path, model, 2, 0)
+    data = dict(np.load(path))
+
+    data["graph_sha256"] = np.array(graph_fingerprint_from_graph_efm(model))
+    np.savez(path, **data)
+    build_partition_from_graph_efm(
+        model, rank=0, world_size=2, strategy="file", partition_file=path
+    )
+
+    data["graph_sha256"] = np.array("0" * 64)  # owners for another graph
+    np.savez(path, **data)
+    with pytest.raises(ValueError, match="was made for graph"):
+        build_partition_from_graph_efm(
+            model, rank=0, world_size=2, strategy="file", partition_file=path
+        )
 
 
 @pytest.mark.skipif(

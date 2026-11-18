@@ -10,6 +10,7 @@ from __future__ import annotations
 
 # Standard library
 import argparse
+import hashlib
 from datetime import datetime, timezone
 import json
 import os
@@ -23,6 +24,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 # Third-party
+import numpy as np
 import torch
 import torch.distributed as dist
 import xarray as xr
@@ -141,8 +143,16 @@ def _parse_args():
     )
     parser.add_argument(
         "--partition-strategy",
-        choices=("auto", "geographic", "latitude", "random"),
+        choices=("auto", "geographic", "latitude", "random", "file"),
         default="auto",
+    )
+    parser.add_argument(
+        "--partition-file",
+        type=Path,
+        help=(
+            "Owners per grid node and mesh level (.npz, see "
+            "load_partition_file); required for --partition-strategy=file"
+        ),
     )
     parser.add_argument("--ar-steps", type=int, default=4)
     args = parser.parse_args()
@@ -156,6 +166,18 @@ def _parse_args():
         parser.error("prefetch-factor must be >=1")
     if args.ar_steps < 1:
         parser.error("ar-steps must be positive")
+    if (args.partition_strategy == "file") != (args.partition_file is not None):
+        parser.error(
+            "--partition-file is required for, and only used by, "
+            "--partition-strategy=file"
+        )
+    if args.partition_file is not None and not args.partition_file.is_file():
+        parser.error(f"partition file not found: {args.partition_file}")
+    if args.partition_strategy == "file" and args.data_mode == "rank-local":
+        parser.error(
+            "rank-local data shards are built for the geographic partition; "
+            "use --data-mode=rank-zero-broadcast with a partition file"
+        )
     return args
 
 
@@ -527,6 +549,27 @@ def _synchronize_data_phase(device, world_size):
     return (time.perf_counter() - wait_start) * 1000
 
 
+def _partition_file_metadata(path):
+    """Path, name and checksum of the partition file, so results name it."""
+
+    if path is None:
+        return None
+    with np.load(path) as data:
+        name = str(data["name"]) if "name" in data.files else None
+        graph = (
+            str(data["graph_sha256"]) if "graph_sha256" in data.files else None
+        )
+    return {
+        "path": str(path),
+        "name": name,
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        # Checked against the model's graph when present; files without it
+        # are only checked for sizes and ranks
+        "graph_sha256": graph,
+        "graph_verified": graph is not None,
+    }
+
+
 def _partition_strategy(requested, world_size):
     if requested != "auto":
         return requested
@@ -545,6 +588,7 @@ def _build_sharded_training_modules(model, args, rank, world_size, device):
         strategy=strategy,
         latitude_cut=args.latitude_cut,
         longitude_seam=args.longitude_seam,
+        partition_file=args.partition_file,
     )
     partition = cpu_partition.to(device)
     core = distributed_core_from_graph_efm(
@@ -1258,6 +1302,9 @@ def main():
                 "backend": "nccl",
                 "world_size": world_size,
                 "partition_strategy": strategy,
+                "partition_file": _partition_file_metadata(
+                    args.partition_file
+                ),
                 "workload": {
                     "config_path": str(args.config_path),
                     "dataset_root": str(args.config_path.parent),

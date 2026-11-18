@@ -897,6 +897,123 @@ def _mesh_level_lon_lat(model) -> Tuple[torch.Tensor, ...]:
     )
 
 
+def graph_fingerprint(edge_indices) -> str:
+    """SHA-256 over edge index arrays, identifying a graph and its node order.
+
+    ``edge_indices`` are the layer-local (2, E) arrays in the order g2m, m2g,
+    m2m per level, mesh up per level, mesh down per level. Each is hashed as
+    its shape and its int64 values, so the same graph gives the same
+    fingerprint whether it comes from a model or from saved graph files.
+    """
+
+    # Standard library
+    import hashlib
+
+    # Third-party
+    import numpy as np
+
+    digest = hashlib.sha256()
+    for edge_index in edge_indices:
+        if torch.is_tensor(edge_index):
+            edge_index = edge_index.detach().cpu().numpy()
+        array = np.ascontiguousarray(np.asarray(edge_index, dtype=np.int64))
+        digest.update(str(array.shape).encode())
+        digest.update(array.tobytes())
+    return digest.hexdigest()
+
+
+def graph_fingerprint_from_graph_efm(model) -> str:
+    """:func:`graph_fingerprint` of a loaded GraphEFM's graph."""
+
+    def as_list(edge_indices):
+        return (
+            list(edge_indices)
+            if isinstance(edge_indices, (list, tuple, nn.ModuleList))
+            or not torch.is_tensor(edge_indices)
+            else [edge_indices]
+        )
+
+    arrays = [model.g2m_edge_index, model.m2g_edge_index]
+    arrays += as_list(model.m2m_edge_index)
+    if model.hierarchical_graph:
+        arrays += list(model.mesh_up_edge_index)
+        arrays += list(model.mesh_down_edge_index)
+    return graph_fingerprint(arrays)
+
+
+def load_partition_file(
+    path,
+    world_size: int,
+    num_full_grid: int,
+    mesh_sizes,
+    expected_fingerprint=None,
+) -> Tuple[torch.Tensor, Tuple[torch.Tensor, ...]]:
+    """Load externally computed node owners from an ``.npz`` file.
+
+    The file holds ``world_size`` (scalar), ``grid`` (owner of every full
+    grid node, in the order of the g2m senders) and ``mesh_0``, ``mesh_1``,
+    ... (owner of every node of each mesh level). Every rank must own at
+    least one node of every layer. Optional keys: ``name`` and
+    ``graph_sha256`` (:func:`graph_fingerprint` of the graph the owners were
+    computed for). When the file has ``graph_sha256`` and
+    ``expected_fingerprint`` is given, they must be equal: owner arrays of
+    the right length for a different graph or node order are rejected.
+    Returns the grid owners and a tuple of mesh owners, as int64 CPU tensors.
+    """
+
+    # Third-party
+    import numpy as np
+
+    with np.load(path) as data:
+        stored_world_size = int(data["world_size"])
+        if stored_world_size != world_size:
+            raise ValueError(
+                f"partition file {path} is for {stored_world_size} ranks, "
+                f"not {world_size}"
+            )
+        layers = [("grid", num_full_grid)] + [
+            (f"mesh_{level}", size) for level, size in enumerate(mesh_sizes)
+        ]
+        extra = set(data.files) - {name for name, _ in layers} - {
+            "world_size",
+            "name",
+            "graph_sha256",
+        }
+        if extra:
+            raise ValueError(f"partition file {path} has unknown keys {extra}")
+        if expected_fingerprint is not None and "graph_sha256" in data.files:
+            stored = str(data["graph_sha256"])
+            if stored != expected_fingerprint:
+                raise ValueError(
+                    f"partition file {path} was made for graph {stored[:12]}…, "
+                    f"but the model's graph is {expected_fingerprint[:12]}…"
+                )
+        owners = []
+        for name, size in layers:
+            if name not in data.files:
+                raise ValueError(f"partition file {path} has no {name!r}")
+            layer_owners = torch.as_tensor(data[name].astype(np.int64))
+            if layer_owners.shape != (size,):
+                raise ValueError(
+                    f"{name} in {path} has shape "
+                    f"{tuple(layer_owners.shape)}, expected ({size},)"
+                )
+            counts = torch.bincount(
+                layer_owners.clamp(min=0), minlength=world_size
+            )
+            if (
+                int(layer_owners.min()) < 0
+                or int(layer_owners.max()) >= world_size
+                or bool((counts == 0).any())
+            ):
+                raise ValueError(
+                    f"{name} in {path} must give every rank in "
+                    f"[0, {world_size}) at least one node"
+                )
+            owners.append(layer_owners)
+    return owners[0], tuple(owners[1:])
+
+
 def build_partition_from_graph_efm(
     model,
     rank: int,
@@ -905,6 +1022,7 @@ def build_partition_from_graph_efm(
     strategy: str = "geographic",
     latitude_cut: float = -5.0,
     longitude_seam: float = 120.0,
+    partition_file=None,
 ) -> GraphPartition:
     """Create a geographic or random partition from a loaded GraphEFM.
 
@@ -912,8 +1030,10 @@ def build_partition_from_graph_efm(
     baseline.
     ``strategy="latitude"`` retains the fixed experimental cut at latitude
     -5 degrees, while ``strategy="random"`` retains the communication-heavy
-    baseline.  The final production policy remains intentionally external to
-    the message-passing implementation.
+    baseline.  ``strategy="file"`` loads owners computed elsewhere from
+    ``partition_file`` (see :func:`load_partition_file`).  The final
+    production policy remains intentionally external to the message-passing
+    implementation.
     """
 
     if world_size != 2 and strategy == "latitude":
@@ -922,9 +1042,13 @@ def build_partition_from_graph_efm(
         raise ValueError(
             "geographic strategy currently supports exactly 1, 2 or 4 ranks"
         )
-    if strategy not in ("geographic", "latitude", "random"):
+    if strategy not in ("geographic", "latitude", "random", "file"):
         raise ValueError(
-            "strategy must be 'geographic', 'latitude' or 'random'"
+            "strategy must be 'geographic', 'latitude', 'random' or 'file'"
+        )
+    if (strategy == "file") != (partition_file is not None):
+        raise ValueError(
+            "partition_file is required for, and only used by, strategy 'file'"
         )
 
     # Partitioning is topology-only preprocessing.  Normalize graph indices to
@@ -935,7 +1059,20 @@ def build_partition_from_graph_efm(
 
     num_full_grid = int(g2m_edge_index[0].max().item() + 1)
     num_interior_grid = int(m2g_edge_index[1].max().item() + 1)
-    if strategy in ("geographic", "latitude"):
+    if strategy == "file":
+        file_mesh_sizes = (
+            [features.shape[0] for features in model.mesh_static_features]
+            if model.hierarchical_graph
+            else [model.mesh_static_features.shape[0]]
+        )
+        full_grid_owners, file_mesh_owners = load_partition_file(
+            partition_file,
+            world_size,
+            num_full_grid,
+            file_mesh_sizes,
+            expected_fingerprint=graph_fingerprint_from_graph_efm(model),
+        )
+    elif strategy in ("geographic", "latitude"):
         full_grid_lon_lat = _full_grid_lon_lat(model)
         if full_grid_lon_lat.shape[0] != num_full_grid:
             raise ValueError(
@@ -986,7 +1123,9 @@ def build_partition_from_graph_efm(
         mesh_up_edge_index = ()
         mesh_down_edge_index = ()
 
-    if strategy in ("geographic", "latitude"):
+    if strategy == "file":
+        mesh_owners = file_mesh_owners
+    elif strategy in ("geographic", "latitude"):
         mesh_lon_lat = _mesh_level_lon_lat(model)
         if strategy == "geographic":
             mesh_owners = tuple(
