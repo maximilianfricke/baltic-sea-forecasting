@@ -1,0 +1,39 @@
+{
+  "arguments": {
+    "ar_steps_train": 4,
+    "batch_size": 2,
+    "hidden_dim": 64,
+    "precision": "32",
+    "processor_layers": 2
+  },
+  "distributed": {
+    "scaling_mode": "graph",
+    "world_size": 2
+  },
+  "error": "srun: error: Unable to create step for job 4388: Task count specification invalid\n",
+  "exit_code": 1,
+  "finished_at_utc": "2026-11-18T10:24:47.303415+00:00",
+  "git": {
+    "commit": "60f07b85a35adef3716693b8b5790a426b06f9ff",
+    "dirty": null
+  },
+  "hardware": {
+    "gpu": {
+      "name": null
+    },
+    "hostname": "studgpu-node02.inf.ethz.ch",
+    "slurm_job_id": "4388"
+  },
+  "label": "smoke-g2-blocking-h64-r1",
+  "model": {
+    "class": "GraphEFM",
+    "gradient_checkpointing": true
+  },
+  "protocol": {
+    "workload": "training"
+  },
+  "schema_version": 4,
+  "started_at_utc": null,
+  "status": "failed",
+  "summary": {}
+}

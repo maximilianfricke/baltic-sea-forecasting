@@ -1,0 +1,449 @@
+{
+  "arguments": {
+    "ar_steps_eval": 4,
+    "ar_steps_train": 4,
+    "backbone_model": "graph_diff",
+    "batch_size": 2,
+    "benchmark_disable_grad_checkpointing": false,
+    "benchmark_label": "smoke-g2-blocking-h64-r2",
+    "benchmark_output": "/home/abertran/baltic-sea-forecasting/benchmark_results/graph-parallel/smoke-g2-blocking-h64-r2-4390.json",
+    "benchmark_scaling_mode": "strong",
+    "benchmark_steps": 2,
+    "benchmark_timing_mode": "aggregate",
+    "benchmark_warmup_steps": 1,
+    "channel_mult_emb": 2,
+    "channel_mult_noise": 2,
+    "config_path": "/scratch/users/abertran/baltic-sea-forecasting-data/physical_repeat_16/global_ocean_1.yaml",
+    "crps_alpha": 0.95,
+    "crps_weight": 0,
+    "current_atmosphere_step": 1,
+    "current_boundary_step": 1,
+    "current_forcing_step": 1,
+    "deterministic_noise_value": 0.0,
+    "devices": [
+      "auto"
+    ],
+    "encoder_processor_layers": 1,
+    "ensemble_size": 5,
+    "epochs": 100,
+    "eval": null,
+    "forecasts_zarr_path": null,
+    "grad_checkpointing": false,
+    "graph": "global_cluster_graph",
+    "graph_parallel_overlap": false,
+    "graph_parallel_size": 2,
+    "graph_partition_path": null,
+    "hidden_dim": 64,
+    "hidden_dim_edge": 64,
+    "hidden_dim_grid": 64,
+    "hidden_dim_mesh_nodes": 64,
+    "hidden_layers": 1,
+    "input_steps": 2,
+    "kl_beta": 1.0,
+    "latent_dim": null,
+    "learn_prior": 1,
+    "load": null,
+    "logger": "wandb",
+    "logger_project": "baltic-sea-forecasting",
+    "loss": "wmse",
+    "lr": 0.001,
+    "mesh_aggr": "sum",
+    "metrics_watch": [],
+    "min_lr": 0.001,
+    "model": "graph_efm",
+    "muon_exclude_patterns": [
+      "interior_embedder",
+      "boundary_embedder",
+      "g2m_embedder",
+      "m2g_embedder",
+      "output_map",
+      "mesh_embedders",
+      "mesh_same_embedders",
+      "mesh_up_embedders",
+      "mesh_down_embedders"
+    ],
+    "muon_momentum": 0.95,
+    "muon_weight_decay": 0.0,
+    "n_example_pred": 0,
+    "noise_dim": 32,
+    "noise_embedding": "linear",
+    "num_future_atmosphere_steps": 0,
+    "num_future_boundary_steps": 0,
+    "num_future_forcing_steps": 0,
+    "num_latents_plot": 4,
+    "num_nodes": 1,
+    "num_past_atmosphere_steps": 2,
+    "num_past_boundary_steps": 2,
+    "num_past_forcing_steps": 2,
+    "num_sanity_val_steps": 4,
+    "num_workers": 0,
+    "optimizer": "adamw",
+    "output_std": false,
+    "precision": "32",
+    "pred_residual": false,
+    "prior_dist": "isotropic",
+    "prior_processor_layers": 1,
+    "processor_layers": 2,
+    "restore_opt": false,
+    "rho": 7,
+    "sample_obs_noise": 0,
+    "sampler": "heun",
+    "sampler_steps": 20,
+    "save_ensemble_zarr": false,
+    "save_forecasts": false,
+    "scheduler": null,
+    "seed": 42,
+    "sigma_data": 1,
+    "sigma_max": 88,
+    "sigma_min": 0.002,
+    "soap_betas": [
+      0.95,
+      0.95
+    ],
+    "soap_muon_betas": [
+      0.95,
+      0.98
+    ],
+    "soap_muon_disable_sqrt": false,
+    "soap_precondition_frequency": 10,
+    "soap_weight_decay": 0.0,
+    "train_distr_crps": false,
+    "use_atmosphere_g2m": false,
+    "val_interval": 1,
+    "val_steps_to_log": [
+      1,
+      2,
+      3
+    ],
+    "var_leads_metrics_watch": {},
+    "var_leads_val_plot": {}
+  },
+  "dataset": {
+    "batches_per_epoch": 237,
+    "effective_samples_per_epoch": 473,
+    "original_samples": 473,
+    "samples_per_rank_per_epoch": 237,
+    "samples_repeated_within_epoch": false,
+    "split": "train",
+    "world_size_hint": 2
+  },
+  "distributed": {
+    "estimated_gradient_payload_bytes_per_step": 2580080,
+    "estimated_ring_allreduce_bytes_per_rank_per_step": 2580080.0,
+    "global_batch_size": 2,
+    "global_rank": 0,
+    "rank_results": [
+      {
+        "graph_parallel": {
+          "diagnostic_timing_totals": {},
+          "global_edges_per_level": {
+            "m2m": [
+              48546,
+              11640
+            ],
+            "mesh_down": [
+              8456
+            ],
+            "mesh_up": [
+              8456
+            ]
+          },
+          "global_nodes_per_level": [
+            8456,
+            2097
+          ],
+          "owned_nodes_per_level": [
+            4228,
+            1048
+          ],
+          "partition_identity": "3ddc9f8e23b4a2c929949042b31612cc7e0b35b6ed16eb2327afea8d390174c8",
+          "relations": {
+            "m2m": [
+              {
+                "backward_sent_bytes": 6082560,
+                "diagnostic_timing_totals": {},
+                "forward_sent_bytes": 12460032,
+                "halo_nodes": 165,
+                "owned_edges": 24542,
+                "send_nodes": 169
+              },
+              {
+                "backward_sent_bytes": 22536192,
+                "diagnostic_timing_totals": {},
+                "forward_sent_bytes": 46694400,
+                "halo_nodes": 917,
+                "owned_edges": 5543,
+                "send_nodes": 950
+              }
+            ],
+            "mesh_down": [
+              {
+                "backward_sent_bytes": 3262464,
+                "diagnostic_timing_totals": {},
+                "forward_sent_bytes": 6377472,
+                "halo_nodes": 531,
+                "owned_edges": 4228,
+                "send_nodes": 519
+              }
+            ],
+            "mesh_up": [
+              {
+                "backward_sent_bytes": 33103872,
+                "diagnostic_timing_totals": {},
+                "forward_sent_bytes": 85635072,
+                "halo_nodes": 1796,
+                "owned_edges": 3701,
+                "send_nodes": 2323
+              }
+            ]
+          }
+        },
+        "hostname": "studgpu-node02.inf.ethz.ch",
+        "process_peak_rss_bytes": 2664587264,
+        "rank": 0,
+        "records": [
+          {
+            "aggregate_window_ms": 5096.9142760004615,
+            "end_to_end_wall_ms": 2548.4571380002308,
+            "gpu_memory_allocated_bytes": 208462848,
+            "gpu_memory_reserved_bytes": 3426746368,
+            "gpu_peak_memory_allocated_bytes": 2989195776,
+            "gpu_peak_memory_reserved_bytes": 3426746368,
+            "measurement_step": null,
+            "measurement_steps": 2,
+            "step_ms": 2548.4571380002308,
+            "step_wall_ms": 2548.4571380002308
+          }
+        ]
+      },
+      {
+        "graph_parallel": {
+          "diagnostic_timing_totals": {},
+          "global_edges_per_level": {
+            "m2m": [
+              48546,
+              11640
+            ],
+            "mesh_down": [
+              8456
+            ],
+            "mesh_up": [
+              8456
+            ]
+          },
+          "global_nodes_per_level": [
+            8456,
+            2097
+          ],
+          "owned_nodes_per_level": [
+            4228,
+            1049
+          ],
+          "partition_identity": "3ddc9f8e23b4a2c929949042b31612cc7e0b35b6ed16eb2327afea8d390174c8",
+          "relations": {
+            "m2m": [
+              {
+                "backward_sent_bytes": 6230016,
+                "diagnostic_timing_totals": {},
+                "forward_sent_bytes": 12165120,
+                "halo_nodes": 169,
+                "owned_edges": 24004,
+                "send_nodes": 165
+              },
+              {
+                "backward_sent_bytes": 23347200,
+                "diagnostic_timing_totals": {},
+                "forward_sent_bytes": 45072384,
+                "halo_nodes": 950,
+                "owned_edges": 6097,
+                "send_nodes": 917
+              }
+            ],
+            "mesh_down": [
+              {
+                "backward_sent_bytes": 3188736,
+                "diagnostic_timing_totals": {},
+                "forward_sent_bytes": 6524928,
+                "halo_nodes": 519,
+                "owned_edges": 4228,
+                "send_nodes": 531
+              }
+            ],
+            "mesh_up": [
+              {
+                "backward_sent_bytes": 42817536,
+                "diagnostic_timing_totals": {},
+                "forward_sent_bytes": 66207744,
+                "halo_nodes": 2323,
+                "owned_edges": 4755,
+                "send_nodes": 1796
+              }
+            ]
+          }
+        },
+        "hostname": "studgpu-node02.inf.ethz.ch",
+        "process_peak_rss_bytes": 2739683328,
+        "rank": 1,
+        "records": [
+          {
+            "aggregate_window_ms": 5101.103659995715,
+            "end_to_end_wall_ms": 2550.5518299978576,
+            "gpu_memory_allocated_bytes": 207865856,
+            "gpu_memory_reserved_bytes": 3439329280,
+            "gpu_peak_memory_allocated_bytes": 3010915328,
+            "gpu_peak_memory_reserved_bytes": 3439329280,
+            "measurement_step": null,
+            "measurement_steps": 2,
+            "step_ms": 2550.5518299978576,
+            "step_wall_ms": 2550.5518299978576
+          }
+        ]
+      }
+    ],
+    "scaling_mode": "graph",
+    "strategy": "GraphParallelStrategy",
+    "world_size": 2
+  },
+  "error": null,
+  "finished_at_utc": "2026-11-18T10:29:36.474395+00:00",
+  "git": {
+    "commit": "60f07b85a35adef3716693b8b5790a426b06f9ff",
+    "dirty": true
+  },
+  "hardware": {
+    "cpu_count_visible": 20,
+    "cuda_runtime": "12.6",
+    "cudnn": 91002,
+    "gpu": {
+      "compute_capability": "6.1",
+      "device_count": 2,
+      "index": 0,
+      "name": "NVIDIA GeForce GTX 1080 Ti",
+      "nvidia_smi": "GPU-c6737993-38c9-c112-b3e9-e107dce5bb60, 580.178.04, 250.00, 1911",
+      "total_memory_bytes": 11707809792
+    },
+    "hostname": "studgpu-node02.inf.ethz.ch",
+    "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "pytorch_lightning": "2.6.6",
+    "slurm_cpus_on_node": "4",
+    "slurm_cpus_per_task": null,
+    "slurm_job_id": "4390",
+    "slurm_mem_per_node_mb": "49152",
+    "torch": "2.14.1+cu126"
+  },
+  "instrumentation": {
+    "gpu_telemetry_enabled": false,
+    "gpu_telemetry_interval_ms": null,
+    "per_batch_accelerator_synchronization": false,
+    "pytorch_profiler_enabled": false,
+    "timing_mode": "aggregate"
+  },
+  "label": "smoke-g2-blocking-h64-r2",
+  "model": {
+    "class": "GraphEFM",
+    "gradient_checkpointing": true,
+    "graph": {
+      "g2m_edge_count": 70640,
+      "grid_node_count": 42348,
+      "m2g_edge_count": 126107,
+      "m2m_edge_count": 60186,
+      "mesh_down_edge_count": 8456,
+      "mesh_node_count": 10553,
+      "mesh_up_edge_count": 8456
+    },
+    "parameter_bytes": 2580080,
+    "parameters_total": 645020,
+    "parameters_trainable": 645020,
+    "trainable_parameter_bytes": 2580080
+  },
+  "protocol": {
+    "completed_measurement_steps": 2,
+    "deterministic_algorithms": true,
+    "external_logger_enabled": false,
+    "measurement_finished_at_utc": "2026-11-18T10:29:36.304899+00:00",
+    "measurement_started_at_utc": "2026-11-18T10:29:31.206999+00:00",
+    "memory_measurement": "allocator_peak",
+    "phase_timing_source": "cuda_events",
+    "requested_measurement_steps": 2,
+    "validation_enabled": false,
+    "warmup_steps": 1,
+    "workload": "training"
+  },
+  "schema_version": 4,
+  "started_at_utc": "2026-11-18T10:29:24.543455+00:00",
+  "startup": {
+    "data_location": "physical-repeat-shared-scratch",
+    "data_staging_bytes": 2348144098.0,
+    "data_staging_seconds": 0.0,
+    "job_to_fit_start_seconds": 18.495479345321655
+  },
+  "status": "completed",
+  "steps": [
+    {
+      "aggregate_window_ms": 5101.103659995715,
+      "end_to_end_wall_ms": 2550.5518299978576,
+      "gpu_memory_allocated_bytes": 208462848,
+      "gpu_memory_reserved_bytes": 3439329280,
+      "gpu_peak_memory_allocated_bytes": 3010915328,
+      "gpu_peak_memory_reserved_bytes": 3439329280,
+      "measurement_step": 0,
+      "step_ms": 2550.5518299978576,
+      "step_wall_ms": 2550.5518299978576
+    }
+  ],
+  "summary": {
+    "aggregate_window_ms": {
+      "count": 1,
+      "max": 5101.103659995715,
+      "mean": 5101.103659995715,
+      "median": 5101.103659995715,
+      "min": 5101.103659995715,
+      "p95": 5101.103659995715,
+      "p99": 5101.103659995715,
+      "std": 0.0
+    },
+    "backward_ms": null,
+    "compute_samples_per_second": 0.7841440336468991,
+    "data_wait_ms": null,
+    "end_to_end_wall_ms": {
+      "count": 1,
+      "max": 2550.5518299978576,
+      "mean": 2550.5518299978576,
+      "median": 2550.5518299978576,
+      "min": 2550.5518299978576,
+      "p95": null,
+      "p99": null,
+      "std": 0.0
+    },
+    "forward_ms": null,
+    "gpu_memory_allocated_bytes": 208462848,
+    "gpu_memory_reserved_bytes": 3439329280,
+    "gpu_peak_memory_allocated_bytes": 3010915328,
+    "gpu_peak_memory_reserved_bytes": 3439329280,
+    "optimizer_and_hooks_ms": null,
+    "process_peak_rss_bytes": 2739683328,
+    "process_peak_rss_bytes_sum": 5404270592,
+    "samples_per_second": 0.7841440336468991,
+    "step_ms": {
+      "count": 1,
+      "max": 2550.5518299978576,
+      "mean": 2550.5518299978576,
+      "median": 2550.5518299978576,
+      "min": 2550.5518299978576,
+      "p95": null,
+      "p99": null,
+      "std": 0.0
+    },
+    "step_wall_ms": {
+      "count": 1,
+      "max": 2550.5518299978576,
+      "mean": 2550.5518299978576,
+      "median": 2550.5518299978576,
+      "min": 2550.5518299978576,
+      "p95": null,
+      "p99": null,
+      "std": 0.0
+    }
+  }
+}

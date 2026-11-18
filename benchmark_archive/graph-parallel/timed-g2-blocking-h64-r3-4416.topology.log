@@ -1,0 +1,23 @@
+JobId=4416 JobName=njord-graph UserId=abertran(651124) GroupId=abertran-group(532792) MCS_label=N/A Priority=3821 Nice=0 Account=dphpc_4gpu QOS=abertran-dphpc_4gpu JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:01 TimeLimit=00:30:00 TimeMin=N/A SubmitTime=2026-11-18T13:17:23 EligibleTime=2026-11-18T13:17:23 AccrueTime=2026-11-18T13:17:23 StartTime=2026-11-18T13:17:23 EndTime=2026-11-18T13:47:23 Deadline=N/A PreemptEligibleTime=2026-11-18T13:17:23 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-11-18T13:17:23 Scheduler=Main Partition=jobs AllocNode:Sid=student-cluster1.inf.ethz.ch:513366 ReqNodeList=(null) ExcNodeList=(null) NodeList=studgpu-node02 BatchHost=studgpu-node02 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=48G,node=1,billing=2,gres/gpu=2,gres/gpu:1080ti=2 AllocTRES=cpu=4,mem=48G,node=1,billing=2,gres/gpu=2,gres/gpu:1080ti=2 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=48G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=YES Exclusive=NO Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/home/abertran/baltic-sea-forecasting/jobs/benchmark_graph_parallel_1080ti.sbatch SubmitLine=sbatch --parsable --account=dphpc_4gpu --gpus=1080ti:2 --ntasks=1 --mem=48G --wait jobs/benchmark_graph_parallel_1080ti.sbatch timed 2 blocking 64 3 WorkDir=/home/abertran/baltic-sea-forecasting StdErr= StdIn=/dev/null StdOut=/home/abertran/baltic-sea-forecasting/benchmark_results/graph-parallel/slurm-4416.out TresPerJob=gres/gpu:1080ti:2
+name, uuid, driver_version, memory.total [MiB], power.limit [W]
+NVIDIA GeForce GTX 1080 Ti, GPU-8591a794-6dd1-60d7-6479-82fba509c548, 580.178.04, 11264 MiB, 250.00 W
+NVIDIA GeForce GTX 1080 Ti, GPU-c6737993-38c9-c112-b3e9-e107dce5bb60, 580.178.04, 11264 MiB, 250.00 W
+	[4mGPU0	GPU1	NIC0	CPU Affinity	NUMA Affinity	GPU NUMA ID[0m
+GPU0	 X 	PIX	PIX	2-5	0		N/A
+GPU1	PIX	 X 	PIX	2-5	0		N/A
+NIC0	PIX	PIX	 X 				
+
+Legend:
+
+  X    = Self
+  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)
+  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node
+  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)
+  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)
+  PIX  = Connection traversing at most a single PCIe bridge
+  NV#  = Connection traversing a bonded set of # NVLinks
+
+NIC Legend:
+
+  NIC0: mlx5_0
+

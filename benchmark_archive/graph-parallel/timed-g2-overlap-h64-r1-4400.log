@@ -1,0 +1,1056 @@
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026/11/18 12:02:28 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /home/abertran/NJORD-ENV/lib/python3.12/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+2026/11/18 12:02:28 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /home/abertran/NJORD-ENV/lib/python3.12/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+[rank: 0] Seed set to 42
+[rank: 1] Seed set to 42
+The loaded datastore contains the following features:
+ state   : zos siconc sithick thetao_0m thetao_47m thetao_92m thetao_222m thetao_318m thetao_541m so_0m so_47m so_92m so_222m so_318m so_541m uo_0m uo_47m uo_92m uo_222m uo_318m uo_541m vo_0m vo_47m vo_92m vo_222m vo_318m vo_541m
+ forcing : day_of_year_sin day_of_year_cos
+ static  : deptho mdt sin_lon cos_lon sin_lat cos_lat coast_dist
+ mask    : zos siconc sithick thetao_0m thetao_47m thetao_92m thetao_222m thetao_318m thetao_541m so_0m so_47m so_92m so_222m so_318m so_541m uo_0m uo_47m uo_92m uo_222m uo_318m uo_541m vo_0m vo_47m vo_92m vo_222m vo_318m vo_541m
+With the following splits (over time):
+ train   : 2023-01-01T00:00 to 2024-04-23T00:00
+ val     : 2024-04-24T00:00 to 2024-05-01T00:00
+ test    : 2024-05-02T00:00 to 2024-05-10T00:00
+/home/abertran/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no state data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+/home/abertran/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no static data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+/home/abertran/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no mask data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+The loaded datastore contains the following features:
+/home/abertran/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no state data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+ forcing : sotemair sowinu10 sowinv10 sosudosw sosudolw sowaprec sod2m somslpre
+/home/abertran/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no static data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+/home/abertran/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no mask data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+With the following splits (over time):
+ train   : 2023-01-01T00:00 to 2024-04-23T00:00
+ val     : 2024-04-24T00:00 to 2024-05-01T00:00
+ test    : 2024-05-02T00:00 to 2024-05-10T00:00
+Using hidden_dim_grid=64, hidden_dim_mesh_nodes=64, hidden_dim_edge=64, hidden_dim=64
+g2m_dim.shape: 4, m2g_dim.shape: 4
+GraphEFM, self.interior_dim=93, self.boundary_dim=None, self.atmosphere_dim=24, 
+Loaded hierarchical graph with structure:
+level 0 - 8456 nodes, 48546 same-level edges
+  0<->1
+ - 8456 up edges, 8456 down edges
+level 1 - 2097 nodes, 11640 same-level edges
+Loaded graph with 52901 nodes (42348 grid, 10553 mesh)
+HiGraphLatentEncoder hidden_dim: 64, hidden_dim_grid: 64
+Using hidden_dim_grid=64, hidden_dim_mesh_nodes=64, hidden_dim_edge=64, hidden_dim=64
+g2m_dim.shape: 4, m2g_dim.shape: 4
+GraphEFM, self.interior_dim=93, self.boundary_dim=None, self.atmosphere_dim=24, 
+Loaded hierarchical graph with structure:
+level 0 - 8456 nodes, 48546 same-level edges
+  0<->1
+ - 8456 up edges, 8456 down edges
+level 1 - 2097 nodes, 11640 same-level edges
+Loaded graph with 52901 nodes (42348 grid, 10553 mesh)
+HiGraphLatentEncoder hidden_dim: 64, hidden_dim_grid: 64
+HiGraphLatentEncoder hidden_dim: 64, hidden_dim_grid: 64
+HiGraphLatentEncoder hidden_dim: 64, hidden_dim_grid: 64
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+`Trainer(limit_test_batches=1.0)` was configured so 100% of the batches will be used..
+Initializing distributed: GLOBAL_RANK: 1, MEMBER: 2/2
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/2
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 2 processes
+----------------------------------------------------------------------------------------------------
+
+LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1]
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
+┏━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃    ┃ Name                      ┃ Type               ┃ Params ┃ Mode  ┃ FLOPs ┃
+┡━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│ 0  │ m2m_edge_index            │ BufferList         │      0 │ train │     0 │
+│ 1  │ mesh_up_edge_index        │ BufferList         │      0 │ train │     0 │
+│ 2  │ mesh_down_edge_index      │ BufferList         │      0 │ train │     0 │
+│ 3  │ m2m_features              │ BufferList         │      0 │ train │     0 │
+│ 4  │ mesh_up_features          │ BufferList         │      0 │ train │     0 │
+│ 5  │ mesh_down_features        │ BufferList         │      0 │ train │     0 │
+│ 6  │ mesh_static_features      │ BufferList         │      0 │ train │     0 │
+│ 7  │ interior_embedder         │ MLP                │ 10.3 K │ train │     0 │
+│ 8  │ interior_current_embedder │ MLP                │ 12.1 K │ train │     0 │
+│ 9  │ g2m_embedder              │ MLP                │  4.6 K │ train │     0 │
+│ 10 │ m2g_embedder              │ MLP                │  4.6 K │ train │     0 │
+│ 11 │ mesh_embedders            │ ModuleList         │  9.3 K │ train │     0 │
+│ 12 │ mesh_up_embedders         │ ModuleList         │  4.6 K │ train │     0 │
+│ 13 │ mesh_down_embedders       │ ModuleList         │  4.6 K │ train │     0 │
+│ 14 │ m2m_embedders             │ ModuleList         │  9.2 K │ train │     0 │
+│ 15 │ prior_model               │ HiGraphLatentEnco… │  129 K │ train │     0 │
+│ 16 │ encoder                   │ HiGraphLatentEnco… │  133 K │ train │     0 │
+│ 17 │ decoder                   │ HiGraphLatentDeco… │  323 K │ train │     0 │
+└────┴───────────────────────────┴────────────────────┴────────┴───────┴───────┘
+Trainable params: 645 K                                                         
+Non-trainable params: 0                                                         
+Total params: 645 K                                                             
+Total estimated model params size (MB): 2.580                                   
+Modules in train mode: 329                                                      
+Modules in eval mode: 0                                                         
+Total FLOPs: 0                                                                  
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+[rank1]:[W1118 12:02:35.115560167 CUDACachingAllocator.cpp:3934] memory allocation failed with OOM on device 1 while trying to allocate 37748736 bytes (free: 26476544, total: 11707809792).
+[rank0]:[W1118 12:02:35.120449828 CUDACachingAllocator.cpp:3934] memory allocation failed with OOM on device 0 while trying to allocate 109051904 bytes (free: 9699328, total: 11707809792).
+[rank1]:[W1118 12:02:35.120528494 CUDACachingAllocator.cpp:3934] memory allocation failed with OOM on device 1 while trying to allocate 37748736 bytes (free: 9699328, total: 11707809792).
+[rank1]:[W1118 12:02:35.120691078 CUDACachingAllocator.cpp:3934] memory allocation failed with OOM on device 1 while trying to allocate 37748736 bytes (free: 9699328, total: 11707809792).
+[rank0]:[W1118 12:02:35.123112743 CUDACachingAllocator.cpp:3934] memory allocation failed with OOM on device 0 while trying to allocate 109051904 bytes (free: 22282240, total: 11707809792).
+2026-11-18 12:02:35.320 | ERROR    | __main__:<module>:1315 - An error has been caught in function '<module>', process 'MainProcess' (196692), thread 'MainThread' (129745125642368):
+Traceback (most recent call last):
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+
+> File "/home/abertran/baltic-sea-forecasting/neural_lam/train_model.py", line 1315, in <module>
+    main()
+    └ <function main at 0x75ff27f2dd00>
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/train_model.py", line 1306, in main
+    trainer.fit(
+    │       └ <function Trainer.fit at 0x75ff782b2ac0>
+    └ <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 584, in fit
+    call._call_and_handle_interrupt(
+    │    └ <function _call_and_handle_interrupt at 0x75ff783b0220>
+    └ <module 'pytorch_lightning.trainer.call' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/traine...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/call.py", line 48, in _call_and_handle_interrupt
+    return trainer.strategy.launcher.launch(trainer_fn, *args, trainer=trainer, **kwargs)
+           │       │                        │            │             │          └ {}
+           │       │                        │            │             └ <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>
+           │       │                        │            └ (GraphEFM(
+           │       │                        │                (m2m_edge_index): BufferList()
+           │       │                        │                (mesh_up_edge_index): BufferList()
+           │       │                        │                (mesh_down_edge_index): BufferList()
+           │       │                        │                (m2...
+           │       │                        └ <bound method Trainer._fit_impl of <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>>
+           │       └ <property object at 0x75ff782b6930>
+           └ <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/strategies/launchers/subprocess_script.py", line 105, in launch
+    return function(*args, **kwargs)
+           │         │       └ {}
+           │         └ (GraphEFM(
+           │             (m2m_edge_index): BufferList()
+           │             (mesh_up_edge_index): BufferList()
+           │             (mesh_down_edge_index): BufferList()
+           │             (m2...
+           └ <bound method Trainer._fit_impl of <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 630, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path, weights_only=weights_only)
+    │    │    │                │                       └ False
+    │    │    │                └ None
+    │    │    └ GraphEFM(
+    │    │        (m2m_edge_index): BufferList()
+    │    │        (mesh_up_edge_index): BufferList()
+    │    │        (mesh_down_edge_index): BufferList()
+    │    │        (m2m...
+    │    └ <function Trainer._run at 0x75ff782b3420>
+    └ <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 1079, in _run
+    results = self._run_stage()
+              │    └ <function Trainer._run_stage at 0x75ff782b3560>
+              └ <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 1123, in _run_stage
+    self.fit_loop.run()
+    │    │        └ <function _FitLoop.run at 0x75ff78285440>
+    │    └ <pytorch_lightning.loops.fit_loop._FitLoop object at 0x75ff259e3fe0>
+    └ <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/fit_loop.py", line 217, in run
+    self.advance()
+    │    └ <function _FitLoop.advance at 0x75ff78285b20>
+    └ <pytorch_lightning.loops.fit_loop._FitLoop object at 0x75ff259e3fe0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/fit_loop.py", line 469, in advance
+    self.epoch_loop.run(self._data_fetcher)
+    │    │          │   │    └ None
+    │    │          │   └ <pytorch_lightning.loops.fit_loop._FitLoop object at 0x75ff259e3fe0>
+    │    │          └ <function _TrainingEpochLoop.run at 0x75ff78457a60>
+    │    └ <pytorch_lightning.loops.training_epoch_loop._TrainingEpochLoop object at 0x75ff259e32c0>
+    └ <pytorch_lightning.loops.fit_loop._FitLoop object at 0x75ff259e3fe0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 153, in run
+    self.advance(data_fetcher)
+    │    │       └ <pytorch_lightning.loops.fetchers._PrefetchDataFetcher object at 0x75ff0ee61760>
+    │    └ <function _TrainingEpochLoop.advance at 0x75ff782840e0>
+    └ <pytorch_lightning.loops.training_epoch_loop._TrainingEpochLoop object at 0x75ff259e32c0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 352, in advance
+    batch_output = self.automatic_optimization.run(trainer.optimizers[0], batch_idx, kwargs)
+                   │    │                      │   │       │              │          └ OrderedDict({'batch': [tensor([[[[-2.0814e+00, -4.1475e-01, -3.9571e-01,  ...,  5.4907e-01,
+                   │    │                      │   │       │              │                        2.4065e-01,  0.0000e+...
+                   │    │                      │   │       │              └ 0
+                   │    │                      │   │       └ <property object at 0x75ff782b6d90>
+                   │    │                      │   └ <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>
+                   │    │                      └ <function _AutomaticOptimization.run at 0x75ff78456700>
+                   │    └ <pytorch_lightning.loops.optimization.automatic._AutomaticOptimization object at 0x75ff2459c4a0>
+                   └ <pytorch_lightning.loops.training_epoch_loop._TrainingEpochLoop object at 0x75ff259e32c0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 192, in run
+    self._optimizer_step(batch_idx, closure)
+    │    │               │          └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>
+    │    │               └ 0
+    │    └ <function _AutomaticOptimization._optimizer_step at 0x75ff78456a20>
+    └ <pytorch_lightning.loops.optimization.automatic._AutomaticOptimization object at 0x75ff2459c4a0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 270, in _optimizer_step
+    call._call_lightning_module_hook(
+    │    └ <function _call_lightning_module_hook at 0x75ff783b3100>
+    └ <module 'pytorch_lightning.trainer.call' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/traine...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/call.py", line 177, in _call_lightning_module_hook
+    output = fn(*args, **kwargs)
+             │   │       └ {}
+             │   └ (0, 0, LightningAdamW (
+             │     Parameter Group 0
+             │         amsgrad: False
+             │         betas: (0.9, 0.95)
+             │         capturable: False
+             │         decoupled_weigh...
+             └ <bound method LightningModule.optimizer_step of GraphEFM(
+                 (m2m_edge_index): BufferList()
+                 (mesh_up_edge_index): BufferList...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/core/module.py", line 1368, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+    │         │            └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>
+    │         └ <function LightningOptimizer.step at 0x75ff784cfb00>
+    └ LightningAdamW (
+      Parameter Group 0
+          amsgrad: False
+          betas: (0.9, 0.95)
+          capturable: False
+          decoupled_weight_decay...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/core/optimizer.py", line 154, in step
+    step_output = self._strategy.optimizer_step(self._optimizer, closure, **kwargs)
+                  │    │                        │    │           │          └ {}
+                  │    │                        │    │           └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>
+                  │    │                        │    └ AdamW (
+                  │    │                        │      Parameter Group 0
+                  │    │                        │          amsgrad: False
+                  │    │                        │          betas: (0.9, 0.95)
+                  │    │                        │          capturable: False
+                  │    │                        │          decoupled_weight_decay: True
+                  │    │                        │        ...
+                  │    │                        └ LightningAdamW (
+                  │    │                          Parameter Group 0
+                  │    │                              amsgrad: False
+                  │    │                              betas: (0.9, 0.95)
+                  │    │                              capturable: False
+                  │    │                              decoupled_weight_decay...
+                  │    └ <weakproxy at 0x75fed4d52d40 to GraphParallelStrategy at 0x75ff259b8860>
+                  └ LightningAdamW (
+                    Parameter Group 0
+                        amsgrad: False
+                        betas: (0.9, 0.95)
+                        capturable: False
+                        decoupled_weight_decay...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/strategies/ddp.py", line 274, in optimizer_step
+    optimizer_output = super().optimizer_step(optimizer, closure, model, **kwargs)
+                                              │          │        │        └ {}
+                                              │          │        └ None
+                                              │          └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>
+                                              └ AdamW (
+                                                Parameter Group 0
+                                                    amsgrad: False
+                                                    betas: (0.9, 0.95)
+                                                    capturable: False
+                                                    decoupled_weight_decay: True
+                                                  ...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/strategies/strategy.py", line 239, in optimizer_step
+    return self.precision_plugin.optimizer_step(optimizer, model=model, closure=closure, **kwargs)
+           │    │                               │                │              │          └ {}
+           │    │                               │                │              └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>
+           │    │                               │                └ GraphEFM(
+           │    │                               │                    (m2m_edge_index): BufferList()
+           │    │                               │                    (mesh_up_edge_index): BufferList()
+           │    │                               │                    (mesh_down_edge_index): BufferList()
+           │    │                               │                    (m2m...
+           │    │                               └ AdamW (
+           │    │                                 Parameter Group 0
+           │    │                                     amsgrad: False
+           │    │                                     betas: (0.9, 0.95)
+           │    │                                     capturable: False
+           │    │                                     decoupled_weight_decay: True
+           │    │                                   ...
+           │    └ <property object at 0x75ff783e1760>
+           └ <neural_lam.graph_parallel_strategy.GraphParallelStrategy object at 0x75ff259b8860>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/plugins/precision/precision.py", line 123, in optimizer_step
+    return optimizer.step(closure=closure, **kwargs)
+           │         │            │          └ {}
+           │         │            └ functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precision object at...
+           │         └ <function Adam.step at 0x75ff0e12e8e0>
+           └ AdamW (
+             Parameter Group 0
+                 amsgrad: False
+                 betas: (0.9, 0.95)
+                 capturable: False
+                 decoupled_weight_decay: True
+               ...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/optim/lr_scheduler.py", line 166, in wrapper
+    return func.__get__(opt, opt.__class__)(*args, **kwargs)
+           │    │       │    │   │           │       └ {'closure': functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precisi...
+           │    │       │    │   │           └ ()
+           │    │       │    │   └ <attribute '__class__' of 'object' objects>
+           │    │       │    └ AdamW (
+           │    │       │      Parameter Group 0
+           │    │       │          amsgrad: False
+           │    │       │          betas: (0.9, 0.95)
+           │    │       │          capturable: False
+           │    │       │          decoupled_weight_decay: True
+           │    │       │        ...
+           │    │       └ AdamW (
+           │    │         Parameter Group 0
+           │    │             amsgrad: False
+           │    │             betas: (0.9, 0.95)
+           │    │             capturable: False
+           │    │             decoupled_weight_decay: True
+           │    │           ...
+           │    └ <slot wrapper '__get__' of 'function' objects>
+           └ <function Adam.step at 0x75ff0e12d9e0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/optim/optimizer.py", line 549, in wrapper
+    out = func(*args, **kwargs)
+          │     │       └ {'closure': functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precisi...
+          │     └ (AdamW (
+          │       Parameter Group 0
+          │           amsgrad: False
+          │           betas: (0.9, 0.95)
+          │           capturable: False
+          │           decoupled_weight_decay: True
+          │        ...
+          └ <function Adam.step at 0x75ffa0a81d00>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/optim/optimizer.py", line 79, in _use_grad
+    ret = func(*args, **kwargs)
+          │     │       └ {'closure': functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precisi...
+          │     └ (AdamW (
+          │       Parameter Group 0
+          │           amsgrad: False
+          │           betas: (0.9, 0.95)
+          │           capturable: False
+          │           decoupled_weight_decay: True
+          │        ...
+          └ <function Adam.step at 0x75ffa0a81c60>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/optim/adam.py", line 227, in step
+    loss = closure()
+           └ functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precision object at...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/plugins/precision/precision.py", line 109, in _wrap_closure
+    closure_result = closure()
+                     └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 146, in __call__
+    self._result = self.closure(*args, **kwargs)
+    │    │         │    │        │       └ {}
+    │    │         │    │        └ ()
+    │    │         │    └ <function Closure.closure at 0x75ff78456480>
+    │    │         └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>
+    │    └ None
+    └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           │     │       └ {}
+           │     └ (<pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>,)
+           └ <function Closure.closure at 0x75ff784563e0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 140, in closure
+    self._backward_fn(step_output.closure_loss)
+    │    │            │           └ tensor(1.0461e+09, device='cuda:1', grad_fn=<DivBackward0>)
+    │    │            └ ClosureResult(closure_loss=tensor(1.0461e+09, device='cuda:1', grad_fn=<DivBackward0>), loss=tensor(1.0461e+09, device='cuda:...
+    │    └ <function _AutomaticOptimization._make_backward_fn.<locals>.backward_fn at 0x75ff2593d620>
+    └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x75ff2597c380>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 241, in backward_fn
+    call._call_strategy_hook(self.trainer, "backward", loss, optimizer)
+    │    │                   │    │                    │     └ AdamW (
+    │    │                   │    │                    │       Parameter Group 0
+    │    │                   │    │                    │           amsgrad: False
+    │    │                   │    │                    │           betas: (0.9, 0.95)
+    │    │                   │    │                    │           capturable: False
+    │    │                   │    │                    │           decoupled_weight_decay: True
+    │    │                   │    │                    │         ...
+    │    │                   │    │                    └ tensor(1.0461e+09, device='cuda:1', grad_fn=<DivBackward0>)
+    │    │                   │    └ <pytorch_lightning.trainer.trainer.Trainer object at 0x75ff259b8950>
+    │    │                   └ <pytorch_lightning.loops.optimization.automatic._AutomaticOptimization object at 0x75ff2459c4a0>
+    │    └ <function _call_strategy_hook at 0x75ff783b34c0>
+    └ <module 'pytorch_lightning.trainer.call' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/traine...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/call.py", line 329, in _call_strategy_hook
+    output = fn(*args, **kwargs)
+             │   │       └ {}
+             │   └ (tensor(1.0461e+09, device='cuda:1', grad_fn=<DivBackward0>), AdamW (
+             │     Parameter Group 0
+             │         amsgrad: False
+             │         betas: (0.9, 0...
+             └ <bound method Strategy.backward of <neural_lam.graph_parallel_strategy.GraphParallelStrategy object at 0x75ff259b8860>>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/strategies/strategy.py", line 213, in backward
+    self.precision_plugin.backward(closure_loss, self.lightning_module, optimizer, *args, **kwargs)
+    │    │                         │             │    │                 │           │       └ {}
+    │    │                         │             │    │                 │           └ ()
+    │    │                         │             │    │                 └ AdamW (
+    │    │                         │             │    │                   Parameter Group 0
+    │    │                         │             │    │                       amsgrad: False
+    │    │                         │             │    │                       betas: (0.9, 0.95)
+    │    │                         │             │    │                       capturable: False
+    │    │                         │             │    │                       decoupled_weight_decay: True
+    │    │                         │             │    │                     ...
+    │    │                         │             │    └ <property object at 0x75ff783e1da0>
+    │    │                         │             └ <neural_lam.graph_parallel_strategy.GraphParallelStrategy object at 0x75ff259b8860>
+    │    │                         └ tensor(1.0461e+09, device='cuda:1', grad_fn=<DivBackward0>)
+    │    └ <property object at 0x75ff783e1760>
+    └ <neural_lam.graph_parallel_strategy.GraphParallelStrategy object at 0x75ff259b8860>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/plugins/precision/precision.py", line 73, in backward
+    model.backward(tensor, *args, **kwargs)
+    │     │        │        │       └ {}
+    │     │        │        └ ()
+    │     │        └ tensor(1.0461e+09, device='cuda:1', grad_fn=<DivBackward0>)
+    │     └ <function LightningModule.backward at 0x75ff782dc220>
+    └ GraphEFM(
+        (m2m_edge_index): BufferList()
+        (mesh_up_edge_index): BufferList()
+        (mesh_down_edge_index): BufferList()
+        (m2m...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/core/module.py", line 1137, in backward
+    loss.backward(*args, **kwargs)
+    │    │         │       └ {}
+    │    │         └ ()
+    │    └ <function Tensor.backward at 0x76005df29f80>
+    └ tensor(1.0461e+09, device='cuda:1', grad_fn=<DivBackward0>)
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/_tensor.py", line 623, in backward
+    torch.autograd.backward(
+    │     │        └ <function backward at 0x75ffa147cc20>
+    │     └ <module 'torch.autograd' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/__init__.py'>
+    └ <module 'torch' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/__init__.py'>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/__init__.py", line 395, in backward
+    _engine_run_backward(
+    └ <function _engine_run_backward at 0x75ffa15e31a0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/graph.py", line 1072, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           │        │                 └ <method 'run_backward' of 'torch._C._EngineBase' objects>
+           │        └ <torch._C._EngineBase object at 0x75ffa220caa0>
+           └ <class 'torch.autograd.variable.Variable'>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/function.py", line 366, in apply
+    return user_fn(self, *args)
+           │       │      └ (tensor([[[ 0.0230, -0.0138, -0.0435,  ..., -0.0092, -0.0510,  0.0089],
+           │       │                 [ 0.0467, -0.0347, -0.0567,  ..., -0.0083, -...
+           │       └ <torch.autograd.function._OverlapMessagesBackward object at 0x75fecc2f0e10>
+           └ <function _OverlapMessages.backward at 0x75ff245ac220>
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/graph_parallel.py", line 218, in backward
+    remote_grads = torch.autograd.grad(
+                   │     │        └ <function grad at 0x75ffa147cea0>
+                   │     └ <module 'torch.autograd' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/__init__.py'>
+                   └ <module 'torch' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/__init__.py'>
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/__init__.py", line 594, in grad
+    result = _engine_run_backward(
+             └ <function _engine_run_backward at 0x75ffa15e31a0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/graph.py", line 1072, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           │        │                 └ <method 'run_backward' of 'torch._C._EngineBase' objects>
+           │        └ <torch._C._EngineBase object at 0x75ffa220caa0>
+           └ <class 'torch.autograd.variable.Variable'>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 1369, in unpack_hook
+    _run_fn_with_dynamo_disabled(frame.recompute_fn, *args)
+    │                            │     │              └ [tensor([[[[-3.5883, -0.4147, -0.3957,  ...,  1.6409,  1.1728,  1.0000],
+    │                            │     │                          [-3.6191, -0.4147, -0.3957,  ...,  0.8544,...
+    │                            │     └ <function _checkpoint_without_reentrant_generator_impl.<locals>.recompute_fn at 0x75fed4d5f560>
+    │                            └ <torch.utils.checkpoint._CheckpointFrame object at 0x75fecc2bc170>
+    └ <function _run_fn_with_dynamo_disabled at 0x75ffa031b740>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/_compile.py", line 54, in inner
+    return disable_fn(*args, **kwargs)
+           │           │       └ {}
+           │           └ (<function _checkpoint_without_reentrant_generator_impl.<locals>.recompute_fn at 0x75fed4d5f560>, tensor([[[[-3.5883, -0.4147...
+           └ <function DisableContext.__call__.<locals>._fn at 0x75fed4d5e980>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 1548, in _fn
+    return fn(*args, **kwargs)
+           │   │       └ {}
+           │   └ (<function _checkpoint_without_reentrant_generator_impl.<locals>.recompute_fn at 0x75fed4d5f560>, tensor([[[[-3.5883, -0.4147...
+           └ <function _run_fn_with_dynamo_disabled at 0x75ffa031b420>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 1336, in _run_fn_with_dynamo_disabled
+    return fn(*args, **kwargs)
+           │   │       └ {}
+           │   └ (tensor([[[[-3.5883, -0.4147, -0.3957,  ...,  1.6409,  1.1728,  1.0000],
+           │               [-3.6191, -0.4147, -0.3957,  ...,  0.8544,...
+           └ <function _checkpoint_without_reentrant_generator_impl.<locals>.recompute_fn at 0x75fed4d5f560>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 1962, in recompute_fn
+    fn(*args, **kwargs)
+    │   │       └ {}
+    │   └ (tensor([[[[-3.5883, -0.4147, -0.3957,  ...,  1.6409,  1.1728,  1.0000],
+    │               [-3.6191, -0.4147, -0.3957,  ...,  0.8544,...
+    └ <bound method GraphEFM.compute_step_loss of GraphEFM(
+        (m2m_edge_index): BufferList()
+        (mesh_up_edge_index): BufferList()
+       ...
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/models/graph_efm.py", line 754, in compute_step_loss
+    prior_dist = self.prior_model(
+                 └ GraphEFM(
+                     (m2m_edge_index): BufferList()
+                     (mesh_up_edge_index): BufferList()
+                     (mesh_down_edge_index): BufferList()
+                     (m2m...
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           │    │           │       └ {'graph_emb': {'g2m': tensor([[[-0.6305, -0.2017,  0.0276,  ...,  0.4641,  1.0580,  1.0265],
+           │    │           │                  [-0.4342, -0.4465,  0.0...
+           │    │           └ (tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+           │    │                      [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  ...
+           │    └ <function Module._call_impl at 0x75ffa1660ea0>
+           └ HiGraphLatentEncoder(
+               (g2m_gnn): FlexibleNet()
+               (mesh_up_gnns): ModuleList(
+                 (0): PropagationNet()
+               )
+               (intra_level_g...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ {'graph_emb': {'g2m': tensor([[[-0.6305, -0.2017,  0.0276,  ...,  0.4641,  1.0580,  1.0265],
+           │             │                  [-0.4342, -0.4465,  0.0...
+           │             └ (tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+           │                        [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  ...
+           └ <bound method BaseLatentEncoder.forward of HiGraphLatentEncoder(
+               (g2m_gnn): FlexibleNet()
+               (mesh_up_gnns): ModuleList(
+                ...
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/models/base_latent_encoder.py", line 57, in forward
+    latent_dist_params = self.compute_dist_params(grid_rep, **kwargs)
+                         │    │                   │           └ {'graph_emb': {'g2m': tensor([[[-0.6305, -0.2017,  0.0276,  ...,  0.4641,  1.0580,  1.0265],
+                         │    │                   │                      [-0.4342, -0.4465,  0.0...
+                         │    │                   └ tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+                         │    │                              [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  0...
+                         │    └ <function HiGraphLatentEncoder.compute_dist_params at 0x75ff2816afc0>
+                         └ HiGraphLatentEncoder(
+                             (g2m_gnn): FlexibleNet()
+                             (mesh_up_gnns): ModuleList(
+                               (0): PropagationNet()
+                             )
+                             (intra_level_g...
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/models/hi_graph_latent_encoder.py", line 107, in compute_dist_params
+    current_mesh_rep = self.g2m_gnn(
+                       └ HiGraphLatentEncoder(
+                           (g2m_gnn): FlexibleNet()
+                           (mesh_up_gnns): ModuleList(
+                             (0): PropagationNet()
+                           )
+                           (intra_level_g...
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           │    │           │       └ {}
+           │    │           └ (tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+           │    │                      [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  ...
+           │    └ <function Module._call_impl at 0x75ffa1660ea0>
+           └ FlexibleNet()
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ {}
+           │             └ (tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+           │                        [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  ...
+           └ <bound method FlexibleNet.forward of FlexibleNet()>
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/interaction_net.py", line 305, in forward
+    edge_rep_aggr = self.propagate(
+                    │    └ <function MessagePassing.propagate at 0x75ff99b2d800>
+                    └ FlexibleNet()
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch_geometric/nn/conv/message_passing.py", line 459, in propagate
+    coll_dict = self._collect(self._user_args, edge_index, size,
+                │    │        │    │           │           └ [42348, 8456]
+                │    │        │    │           └ tensor([[    0,     0,     1,  ..., 39849, 40273, 41058],
+                │    │        │    │                     [ 3779,  7646,  1993,  ...,  3586,  2749,  3229]], device='...
+                │    │        │    └ {'send_rep_j', 'edge_attr', 'emb', 'rec_rep_i'}
+                │    │        └ FlexibleNet()
+                │    └ <function MessagePassing._collect at 0x75ff99b2d760>
+                └ FlexibleNet()
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch_geometric/nn/conv/message_passing.py", line 336, in _collect
+    data = self._lift(data, edge_index, dim)
+           │    │     │     │           └ 1
+           │    │     │     └ tensor([[    0,     0,     1,  ..., 39849, 40273, 41058],
+           │    │     │               [ 3779,  7646,  1993,  ...,  3586,  2749,  3229]], device='...
+           │    │     └ tensor([[[ 0.1285,  0.4270, -0.6986,  ..., -0.2378,  0.3656, -1.2276],
+           │    │                [ 0.1260,  0.4302, -0.6949,  ..., -0.2355,  0...
+           │    └ <function MessagePassing._lift at 0x75ff99b2d6c0>
+           └ FlexibleNet()
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch_geometric/nn/conv/message_passing.py", line 282, in _lift
+    raise e
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch_geometric/nn/conv/message_passing.py", line 272, in _lift
+    return src.index_select(self.node_dim, index)
+           │   │            │    │         └ tensor([3779, 7646, 1993,  ..., 3586, 2749, 3229], device='cuda:1')
+           │   │            │    └ -2
+           │   │            └ FlexibleNet()
+           │   └ <method 'index_select' of 'torch._C.TensorBase' objects>
+           └ tensor([[[ 0.1285,  0.4270, -0.6986,  ..., -0.2378,  0.3656, -1.2276],
+                      [ 0.1260,  0.4302, -0.6949,  ..., -0.2355,  0...
+
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 36.00 MiB. GPU 1 has a total capacity of 10.90 GiB of which 9.25 MiB is free. Including non-PyTorch memory, this process has 10.89 GiB memory in use. Of the allocated memory 10.45 GiB is allocated by PyTorch, and 118.55 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+2026-11-18 12:02:35.297 | ERROR    | __main__:<module>:1315 - An error has been caught in function '<module>', process 'MainProcess' (196691), thread 'MainThread' (138651328417920):
+Traceback (most recent call last):
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+
+> File "/home/abertran/baltic-sea-forecasting/neural_lam/train_model.py", line 1315, in <module>
+    main()
+    └ <function main at 0x7e18cb015d00>
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/train_model.py", line 1306, in main
+    trainer.fit(
+    │       └ <function Trainer.fit at 0x7e191b3aaac0>
+    └ <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 584, in fit
+    call._call_and_handle_interrupt(
+    │    └ <function _call_and_handle_interrupt at 0x7e191b4ac220>
+    └ <module 'pytorch_lightning.trainer.call' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/traine...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/call.py", line 48, in _call_and_handle_interrupt
+    return trainer.strategy.launcher.launch(trainer_fn, *args, trainer=trainer, **kwargs)
+           │       │                        │            │             │          └ {}
+           │       │                        │            │             └ <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>
+           │       │                        │            └ (GraphEFM(
+           │       │                        │                (m2m_edge_index): BufferList()
+           │       │                        │                (mesh_up_edge_index): BufferList()
+           │       │                        │                (mesh_down_edge_index): BufferList()
+           │       │                        │                (m2...
+           │       │                        └ <bound method Trainer._fit_impl of <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>>
+           │       └ <property object at 0x7e191b3aea20>
+           └ <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/strategies/launchers/subprocess_script.py", line 105, in launch
+    return function(*args, **kwargs)
+           │         │       └ {}
+           │         └ (GraphEFM(
+           │             (m2m_edge_index): BufferList()
+           │             (mesh_up_edge_index): BufferList()
+           │             (mesh_down_edge_index): BufferList()
+           │             (m2...
+           └ <bound method Trainer._fit_impl of <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 630, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path, weights_only=weights_only)
+    │    │    │                │                       └ False
+    │    │    │                └ None
+    │    │    └ GraphEFM(
+    │    │        (m2m_edge_index): BufferList()
+    │    │        (mesh_up_edge_index): BufferList()
+    │    │        (mesh_down_edge_index): BufferList()
+    │    │        (m2m...
+    │    └ <function Trainer._run at 0x7e191b3ab420>
+    └ <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 1079, in _run
+    results = self._run_stage()
+              │    └ <function Trainer._run_stage at 0x7e191b3ab560>
+              └ <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 1123, in _run_stage
+    self.fit_loop.run()
+    │    │        └ <function _FitLoop.run at 0x7e191b381440>
+    │    └ <pytorch_lightning.loops.fit_loop._FitLoop object at 0x7e18c8a92060>
+    └ <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/fit_loop.py", line 217, in run
+    self.advance()
+    │    └ <function _FitLoop.advance at 0x7e191b381b20>
+    └ <pytorch_lightning.loops.fit_loop._FitLoop object at 0x7e18c8a92060>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/fit_loop.py", line 469, in advance
+    self.epoch_loop.run(self._data_fetcher)
+    │    │          │   │    └ None
+    │    │          │   └ <pytorch_lightning.loops.fit_loop._FitLoop object at 0x7e18c8a92060>
+    │    │          └ <function _TrainingEpochLoop.run at 0x7e191b563a60>
+    │    └ <pytorch_lightning.loops.training_epoch_loop._TrainingEpochLoop object at 0x7e18cb1f2330>
+    └ <pytorch_lightning.loops.fit_loop._FitLoop object at 0x7e18c8a92060>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 153, in run
+    self.advance(data_fetcher)
+    │    │       └ <pytorch_lightning.loops.fetchers._PrefetchDataFetcher object at 0x7e18b1ce6a20>
+    │    └ <function _TrainingEpochLoop.advance at 0x7e191b3800e0>
+    └ <pytorch_lightning.loops.training_epoch_loop._TrainingEpochLoop object at 0x7e18cb1f2330>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 352, in advance
+    batch_output = self.automatic_optimization.run(trainer.optimizers[0], batch_idx, kwargs)
+                   │    │                      │   │       │              │          └ OrderedDict({'batch': [tensor([[[[-2.0814e+00, -4.1475e-01, -3.9571e-01,  ...,  5.4907e-01,
+                   │    │                      │   │       │              │                        2.4065e-01,  0.0000e+...
+                   │    │                      │   │       │              └ 0
+                   │    │                      │   │       └ <property object at 0x7e191b3aee80>
+                   │    │                      │   └ <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>
+                   │    │                      └ <function _AutomaticOptimization.run at 0x7e191b562700>
+                   │    └ <pytorch_lightning.loops.optimization.automatic._AutomaticOptimization object at 0x7e18c81782f0>
+                   └ <pytorch_lightning.loops.training_epoch_loop._TrainingEpochLoop object at 0x7e18cb1f2330>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 192, in run
+    self._optimizer_step(batch_idx, closure)
+    │    │               │          └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>
+    │    │               └ 0
+    │    └ <function _AutomaticOptimization._optimizer_step at 0x7e191b562a20>
+    └ <pytorch_lightning.loops.optimization.automatic._AutomaticOptimization object at 0x7e18c81782f0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 270, in _optimizer_step
+    call._call_lightning_module_hook(
+    │    └ <function _call_lightning_module_hook at 0x7e191b4af100>
+    └ <module 'pytorch_lightning.trainer.call' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/traine...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/call.py", line 177, in _call_lightning_module_hook
+    output = fn(*args, **kwargs)
+             │   │       └ {}
+             │   └ (0, 0, LightningAdamW (
+             │     Parameter Group 0
+             │         amsgrad: False
+             │         betas: (0.9, 0.95)
+             │         capturable: False
+             │         decoupled_weigh...
+             └ <bound method LightningModule.optimizer_step of GraphEFM(
+                 (m2m_edge_index): BufferList()
+                 (mesh_up_edge_index): BufferList...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/core/module.py", line 1368, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+    │         │            └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>
+    │         └ <function LightningOptimizer.step at 0x7e191b5cbb00>
+    └ LightningAdamW (
+      Parameter Group 0
+          amsgrad: False
+          betas: (0.9, 0.95)
+          capturable: False
+          decoupled_weight_decay...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/core/optimizer.py", line 154, in step
+    step_output = self._strategy.optimizer_step(self._optimizer, closure, **kwargs)
+                  │    │                        │    │           │          └ {}
+                  │    │                        │    │           └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>
+                  │    │                        │    └ AdamW (
+                  │    │                        │      Parameter Group 0
+                  │    │                        │          amsgrad: False
+                  │    │                        │          betas: (0.9, 0.95)
+                  │    │                        │          capturable: False
+                  │    │                        │          decoupled_weight_decay: True
+                  │    │                        │        ...
+                  │    │                        └ LightningAdamW (
+                  │    │                          Parameter Group 0
+                  │    │                              amsgrad: False
+                  │    │                              betas: (0.9, 0.95)
+                  │    │                              capturable: False
+                  │    │                              decoupled_weight_decay...
+                  │    └ <weakproxy at 0x7e18a836ed90 to GraphParallelStrategy at 0x7e18c8a91c10>
+                  └ LightningAdamW (
+                    Parameter Group 0
+                        amsgrad: False
+                        betas: (0.9, 0.95)
+                        capturable: False
+                        decoupled_weight_decay...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/strategies/ddp.py", line 274, in optimizer_step
+    optimizer_output = super().optimizer_step(optimizer, closure, model, **kwargs)
+                                              │          │        │        └ {}
+                                              │          │        └ None
+                                              │          └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>
+                                              └ AdamW (
+                                                Parameter Group 0
+                                                    amsgrad: False
+                                                    betas: (0.9, 0.95)
+                                                    capturable: False
+                                                    decoupled_weight_decay: True
+                                                  ...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/strategies/strategy.py", line 239, in optimizer_step
+    return self.precision_plugin.optimizer_step(optimizer, model=model, closure=closure, **kwargs)
+           │    │                               │                │              │          └ {}
+           │    │                               │                │              └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>
+           │    │                               │                └ GraphEFM(
+           │    │                               │                    (m2m_edge_index): BufferList()
+           │    │                               │                    (mesh_up_edge_index): BufferList()
+           │    │                               │                    (mesh_down_edge_index): BufferList()
+           │    │                               │                    (m2m...
+           │    │                               └ AdamW (
+           │    │                                 Parameter Group 0
+           │    │                                     amsgrad: False
+           │    │                                     betas: (0.9, 0.95)
+           │    │                                     capturable: False
+           │    │                                     decoupled_weight_decay: True
+           │    │                                   ...
+           │    └ <property object at 0x7e191b4dd8a0>
+           └ <neural_lam.graph_parallel_strategy.GraphParallelStrategy object at 0x7e18c8a91c10>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/plugins/precision/precision.py", line 123, in optimizer_step
+    return optimizer.step(closure=closure, **kwargs)
+           │         │            │          └ {}
+           │         │            └ functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precision object at...
+           │         └ <function Adam.step at 0x7e18b12f2980>
+           └ AdamW (
+             Parameter Group 0
+                 amsgrad: False
+                 betas: (0.9, 0.95)
+                 capturable: False
+                 decoupled_weight_decay: True
+               ...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/optim/lr_scheduler.py", line 166, in wrapper
+    return func.__get__(opt, opt.__class__)(*args, **kwargs)
+           │    │       │    │   │           │       └ {'closure': functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precisi...
+           │    │       │    │   │           └ ()
+           │    │       │    │   └ <attribute '__class__' of 'object' objects>
+           │    │       │    └ AdamW (
+           │    │       │      Parameter Group 0
+           │    │       │          amsgrad: False
+           │    │       │          betas: (0.9, 0.95)
+           │    │       │          capturable: False
+           │    │       │          decoupled_weight_decay: True
+           │    │       │        ...
+           │    │       └ AdamW (
+           │    │         Parameter Group 0
+           │    │             amsgrad: False
+           │    │             betas: (0.9, 0.95)
+           │    │             capturable: False
+           │    │             decoupled_weight_decay: True
+           │    │           ...
+           │    └ <slot wrapper '__get__' of 'function' objects>
+           └ <function Adam.step at 0x7e18b12f19e0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/optim/optimizer.py", line 549, in wrapper
+    out = func(*args, **kwargs)
+          │     │       └ {'closure': functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precisi...
+          │     └ (AdamW (
+          │       Parameter Group 0
+          │           amsgrad: False
+          │           betas: (0.9, 0.95)
+          │           capturable: False
+          │           decoupled_weight_decay: True
+          │        ...
+          └ <function Adam.step at 0x7e1943b79d00>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/optim/optimizer.py", line 79, in _use_grad
+    ret = func(*args, **kwargs)
+          │     │       └ {'closure': functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precisi...
+          │     └ (AdamW (
+          │       Parameter Group 0
+          │           amsgrad: False
+          │           betas: (0.9, 0.95)
+          │           capturable: False
+          │           decoupled_weight_decay: True
+          │        ...
+          └ <function Adam.step at 0x7e1943b79c60>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/optim/adam.py", line 227, in step
+    loss = closure()
+           └ functools.partial(<bound method Precision._wrap_closure of <pytorch_lightning.plugins.precision.precision.Precision object at...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/plugins/precision/precision.py", line 109, in _wrap_closure
+    closure_result = closure()
+                     └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 146, in __call__
+    self._result = self.closure(*args, **kwargs)
+    │    │         │    │        │       └ {}
+    │    │         │    │        └ ()
+    │    │         │    └ <function Closure.closure at 0x7e191b562480>
+    │    │         └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>
+    │    └ None
+    └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           │     │       └ {}
+           │     └ (<pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>,)
+           └ <function Closure.closure at 0x7e191b5623e0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 140, in closure
+    self._backward_fn(step_output.closure_loss)
+    │    │            │           └ tensor(1.0461e+09, device='cuda:0', grad_fn=<DivBackward0>)
+    │    │            └ ClosureResult(closure_loss=tensor(1.0461e+09, device='cuda:0', grad_fn=<DivBackward0>), loss=tensor(1.0461e+09, device='cuda:...
+    │    └ <function _AutomaticOptimization._make_backward_fn.<locals>.backward_fn at 0x7e18b12f2480>
+    └ <pytorch_lightning.loops.optimization.automatic.Closure object at 0x7e18c8a91cd0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 241, in backward_fn
+    call._call_strategy_hook(self.trainer, "backward", loss, optimizer)
+    │    │                   │    │                    │     └ AdamW (
+    │    │                   │    │                    │       Parameter Group 0
+    │    │                   │    │                    │           amsgrad: False
+    │    │                   │    │                    │           betas: (0.9, 0.95)
+    │    │                   │    │                    │           capturable: False
+    │    │                   │    │                    │           decoupled_weight_decay: True
+    │    │                   │    │                    │         ...
+    │    │                   │    │                    └ tensor(1.0461e+09, device='cuda:0', grad_fn=<DivBackward0>)
+    │    │                   │    └ <pytorch_lightning.trainer.trainer.Trainer object at 0x7e18c8a5bd10>
+    │    │                   └ <pytorch_lightning.loops.optimization.automatic._AutomaticOptimization object at 0x7e18c81782f0>
+    │    └ <function _call_strategy_hook at 0x7e191b4af4c0>
+    └ <module 'pytorch_lightning.trainer.call' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/traine...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/call.py", line 329, in _call_strategy_hook
+    output = fn(*args, **kwargs)
+             │   │       └ {}
+             │   └ (tensor(1.0461e+09, device='cuda:0', grad_fn=<DivBackward0>), AdamW (
+             │     Parameter Group 0
+             │         amsgrad: False
+             │         betas: (0.9, 0...
+             └ <bound method Strategy.backward of <neural_lam.graph_parallel_strategy.GraphParallelStrategy object at 0x7e18c8a91c10>>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/strategies/strategy.py", line 213, in backward
+    self.precision_plugin.backward(closure_loss, self.lightning_module, optimizer, *args, **kwargs)
+    │    │                         │             │    │                 │           │       └ {}
+    │    │                         │             │    │                 │           └ ()
+    │    │                         │             │    │                 └ AdamW (
+    │    │                         │             │    │                   Parameter Group 0
+    │    │                         │             │    │                       amsgrad: False
+    │    │                         │             │    │                       betas: (0.9, 0.95)
+    │    │                         │             │    │                       capturable: False
+    │    │                         │             │    │                       decoupled_weight_decay: True
+    │    │                         │             │    │                     ...
+    │    │                         │             │    └ <property object at 0x7e191b4ddee0>
+    │    │                         │             └ <neural_lam.graph_parallel_strategy.GraphParallelStrategy object at 0x7e18c8a91c10>
+    │    │                         └ tensor(1.0461e+09, device='cuda:0', grad_fn=<DivBackward0>)
+    │    └ <property object at 0x7e191b4dd8a0>
+    └ <neural_lam.graph_parallel_strategy.GraphParallelStrategy object at 0x7e18c8a91c10>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/plugins/precision/precision.py", line 73, in backward
+    model.backward(tensor, *args, **kwargs)
+    │     │        │        │       └ {}
+    │     │        │        └ ()
+    │     │        └ tensor(1.0461e+09, device='cuda:0', grad_fn=<DivBackward0>)
+    │     └ <function LightningModule.backward at 0x7e191b3d8220>
+    └ GraphEFM(
+        (m2m_edge_index): BufferList()
+        (mesh_up_edge_index): BufferList()
+        (mesh_down_edge_index): BufferList()
+        (m2m...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/core/module.py", line 1137, in backward
+    loss.backward(*args, **kwargs)
+    │    │         │       └ {}
+    │    │         └ ()
+    │    └ <function Tensor.backward at 0x7e19f4ea5f80>
+    └ tensor(1.0461e+09, device='cuda:0', grad_fn=<DivBackward0>)
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/_tensor.py", line 623, in backward
+    torch.autograd.backward(
+    │     │        └ <function backward at 0x7e1944578c20>
+    │     └ <module 'torch.autograd' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/__init__.py'>
+    └ <module 'torch' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/__init__.py'>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/__init__.py", line 395, in backward
+    _engine_run_backward(
+    └ <function _engine_run_backward at 0x7e19446df1a0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/graph.py", line 1072, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           │        │                 └ <method 'run_backward' of 'torch._C._EngineBase' objects>
+           │        └ <torch._C._EngineBase object at 0x7e194530caa0>
+           └ <class 'torch.autograd.variable.Variable'>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/function.py", line 366, in apply
+    return user_fn(self, *args)
+           │       │      └ (tensor([[[ 0.0644, -0.0275, -0.0541,  ..., -0.0230, -0.0772,  0.0157],
+           │       │                 [ 0.0530, -0.0019, -0.0840,  ..., -0.0231, -...
+           │       └ <torch.autograd.function._OverlapMessagesBackward object at 0x7e1862748e10>
+           └ <function _OverlapMessages.backward at 0x7e18c8188220>
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/graph_parallel.py", line 218, in backward
+    remote_grads = torch.autograd.grad(
+                   │     │        └ <function grad at 0x7e1944578ea0>
+                   │     └ <module 'torch.autograd' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/__init__.py'>
+                   └ <module 'torch' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/__init__.py'>
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/__init__.py", line 594, in grad
+    result = _engine_run_backward(
+             └ <function _engine_run_backward at 0x7e19446df1a0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/autograd/graph.py", line 1072, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           │        │                 └ <method 'run_backward' of 'torch._C._EngineBase' objects>
+           │        └ <torch._C._EngineBase object at 0x7e194530caa0>
+           └ <class 'torch.autograd.variable.Variable'>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 1369, in unpack_hook
+    _run_fn_with_dynamo_disabled(frame.recompute_fn, *args)
+    │                            │     │              └ [tensor([[[[-3.5883, -0.4147, -0.3957,  ...,  1.6409,  1.1728,  1.0000],
+    │                            │     │                          [-3.6191, -0.4147, -0.3957,  ...,  0.8544,...
+    │                            │     └ <function _checkpoint_without_reentrant_generator_impl.<locals>.recompute_fn at 0x7e18a837ade0>
+    │                            └ <torch.utils.checkpoint._CheckpointFrame object at 0x7e187817a630>
+    └ <function _run_fn_with_dynamo_disabled at 0x7e1943417740>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/_compile.py", line 54, in inner
+    return disable_fn(*args, **kwargs)
+           │           │       └ {}
+           │           └ (<function _checkpoint_without_reentrant_generator_impl.<locals>.recompute_fn at 0x7e18a837ade0>, tensor([[[[-3.5883, -0.4147...
+           └ <function DisableContext.__call__.<locals>._fn at 0x7e18a8379a80>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 1548, in _fn
+    return fn(*args, **kwargs)
+           │   │       └ {}
+           │   └ (<function _checkpoint_without_reentrant_generator_impl.<locals>.recompute_fn at 0x7e18a837ade0>, tensor([[[[-3.5883, -0.4147...
+           └ <function _run_fn_with_dynamo_disabled at 0x7e1943417420>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 1336, in _run_fn_with_dynamo_disabled
+    return fn(*args, **kwargs)
+           │   │       └ {}
+           │   └ (tensor([[[[-3.5883, -0.4147, -0.3957,  ...,  1.6409,  1.1728,  1.0000],
+           │               [-3.6191, -0.4147, -0.3957,  ...,  0.8544,...
+           └ <function _checkpoint_without_reentrant_generator_impl.<locals>.recompute_fn at 0x7e18a837ade0>
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 1962, in recompute_fn
+    fn(*args, **kwargs)
+    │   │       └ {}
+    │   └ (tensor([[[[-3.5883, -0.4147, -0.3957,  ...,  1.6409,  1.1728,  1.0000],
+    │               [-3.6191, -0.4147, -0.3957,  ...,  0.8544,...
+    └ <bound method GraphEFM.compute_step_loss of GraphEFM(
+        (m2m_edge_index): BufferList()
+        (mesh_up_edge_index): BufferList()
+       ...
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/models/graph_efm.py", line 754, in compute_step_loss
+    prior_dist = self.prior_model(
+                 └ GraphEFM(
+                     (m2m_edge_index): BufferList()
+                     (mesh_up_edge_index): BufferList()
+                     (mesh_down_edge_index): BufferList()
+                     (m2m...
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           │    │           │       └ {'graph_emb': {'g2m': tensor([[[-0.6305, -0.2017,  0.0276,  ...,  0.4641,  1.0580,  1.0265],
+           │    │           │                  [-0.4342, -0.4465,  0.0...
+           │    │           └ (tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+           │    │                      [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  ...
+           │    └ <function Module._call_impl at 0x7e194475cea0>
+           └ HiGraphLatentEncoder(
+               (g2m_gnn): FlexibleNet()
+               (mesh_up_gnns): ModuleList(
+                 (0): PropagationNet()
+               )
+               (intra_level_g...
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ {'graph_emb': {'g2m': tensor([[[-0.6305, -0.2017,  0.0276,  ...,  0.4641,  1.0580,  1.0265],
+           │             │                  [-0.4342, -0.4465,  0.0...
+           │             └ (tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+           │                        [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  ...
+           └ <bound method BaseLatentEncoder.forward of HiGraphLatentEncoder(
+               (g2m_gnn): FlexibleNet()
+               (mesh_up_gnns): ModuleList(
+                ...
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/models/base_latent_encoder.py", line 57, in forward
+    latent_dist_params = self.compute_dist_params(grid_rep, **kwargs)
+                         │    │                   │           └ {'graph_emb': {'g2m': tensor([[[-0.6305, -0.2017,  0.0276,  ...,  0.4641,  1.0580,  1.0265],
+                         │    │                   │                      [-0.4342, -0.4465,  0.0...
+                         │    │                   └ tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+                         │    │                              [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  0...
+                         │    └ <function HiGraphLatentEncoder.compute_dist_params at 0x7e18cb24efc0>
+                         └ HiGraphLatentEncoder(
+                             (g2m_gnn): FlexibleNet()
+                             (mesh_up_gnns): ModuleList(
+                               (0): PropagationNet()
+                             )
+                             (intra_level_g...
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/models/hi_graph_latent_encoder.py", line 107, in compute_dist_params
+    current_mesh_rep = self.g2m_gnn(
+                       └ HiGraphLatentEncoder(
+                           (g2m_gnn): FlexibleNet()
+                           (mesh_up_gnns): ModuleList(
+                             (0): PropagationNet()
+                           )
+                           (intra_level_g...
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           │    │           │       └ {}
+           │    │           └ (tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+           │    │                      [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  ...
+           │    └ <function Module._call_impl at 0x7e194475cea0>
+           └ FlexibleNet()
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ {}
+           │             └ (tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+           │                        [-0.3451,  0.1283,  0.4902,  ...,  1.2378,  ...
+           └ <bound method FlexibleNet.forward of FlexibleNet()>
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/interaction_net.py", line 305, in forward
+    edge_rep_aggr = self.propagate(
+                    │    └ <function MessagePassing.propagate at 0x7e193cb25800>
+                    └ FlexibleNet()
+
+  File "/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch_geometric/nn/conv/message_passing.py", line 467, in propagate
+    out = self.message(**msg_kwargs)
+          │    │         └ {'send_rep_j': tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+          │    │                    [-0.0714,  0.0972,  0.5618,  ....
+          │    └ <function FlexibleNet.message at 0x7e19104e7ce0>
+          └ FlexibleNet()
+
+  File "/home/abertran/baltic-sea-forecasting/neural_lam/interaction_net.py", line 334, in message
+    torch.cat((edge_attr, send_rep_j, rec_rep_i), dim=-1), emb
+    │     │    │          │           │                    └ None
+    │     │    │          │           └ tensor([[[ 0.1307,  0.4300, -0.6937,  ..., -0.2338,  0.3674, -1.2338],
+    │     │    │          │                      [ 0.1304,  0.4302, -0.6937,  ..., -0.2339,  0...
+    │     │    │          └ tensor([[[-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0.6022, -1.6823],
+    │     │    │                     [-0.0714,  0.0972,  0.5618,  ...,  1.0197,  0...
+    │     │    └ tensor([[[-0.6305, -0.2017,  0.0276,  ...,  0.4641,  1.0580,  1.0265],
+    │     │               [-0.4342, -0.4465,  0.0812,  ...,  0.3647,  1...
+    │     └ <built-in method cat of type object at 0x7e199ece5640>
+    └ <module 'torch' from '/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/__init__.py'>
+
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 104.00 MiB. GPU 0 has a total capacity of 10.90 GiB of which 21.25 MiB is free. Including non-PyTorch memory, this process has 10.88 GiB memory in use. Of the allocated memory 10.44 GiB is allocated by PyTorch, and 113.04 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

@@ -1,0 +1,106 @@
+2026-11-18T11:29:50+01:00 smoke 1 blocking 64 2
+sbatch: GPU count: 1
+sbatch: CPU count: 2
+4391
+2026-11-18T11:30:32+01:00 smoke 2 overlap 64 1
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+4392
+2026-11-18T11:33:51+01:00 smoke 4 blocking 64 1
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+4393
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+2026-11-18T11:34:33+01:00 smoke 4 overlap 64 1
+4394
+CUDA OOM in job 4394
+2026-11-18T11:35:15+01:00 timed 1 blocking 64 1
+sbatch: GPU count: 1
+sbatch: CPU count: 2
+4395
+2026-11-18T11:48:13+01:00 timed 2 blocking 64 1
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+4396
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+2026-11-18T12:02:15+01:00 timed 2 overlap 64 1
+4400
+CUDA OOM in job 4400
+2026-11-18T12:02:57+01:00 timed 4 blocking 64 1
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+4401
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+2026-11-18T12:18:36+01:00 timed 4 overlap 64 1
+4402
+CUDA OOM in job 4402
+2026-11-18T12:19:50+01:00 timed 1 blocking 64 2
+sbatch: GPU count: 1
+sbatch: CPU count: 2
+4403
+2026-11-18T12:32:48+01:00 timed 2 blocking 64 2
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+4404
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+2026-11-18T12:47:22+01:00 timed 2 overlap 64 2
+4409
+CUDA OOM in job 4409
+2026-11-18T12:48:04+01:00 timed 4 blocking 64 2
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+4410
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+2026-11-18T13:03:10+01:00 timed 4 overlap 64 2
+4412
+CUDA OOM in job 4412
+2026-11-18T13:03:52+01:00 timed 1 blocking 64 3
+sbatch: GPU count: 1
+sbatch: CPU count: 2
+4413
+2026-11-18T13:17:22+01:00 timed 2 blocking 64 3
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+4416
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+2026-11-18T13:31:57+01:00 timed 2 overlap 64 3
+4418
+CUDA OOM in job 4418
+2026-11-18T13:32:39+01:00 timed 4 blocking 64 3
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+4419
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+2026-11-18T13:48:17+01:00 timed 4 overlap 64 3
+4423
+CUDA OOM in job 4423
+sbatch: GPU count: 1
+sbatch: CPU count: 2
+2026-11-18T13:48:59+01:00 capacity 1 blocking 128 1
+4424
+sbatch: GPU count: 1
+sbatch: CPU count: 2
+2026-11-18T13:49:41+01:00 capacity 1 blocking 192 1
+4425
+sbatch: GPU count: 1
+sbatch: CPU count: 2
+2026-11-18T13:50:55+01:00 capacity 1 blocking 256 1
+4426
+CUDA OOM in job 4426
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+2026-11-18T13:51:37+01:00 capacity 2 blocking 256 1
+4427
+CUDA OOM in job 4427
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+2026-11-18T13:52:19+01:00 capacity 4 blocking 256 1
+4428
+Matrix complete at 2026-11-18T13:53:33+01:00
