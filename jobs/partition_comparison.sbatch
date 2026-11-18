@@ -50,6 +50,11 @@ done
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
+# The venv may have neural_lam installed (editable) from another checkout;
+# this checkout's code must win
+export PYTHONPATH="${SLURM_SUBMIT_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
+"${PYTHON}" -c "import neural_lam, neural_lam.distributed_message_passing; \
+print('neural_lam from', neural_lam.__file__)" || exit 2
 
 nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --format=csv,noheader
