@@ -1,0 +1,425 @@
+{
+  "backend": "nccl",
+  "benchmark": "real_data_model_parallel_graph_efm",
+  "finished_at_utc": "2026-11-17T23:37:09.726253+00:00",
+  "git": {
+    "commit": "56b6c096a3678b94ee6843956d8ac24797cf49f8",
+    "tracked_dirty": false,
+    "untracked_file_count": 43
+  },
+  "interpretation": {
+    "comparable_across_world_sizes": true,
+    "compare_speed_with_same_gpu_model_only": true,
+    "global_batch_size_is_constant": true,
+    "limitations": [
+      "one autoregressive training step",
+      "embedding parameters are replicated; rank-local mode computes embeddings only for owned nodes and edges",
+      "phase timing uses CUDA events; headline observed throughput uses wall time",
+      "progress output adds diagnostic synchronization when progress_interval is nonzero"
+    ]
+  },
+  "model": {
+    "core_parameters_per_rank": 585628,
+    "frontend_parameters": 59392,
+    "gradient_sync_rule": "sum model-parallel contributions",
+    "trainable_parameters_per_rank": 645020
+  },
+  "partition_strategy": "geographic",
+  "preflight": {
+    "batch_fingerprint": {
+      "dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.float32",
+        "torch.float32",
+        "torch.float32",
+        "torch.int64"
+      ],
+      "shapes": [
+        [
+          2,
+          2,
+          42348,
+          28
+        ],
+        [
+          2,
+          1,
+          42348,
+          28
+        ],
+        [
+          2,
+          1,
+          42348,
+          6
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          42348,
+          24
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "sums": [
+        26401.539197755337,
+        11858.000987684773,
+        -48521.73994517326,
+        0.0,
+        -6476.6788371784205,
+        3.3454944e+18
+      ]
+    },
+    "loss": 40980620.0
+  },
+  "rank_metadata": [
+    {
+      "hardware": {
+        "cuda_runtime": "12.6",
+        "gpu": {
+          "compute_capability": "6.1",
+          "index": 0,
+          "name": "NVIDIA GeForce GTX 1080 Ti",
+          "total_memory_bytes": 11707809792
+        },
+        "hostname": "studgpu-node02.inf.ethz.ch",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3",
+        "rank": 0,
+        "torch": "2.14.1+cu126"
+      },
+      "initialization_timings": {
+        "data_staging_ms": 8337.0,
+        "optimizer_and_stream_ms": 15292.339026000263,
+        "preflight_batch_ms": 1367.0713920000708,
+        "preflight_forward_ms": 643.2090870002867,
+        "rank_local_dataset_load_ms": 450.52337200104375,
+        "sharded_model_build_ms": 284.30294300051173,
+        "total_before_training_ms": 19569.422754000698,
+        "workload_load_ms": 1455.1109479998559
+      },
+      "measurement_window_ms": 917.5187649998406,
+      "partition": {
+        "owned_full_grid_nodes": 42348,
+        "owned_interior_grid_nodes": 42348,
+        "owned_mesh_nodes_by_level": [
+          8456,
+          2097
+        ],
+        "rank": 0,
+        "relations": {
+          "g2m": [
+            {
+              "halo_nodes": 0,
+              "owned_edges": 70640
+            }
+          ],
+          "m2g": [
+            {
+              "halo_nodes": 0,
+              "owned_edges": 126107
+            }
+          ],
+          "m2m": [
+            {
+              "halo_nodes": 0,
+              "owned_edges": 48546
+            },
+            {
+              "halo_nodes": 0,
+              "owned_edges": 11640
+            }
+          ],
+          "mesh_down": [
+            {
+              "halo_nodes": 0,
+              "owned_edges": 8456
+            }
+          ],
+          "mesh_up": [
+            {
+              "halo_nodes": 0,
+              "owned_edges": 8456
+            }
+          ]
+        }
+      },
+      "rank": 0,
+      "records": [
+        {
+          "backward_ms": 364.1313171386719,
+          "batch_broadcast_ms": 0.0,
+          "compute_ms": 586.3594360351562,
+          "data_distribution_ms": 327.96533500004443,
+          "data_read_ms": 320.0973339990014,
+          "end_to_end_ms": 914.8191558008257,
+          "forward_ms": 135.94178771972656,
+          "gradient_all_reduce_calls": 0,
+          "gradient_sync_bytes": 0,
+          "gradient_sync_ms": 0.0030720001086592674,
+          "host_to_device_ms": 7.839828000214766,
+          "kl": 54205.95703125,
+          "loss": 38829260.0,
+          "measurement_step": 0,
+          "memory_allocated_bytes": 138038272,
+          "memory_reserved_bytes": 3892314112,
+          "metric_reduce_ms": 0.49433600902557373,
+          "negative_likelihood": 38775056.0,
+          "optimizer_ms": 86.28326416015625,
+          "peak_memory_allocated_bytes": 3576931840,
+          "peak_memory_reserved_bytes": 3892314112,
+          "step_ms": 586.8538208007812
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "backward_ms": 364.1313171386719,
+      "batch_broadcast_ms": 0.0,
+      "compute_ms": 586.3594360351562,
+      "data_distribution_ms": 327.96533500004443,
+      "data_read_ms": 320.0973339990014,
+      "end_to_end_ms": 914.8191558008257,
+      "forward_ms": 135.94178771972656,
+      "gradient_all_reduce_calls": 0,
+      "gradient_sync_bytes": 0,
+      "gradient_sync_ms": 0.0030720001086592674,
+      "host_to_device_ms": 7.839828000214766,
+      "kl": 54205.95703125,
+      "loss": 38829260.0,
+      "measurement_step": 0,
+      "memory_allocated_bytes": 138038272,
+      "memory_reserved_bytes": 3892314112,
+      "metric_reduce_ms": 0.49433600902557373,
+      "negative_likelihood": 38775056.0,
+      "optimizer_ms": 86.28326416015625,
+      "peak_memory_allocated_bytes": 3576931840,
+      "peak_memory_reserved_bytes": 3892314112,
+      "step_ms": 586.8538208007812
+    }
+  ],
+  "scaling_mode": "strong",
+  "schema_version": 2,
+  "slurm_job_id": "4335",
+  "started_at_utc": "2026-11-17T23:36:49.235390+00:00",
+  "status": "completed",
+  "summary": {
+    "backward_ms": {
+      "count": 1,
+      "max": 364.1313171386719,
+      "mean": 364.1313171386719,
+      "median": 364.1313171386719,
+      "min": 364.1313171386719,
+      "p95": 364.1313171386719,
+      "std": 0.0
+    },
+    "batch_broadcast_ms": {
+      "count": 1,
+      "max": 0.0,
+      "mean": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "p95": 0.0,
+      "std": 0.0
+    },
+    "compute_ms": {
+      "count": 1,
+      "max": 586.3594360351562,
+      "mean": 586.3594360351562,
+      "median": 586.3594360351562,
+      "min": 586.3594360351562,
+      "p95": 586.3594360351562,
+      "std": 0.0
+    },
+    "compute_samples_per_second": 3.410877146488159,
+    "data_distribution_ms": {
+      "count": 1,
+      "max": 327.96533500004443,
+      "mean": 327.96533500004443,
+      "median": 327.96533500004443,
+      "min": 327.96533500004443,
+      "p95": 327.96533500004443,
+      "std": 0.0
+    },
+    "data_read_ms": {
+      "count": 1,
+      "max": 320.0973339990014,
+      "mean": 320.0973339990014,
+      "median": 320.0973339990014,
+      "min": 320.0973339990014,
+      "p95": 320.0973339990014,
+      "std": 0.0
+    },
+    "end_to_end_ms": {
+      "count": 1,
+      "max": 914.8191558008257,
+      "mean": 914.8191558008257,
+      "median": 914.8191558008257,
+      "min": 914.8191558008257,
+      "p95": 914.8191558008257,
+      "std": 0.0
+    },
+    "end_to_end_samples_per_second": 2.1862244437253997,
+    "forward_ms": {
+      "count": 1,
+      "max": 135.94178771972656,
+      "mean": 135.94178771972656,
+      "median": 135.94178771972656,
+      "min": 135.94178771972656,
+      "p95": 135.94178771972656,
+      "std": 0.0
+    },
+    "global_batch_size": 2,
+    "gradient_sync_ms": {
+      "count": 1,
+      "max": 0.0030720001086592674,
+      "mean": 0.0030720001086592674,
+      "median": 0.0030720001086592674,
+      "min": 0.0030720001086592674,
+      "p95": 0.0030720001086592674,
+      "std": 0.0
+    },
+    "host_to_device_ms": {
+      "count": 1,
+      "max": 7.839828000214766,
+      "mean": 7.839828000214766,
+      "median": 7.839828000214766,
+      "min": 7.839828000214766,
+      "p95": 7.839828000214766,
+      "std": 0.0
+    },
+    "loss": {
+      "count": 1,
+      "max": 38829260.0,
+      "mean": 38829260.0,
+      "median": 38829260.0,
+      "min": 38829260.0,
+      "p95": 38829260.0,
+      "std": 0.0
+    },
+    "metric_reduce_ms": {
+      "count": 1,
+      "max": 0.49433600902557373,
+      "mean": 0.49433600902557373,
+      "median": 0.49433600902557373,
+      "min": 0.49433600902557373,
+      "p95": 0.49433600902557373,
+      "std": 0.0
+    },
+    "observed_samples_per_second": 2.1797919304684163,
+    "observed_window_ms": 917.5187649998406,
+    "optimizer_ms": {
+      "count": 1,
+      "max": 86.28326416015625,
+      "mean": 86.28326416015625,
+      "median": 86.28326416015625,
+      "min": 86.28326416015625,
+      "p95": 86.28326416015625,
+      "std": 0.0
+    },
+    "peak_memory_allocated_bytes_per_gpu": 3576931840,
+    "peak_memory_reserved_bytes_per_gpu": 3892314112,
+    "step_ms": {
+      "count": 1,
+      "max": 586.8538208007812,
+      "mean": 586.8538208007812,
+      "median": 586.8538208007812,
+      "min": 586.8538208007812,
+      "p95": 586.8538208007812,
+      "std": 0.0
+    }
+  },
+  "workload": {
+    "ar_steps": 1,
+    "batch_size_global": 2,
+    "config_path": "/scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16/global_ocean_1.yaml",
+    "data_kind": "physical Njord Zarr samples",
+    "data_mode": "rank-local",
+    "dataset": {
+      "forcing_variables": [
+        "day_of_year_sin",
+        "day_of_year_cos"
+      ],
+      "root": "/scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16",
+      "source_benchmark_attributes": {
+        "benchmark_data_kind": "physical_repeat_io_proxy",
+        "benchmark_effective_time_steps": 496,
+        "benchmark_original_time_steps": 31,
+        "benchmark_repeat_count": 16,
+        "benchmark_source_store": "global_ocean_1_mdp_config.zarr"
+      },
+      "state_variables": [
+        "zos",
+        "siconc",
+        "sithick",
+        "thetao_0m",
+        "thetao_47m",
+        "thetao_92m",
+        "thetao_222m",
+        "thetao_318m",
+        "thetao_541m",
+        "so_0m",
+        "so_47m",
+        "so_92m",
+        "so_222m",
+        "so_318m",
+        "so_541m",
+        "uo_0m",
+        "uo_47m",
+        "uo_92m",
+        "uo_222m",
+        "uo_318m",
+        "uo_541m",
+        "vo_0m",
+        "vo_47m",
+        "vo_92m",
+        "vo_222m",
+        "vo_318m",
+        "vo_541m"
+      ],
+      "train_samples": 476,
+      "train_time_end": "2024-04-23T00:00:00.000000000",
+      "train_time_start": "2023-01-01T00:00:00.000000000",
+      "train_time_steps": 479
+    },
+    "dataset_root": "/scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16",
+    "dataset_samples": 476,
+    "global_surface_grid_nodes": 42348,
+    "graph": "global_cluster_graph",
+    "hidden_dim": 64,
+    "learning_rate": 0.001,
+    "measurement_steps": 1,
+    "model_parallel_same_batch_on_all_ranks": true,
+    "num_workers": 1,
+    "partitioned_components": [
+      "prior",
+      "posterior",
+      "grid_to_mesh",
+      "mesh_up",
+      "mesh_intra_level",
+      "mesh_down",
+      "mesh_to_grid"
+    ],
+    "precision": "float32",
+    "processor_layers": 2,
+    "progress_interval": 0,
+    "rank_data_root": "/tmp/njord-partitioned/geographic_rcb_ws1/rank_0",
+    "rank_local_frontend_compute": true,
+    "rank_zero_loads_and_broadcasts_batch": false,
+    "replicated_frontend_parameters": true,
+    "seed": 42,
+    "warmup_steps": 0
+  },
+  "world_size": 1
+}
