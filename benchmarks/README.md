@@ -1,7 +1,6 @@
 # NJORD benchmark workflow
 
-The benchmark code is intentionally separate from the model implementation.
-Only two official GTX-1080-Ti jobs are kept:
+The single-GPU baseline workflow uses two GTX 1080 Ti jobs:
 
 1. `decision_suite_1080ti.sbatch` compares gradient checkpointing and probes
    hidden-dimension capacity.
@@ -12,6 +11,9 @@ Both jobs use the same GraphEFM workload: hidden dimension 64, two processor
 layers, batch size 2, four autoregressive steps, and FP32. The decision suite
 also probes hidden dimensions 128, 192, and 256. FP32 is used because the GTX
 1080 Ti has no native BF16 support.
+
+The [graph-parallel workflow](graph_parallel.md#scaling-measurements) reuses
+the same workload for matched one-, two-, and four-GPU runs.
 
 ## Physical I/O dataset
 

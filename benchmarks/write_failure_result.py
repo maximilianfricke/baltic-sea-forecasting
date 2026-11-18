@@ -27,10 +27,11 @@ def main():
     parser.add_argument("--hidden-dim", required=True, type=int)
     parser.add_argument("--checkpointing", required=True, choices=("on", "off"))
     parser.add_argument("--exit-code", required=True, type=int)
+    parser.add_argument("--world-size", default=1, type=int)
     parser.add_argument(
         "--scaling-mode",
         default="capacity",
-        choices=("single", "strong", "weak", "capacity", "io"),
+        choices=("single", "strong", "weak", "capacity", "io", "graph"),
     )
     args = parser.parse_args()
 
@@ -52,7 +53,7 @@ def main():
             "gpu": {"name": os.environ.get("NJORD_GPU_NAME")},
         },
         "distributed": {
-            "world_size": 1,
+            "world_size": args.world_size,
             "scaling_mode": args.scaling_mode,
         },
         "model": {

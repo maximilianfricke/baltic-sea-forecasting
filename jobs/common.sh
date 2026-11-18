@@ -46,11 +46,18 @@ PY
 }
 
 njord_run_graph_efm_benchmark() {
+    local -a launcher=()
+    if [[ "$1" == "--torchrun" ]]; then
+        launcher=(python -m torch.distributed.run --standalone --nproc-per-node="$2")
+        shift 2
+    else
+        launcher=(python)
+    fi
     local data_root="$1"
     local hidden_dim="$2"
     local num_workers="$3"
     shift 3
-    python -m neural_lam.train_model \
+    "${launcher[@]}" -m neural_lam.train_model \
         --config_path "${data_root}/global_ocean_1.yaml" \
         --model graph_efm \
         --graph global_cluster_graph \

@@ -1,7 +1,7 @@
 """Distributed numerical checks using real mesh modules and CPU/Gloo.
 
-Run with ``python -m pytest tests/test_graph_parallel.py -q``. No dataset or
-GPU is needed; the same worker can additionally run on CUDA/NCCL.
+Run with ``python -m pytest --noconftest tests/test_graph_parallel.py -q``.
+The same worker runs the CPU/Gloo and CUDA/NCCL cases.
 """
 
 # Standard library
@@ -17,6 +17,7 @@ import pytorch_lightning as pl
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
+from lightning_fabric.plugins.environments import LightningEnvironment
 
 # First-party
 from neural_lam import metrics, utils
@@ -356,6 +357,9 @@ def _distributed_worker(rank, size, rendezvous, checkpoint_dir, backend="gloo"):
         timeout=timedelta(seconds=90),
     )
     try:
+        if backend == "nccl":
+            # Some layer cases exchange halos on only a subset of ranks.
+            dist.all_reduce(torch.zeros(1, device=device))
         for net_type, mean, empty in (
             (InteractionNet, False, False),
             (InteractionNet, True, False),
@@ -415,7 +419,11 @@ def _check_strategy(rank, size, checkpoint_dir, backend):
             torch.manual_seed(94)
             model = TinyEFM(layers=1).to(dtype=dtype)
         trainer = pl.Trainer(
-            strategy=GraphParallelStrategy(size, process_group_backend=backend),
+            strategy=GraphParallelStrategy(
+                size,
+                process_group_backend=backend,
+                cluster_environment=LightningEnvironment(),
+            ),
             accelerator="cpu" if backend == "gloo" else "gpu",
             devices=size,
             max_steps=max_steps,
@@ -434,6 +442,9 @@ def _check_strategy(rank, size, checkpoint_dir, backend):
             trainer.strategy.model, torch.nn.parallel.DistributedDataParallel
         )
         packed = torch.cat([p.detach().reshape(-1) for p in model.parameters()])
+        if backend == "nccl":
+            # Lightning moves the model back to CPU when fit ends.
+            packed = packed.to(f"cuda:{rank}")
         peer = packed.clone()
         dist.broadcast(peer, src=0)
         torch.testing.assert_close(packed, peer, rtol=0, atol=0)
@@ -452,15 +463,14 @@ def test_distributed_equivalence(tmp_path, size):
     )
 
 
-@pytest.mark.skipif(
-    torch.cuda.device_count() < 2 or not dist.is_nccl_available(),
-    reason="Two CUDA GPUs and NCCL required",
-)
-def test_cuda_distributed_equivalence(tmp_path):
+@pytest.mark.parametrize("size", [2, 4])
+def test_cuda_distributed_equivalence(tmp_path, size):
+    if torch.cuda.device_count() < size or not dist.is_nccl_available():
+        pytest.skip(f"{size} CUDA GPUs and NCCL required")
     mp.spawn(
         _distributed_worker,
-        args=(2, (tmp_path / "rendezvous").as_uri(), str(tmp_path), "nccl"),
-        nprocs=2,
+        args=(size, (tmp_path / "rendezvous").as_uri(), str(tmp_path), "nccl"),
+        nprocs=size,
         join=True,
     )
 

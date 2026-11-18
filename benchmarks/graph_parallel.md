@@ -43,8 +43,8 @@ GraphEFM likelihood/KL/CRPS, AdamW updates, empty partitions, zero processor
 layers, constant priors, checkpointed autoregression, both communication modes,
 and Lightning clipping/checkpoint resume. `--noconftest` bypasses the existing
 shared test fixture, which imports a datastore module absent from this checkout.
-The same suite includes an FP32 CUDA/NCCL test, automatically skipped unless
-two GPUs and NCCL are available, using `rtol=1e-4`, `atol=1e-5`.
+The same suite includes two- and four-GPU FP32 CUDA/NCCL cases using
+`rtol=1e-4`, `atol=1e-5`. Each case skips if its GPUs or NCCL are unavailable.
 
 ## Partition handoff
 
@@ -92,6 +92,26 @@ precision, checkpointing, and warmup/measurement counts. Follow
 `benchmarks/README.md` for the existing baseline workload and aggregate/phase
 timing distinction. The existing `--benchmark_output`, `--benchmark_steps`,
 and `--benchmark_timing_mode` options also apply to graph-parallel runs.
+
+On the cluster, export `NJORD_VENV` with the absolute path to the CUDA 12.6
+environment and prepare the physical-repeat dataset described in
+`benchmarks/README.md`. From the repository root, submit the validation jobs
+first and wait for each to complete:
+
+```bash
+bash jobs/submit_graph_parallel.sh validate 2
+bash jobs/submit_graph_parallel.sh validate 4
+```
+
+Run `smoke` jobs at each GPU count before collecting `timed` results. For
+example, `bash jobs/submit_graph_parallel.sh timed 4 overlap 64 1` submits
+the first timed repetition at hidden dimension 64 with four GPUs and overlap.
+Use `blocking` for the baseline and blocking runs. Use `capacity` for the
+short higher-dimension runs. The launcher uses zero DataLoader workers per rank
+and uses `torchrun` to start one worker per GPU inside a single Slurm task.
+It saves results, launch logs, and GPU topology in
+`benchmark_results/graph-parallel/`. The optional `GRAPH_PARALLEL_DATA_ROOT`
+overrides the default physical-repeat path on personal scratch.
 
 Benchmark JSON includes the slowest-rank training time, correct logical batch
 throughput, maximum GPU memory, and per-rank partition metadata: owned nodes,
