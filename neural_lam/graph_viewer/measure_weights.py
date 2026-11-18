@@ -1,11 +1,13 @@
-"""Measure the cost model (n(l), m(s) and u(s)) used by ``costs.py``.
+"""Measure the cost model (n(l), m(s), u(s) and x(s)) used by ``costs.py``.
 
-Runs one forecast step (the gradient-checkpointed segment) of the model
-configured by the given train_model arguments, on CPU with batch size 1, and
-records every tensor saved for backward. Each saved tensor is attributed to
-the node layer or edge set whose size matches one of its dimensions, giving
-the values stored per node and per edge in units of hidden_dim. The uses
-u(s) are counted with forward hooks on the message-passing layers.
+Runs one forecast step (one ``compute_step_loss``) of the model configured by
+the given train_model arguments, on CPU with batch size 1, and records every
+tensor saved for backward. Each saved tensor is attributed to the node layer
+or edge set whose size matches one of its dimensions, giving the values
+stored per node and per edge in units of hidden_dim. The uses u(s) are
+counted with forward hooks on the message-passing layers, and the halo
+exchanges x(s) as the distinct sender tensors those layers read: two
+applications reading the same sender states can share one exchange.
 
 Items of equal size (e.g. up edges, down edges and bottom mesh nodes when
 every bottom mesh node has exactly one up edge) cannot be told apart by
@@ -117,13 +119,24 @@ def _edge_set_matcher(graph):
 def measure(model, step_args, graph, hidden_dim):
     match = _edge_set_matcher(graph)
     uses = defaultdict(int)
+    # Sender tensors read by each edge set. An application whose sender
+    # states were already read by an earlier application of the same edge set
+    # (same tensor, not modified in place) can reuse that halo exchange.
+    # Holding the references keeps their memory from being reused.
+    senders = defaultdict(list)
     for module in model.modules():
         edge_index = getattr(module, "edge_index", None)
         if isinstance(edge_index, torch.Tensor) and edge_index.dim() == 2:
             name = match(edge_index)
 
-            def count(_module, _inputs, name=name):
+            def count(_module, inputs, name=name):
                 uses[name] += 1
+                send_rep = inputs[0]
+                if not any(
+                    t is send_rep and version == send_rep._version
+                    for t, version in senders[name]
+                ):
+                    senders[name].append((send_rep, send_rep._version))
 
             module.register_forward_pre_hook(count)
 
@@ -194,7 +207,8 @@ def measure(model, step_args, graph, hidden_dim):
         for es in graph.edge_sets
     }
     uses = {es.name: uses[es.name] for es in graph.edge_sets}
-    return node, edge, uses, notes, int(round(total))
+    exchanges = {es.name: len(senders[es.name]) for es in graph.edge_sets}
+    return node, edge, uses, exchanges, notes, int(round(total))
 
 
 def _git_commit():
@@ -233,7 +247,7 @@ def main(input_args=None):
         train_arg("--config_path"), train_arg("--graph", "multiscale")
     )
     model, step_args = _build_model_and_batch(train_args)
-    node, edge, uses, notes, total = measure(
+    node, edge, uses, exchanges, notes, total = measure(
         model, step_args, graph, hidden_dim
     )
 
@@ -242,6 +256,7 @@ def main(input_args=None):
         node,
         edge,
         uses,
+        exchanges=exchanges,
         source={
             "train_model_args": " ".join(train_args),
             "graph": graph.name,
@@ -258,7 +273,10 @@ def main(input_args=None):
     for name, value in node.items():
         print(f"  n({name}) = {value:.1f}")
     for name in edge:
-        print(f"  m({name}) = {edge[name]:.1f}   u = {uses[name]}")
+        print(
+            f"  m({name}) = {edge[name]:.1f}   u = {uses[name]}   "
+            f"x = {exchanges[name]}"
+        )
 
 
 if __name__ == "__main__":

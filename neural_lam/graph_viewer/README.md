@@ -25,7 +25,7 @@ python -m neural_lam.graph_viewer --config_path sample_data/global_ocean_1.yaml 
 ```
 
 Useful options: `--graph_name` (default `global_cluster_graph`), `--strategy`
-(`none`, `lon_bands`, `rcb`), `--k`, `--cost_model` (a JSON file or
+(`none`, `lon_bands`, `rcb`, `per_layer_geo_rcb`), `--k`, `--cost_model` (a JSON file or
 `uniform`), `--show`/`--hide` (structures to toggle at start, e.g.
 `"g2m edges"`), `--screenshot out.png` (render one frame and exit).
 
@@ -59,9 +59,13 @@ The radii are only for display: all layers really lie on the same sphere.
 - **Visibility**: one checkbox per layer and edge set, node size, edge width.
 - **Color by**: layer, partition (cut edges in white) or information flow.
 - **Partitioning**: strategy and number of partitions, then
-  - **Communication** (the comparison): the GPU that receives the most data
-    and how much, a breakdown of where its traffic comes from, and a table
-    for all GPUs.
+  - **Communication**: the GPU that receives the most data and how much, the
+    synchronised total (every exchange waits for its busiest receiver), a
+    breakdown of where the busiest GPU's traffic comes from, and a table for
+    all GPUs.
+  - **Compute balance**: how much longer a step takes because every
+    operation waits for its slowest GPU, the balance of each operation, and
+    nodes per GPU for each layer.
   - **Memory** (a check): whether memory is balanced, the memory model the
     balancing is based on, and memory per GPU.
 - **Information flow**: click a node to see which nodes it reaches (or is
@@ -79,25 +83,72 @@ for GPU p and edge set s:
   (in the baseline: m2m 0 6x, m2m 1 4x, g2m 3x, up 3x, m2g 1x, down 1x,
   because the posterior encoder, prior and decoder each run part of the
   graph).
+- **x(s), exchanges**: how many fresh halo copies s needs per step. Equal to
+  u(s) except where applications read the same sender states: the prior and
+  the decoder both send the same grid embedding through g2m, so g2m needs 2
+  exchanges for its 3 uses.
+
+In words:
+
+    memory          = own nodes + own edges + copies of neighbours
+    communication   = for each edge set: neighbours to copy in x exchanges
+    synced comm.    = for each edge set: busiest receiver's copies x exchanges
+    work            = messages computed + 3/4 x nodes updated
+    slowdown        = time if every operation waits for its slowest GPU
+                      / time if every GPU had the average
 
 **Communication** is the number of node states GPU p receives per forecast
 step:
 
-    C(p) = sum_s u(s) * H(p, s)
+    C(p) = sum_s x(s) * H(p, s)
+
+Every exchange is also a waiting point: if different exchanges peak on
+different GPUs, the step waits for each of them in turn. The synchronised
+communication adds up the worst GPU per exchange:
+
+    C_sync = sum_s x(s) * max_p H(p, s)        (>= max_p C(p))
 
 Multiply by hidden_dim x bytes per value for bytes. A full training step
 also multiplies by 3 (forward, recompute under gradient checkpointing,
 backward) and by the number of unrolled steps, but those factors are the
 same for every strategy and are left out.
 
-**Memory** is what GPU p stores during one gradient-checkpointed forecast
-step, the part of peak memory that partitioning controls:
+**Compute balance.** Layers run one after another and GPUs synchronise at
+every application of an edge set, so each application takes as long as its
+slowest GPU. The work of one application on GPU p is
 
-    M(p) = sum_l n(l) * N(p, l) + sum_s m(s) * E(p, s) + sum_s u(s) * H(p, s)
+    W(p, s) = E(p, s) + 0.75 * N(p, receiver layer of s)
+
+one edge MLP per received edge and one node-update MLP per receiver node,
+which costs 3/4 of an edge MLP (6 d^2 against 8 d^2 FLOPs when all hidden
+widths are equal; every edge MLP has the same shape). The slowdown
+
+    S = sum_s u(s) * max_p W(p, s) / sum_s u(s) * mean_p W(p, s)
+
+is the step's compute time relative to a perfectly balanced split. Balancing
+total memory does not balance each operation: RCB with 4 GPUs gives one GPU
+10% more grid nodes than average and fewer mesh nodes, so its memory is
+average but it holds up every grid operation (S = 1.08).
+
+Limits: S counts FLOPs. At hidden_dim 64 small kernels are bound by memory
+bandwidth and launch overhead, so treat S as a ranking, not a measured time. Grid embedding and output layers (about 10% of FLOPs) run
+locally without exchanges and are left out. Backward and recompute have the
+same per-operation distribution and cancel.
+
+**Memory** is what GPU p stores during one forecast step, the part of peak
+memory that partitioning controls:
+
+    M(p) = sum_l n(l) * N(p, l) + sum_s m(s) * E(p, s) + sum_s x(s) * H(p, s)
 
 with N and E the nodes and edges GPU p holds, and n(l), m(s) the values
 stored per node and per edge (in units of hidden_dim). The last term is the
-copies of halo nodes; it is tiny (about 0.03% per GPU).
+copies of halo nodes; it is tiny (about 0.03% per GPU). Stored values pile
+up over the forward pass and are freed only in backward, so peak memory is
+this sum, not the largest phase. With gradient checkpointing (on with
+`--grad_checkpointing`; the `max` benchmark branch turns it on for
+`ar_steps_train > 1`) one forecast step is held at a time; without it every
+unrolled step adds the same again, which changes the size but not the
+balance.
 
 Only terms that differ between partitionings are kept. Fixed memory (weights,
 gradients, optimizer state, checkpoint inputs) and constant factors are
@@ -105,15 +156,19 @@ dropped, so these numbers compare strategies; they are not absolute GB.
 
 ### Cost model file
 
-`weights/realistic_baseline.json` holds n, m and u for the realistic
+`weights/realistic_baseline.json` holds n, m, u and x for the realistic
 Graph-EFM baseline of the benchmarking work (`jobs/submit_realistic_baseline.sh`
 on the `max` branch: hidden_dim 64, 2 processor layers, kl_beta 1,
-`global_cluster_graph`). It was measured on the benchmarking branch (commit
-in `source`); measuring again on `main` gives identical values.
+`global_cluster_graph`). It was measured on `main` (commit in `source`); the
+memory values are identical to the first measurement on the benchmarking
+branch.
 
 - `memory`: values stored per node and per edge, measured by running one
   forecast step and recording every tensor saved for backward.
-- `usage`: uses per step, counted with hooks on the message-passing layers.
+- `usage`: uses per step (`edge`), counted with hooks on the message-passing
+  layers, and exchanges per step (`exchanges`), counted as the distinct
+  sender tensors those layers read. Older files without `exchanges` load
+  with x = u.
 - `source`: the exact arguments, graph, git commit and date of the
   measurement; `notes`: approximations made.
 
@@ -142,9 +197,25 @@ Partition borders are placed so that every GPU gets the same memory:
 4. The same borders are applied to every layer, so nodes stacked on
    different shells land on the same GPU.
 
-Because the borders target this weight directly, every strategy here reaches
-a memory imbalance of about 1.00. That is why communication is the headline
-and memory is only a check.
+Because the borders target this weight directly, `lon_bands` and `rcb` reach
+a memory imbalance of about 1.00. That is why communication and compute
+balance are the comparison and memory is only a check.
+
+### The `message-passing` branch baseline: `per_layer_geo_rcb`
+
+`per_layer_geo_rcb` reproduces the partition used by the model-parallel
+GraphEFM on the `message-passing` branch (`geographic_rcb_owners` in
+`neural_lam/geographic_partitioning.py` there). Unlike the strategies above,
+it splits every layer on its own, balanced by node count: south/north halves
+for 2 GPUs, each half split again along longitude (from a seam at 120 degrees
+east) for 4. Only k = 2 and 4 are supported, as in the original.
+
+It is checked against the original: on the 1-degree `global_cluster_graph`
+the port gives the same owner for every node of every layer, and the viewer's
+halo nodes and owned edges per GPU and edge set equal the ones that branch
+recorded in its benchmark runs (jobs 4311 and 4312), at k = 2 and 4. This
+also validates the halo counting of the cost model against a working
+implementation.
 
 ## Adding your own partitioning strategy
 
@@ -168,7 +239,13 @@ STRATEGIES[MyStrategy.name] = MyStrategy
 ```
 
 It then appears in the Strategy dropdown and in `--strategy`. The existing
-`LongitudeBands` and `RecursiveCoordinateBisection` are short examples.
+`LongitudeBands` and `RecursiveCoordinateBisection` are short examples. A
+strategy that splits each layer on its own subclasses `PerLayerPartitioner`
+and implements `partition_layer(lon_lat)` instead (see
+`PerLayerGeographicRCB`).
+
+The Partitions slider goes up to 4, the number of GPUs the project can use;
+`--k` accepts more.
 
 Strategies that are not purely geometric (e.g. METIS on the graph
 structure, or assignments computed elsewhere) do not fit this interface yet:

@@ -1,4 +1,4 @@
-"""Relative memory and communication cost of a partitioned graph.
+"""Relative memory, compute and communication cost of a partitioned graph.
 
 Only terms that differ between partitionings of the same graph over the same
 number of partitions are kept. Fixed memory (weights, optimizer state,
@@ -7,16 +7,31 @@ and forward/backward factors are dropped.
 
 Every edge is owned by the partition of its receiver node. For partition p:
 
-    M(p) = sum_l n(l) N(p, l) + sum_s m(s) E(p, s) + sum_s u(s) H(p, s)
-    C(p) = sum_s u(s) H(p, s)
+    M(p) = sum_l n(l) N(p, l) + sum_s m(s) E(p, s) + sum_s x(s) H(p, s)
+    C(p) = sum_s x(s) H(p, s)
 
 with N(p, l) nodes of layer l, E(p, s) edges of edge set s and H(p, s) halo
 nodes: distinct senders outside p with an edge of s into p. n(l) and m(s) are
-the values stored per node and per edge during one forecast step (the
-gradient-checkpointed segment), in units of hidden_dim, and u(s) the number of
-times edge set s is applied per step. Together they form a cost model, which
-``measure_weights.py`` measures for one model configuration and saves as one
-JSON file with a "memory" section (n, m) and a "usage" section (u).
+the values stored per node and per edge during one forecast step, in units of
+hidden_dim. u(s) is the number of times edge set s is applied per step and
+x(s) <= u(s) the number of halo exchanges it needs: applications that read
+the same sender states share one exchange.
+
+GPUs wait for each other at every application, so two step-level numbers
+take the slowest GPU per operation instead of per step:
+
+    W(p, s) = E(p, s) + NODE_UPDATE_COST * N(p, receiver layer of s)
+    S       = sum_s u(s) max_p W(p, s) / sum_s u(s) mean_p W(p, s)
+    C_sync  = sum_s x(s) max_p H(p, s)
+
+W is the compute of one application (one edge MLP per edge, one node-update
+MLP per receiver node), S the resulting slowdown against a perfectly balanced
+split and C_sync the halo states received when every exchange waits for its
+busiest receiver (>= max_p C(p)).
+
+n, m, u and x form a cost model, which ``measure_weights.py`` measures for
+one model configuration and saves as one JSON file with a "memory" section
+(n, m) and a "usage" section (u, x).
 """
 
 # Standard library
@@ -30,10 +45,13 @@ import numpy as np
 # Local
 from .graph import ViewerGraph
 
-MEMORY_UNIT = (
-    "values stored per item / hidden_dim, one checkpointed forecast step"
-)
+MEMORY_UNIT = "values stored per item / hidden_dim, one forecast step"
 USAGE_UNIT = "applications per forecast step"
+EXCHANGES_UNIT = "halo exchanges per forecast step"
+# FLOPs of a node-update MLP per receiver node relative to an edge MLP per
+# edge, with all hidden widths equal to d: the InteractionNet edge MLP maps
+# 3d -> d -> d (8 d^2 FLOPs), the node-update MLP 2d -> d -> d (6 d^2).
+NODE_UPDATE_COST = 0.75
 
 
 @dataclass
@@ -46,6 +64,11 @@ class CostModel:
     notes: List[str] = field(default_factory=list)
     total_per_step_values: float = 0.0  # measured total, for checking
     measured: bool = True
+    # usage: edge set name -> x(s); edge sets left out default to u(s)
+    exchanges: Dict[str, float] = field(default_factory=dict)
+
+    def __post_init__(self):
+        self.exchanges = {**self.uses, **self.exchanges}
 
     @classmethod
     def uniform(cls, graph: ViewerGraph):
@@ -71,6 +94,7 @@ class CostModel:
             d.get("source", {}),
             memory.get("notes", []),
             memory.get("total_per_step_values", 0.0),
+            exchanges=usage.get("exchanges", {}),
         )
 
     def save(self, path: str):
@@ -84,7 +108,12 @@ class CostModel:
                 "total_per_step_values": self.total_per_step_values,
                 "notes": self.notes,
             },
-            "usage": {"unit": USAGE_UNIT, "edge": self.uses},
+            "usage": {
+                "unit": USAGE_UNIT,
+                "edge": self.uses,
+                "exchanges_unit": EXCHANGES_UNIT,
+                "exchanges": self.exchanges,
+            },
         }
         with open(path, "w", encoding="utf-8") as f:
             json.dump(d, f, indent=2)
@@ -95,7 +124,9 @@ class CostModel:
         ] + [
             es.name
             for es in graph.edge_sets
-            if es.name not in self.edge or es.name not in self.uses
+            if es.name not in self.edge
+            or es.name not in self.uses
+            or es.name not in self.exchanges
         ]
         if missing:
             raise ValueError(
@@ -127,6 +158,11 @@ def halo_counts(edge_index, src_parts, dst_parts, k) -> np.ndarray:
     return np.bincount(pairs[1], minlength=k)
 
 
+def _max_over_mean(values: np.ndarray) -> float:
+    mean = values.mean()
+    return float(values.max() / mean) if mean > 0 else 1.0
+
+
 @dataclass
 class PartitionCosts:
     k: int
@@ -136,6 +172,12 @@ class PartitionCosts:
     halo_terms: Dict[str, np.ndarray] = field(default_factory=dict)
     neighbours: np.ndarray = None  # (k,) partitions sending to p
     single: float = 0.0  # M of the unpartitioned graph
+    # Per-partition counts, each (k,): N(p, l), H(p, s) and W(p, s)
+    nodes: Dict[str, np.ndarray] = field(default_factory=dict)
+    halo: Dict[str, np.ndarray] = field(default_factory=dict)
+    work: Dict[str, np.ndarray] = field(default_factory=dict)
+    uses: Dict[str, float] = field(default_factory=dict)  # u(s)
+    exchanges: Dict[str, float] = field(default_factory=dict)  # x(s)
 
     @property
     def memory(self) -> np.ndarray:
@@ -165,24 +207,59 @@ class PartitionCosts:
         """max_p M(p) / mean_p M(p) (ideal 1)."""
         return self.memory.max() / self.memory.mean()
 
+    def node_imbalance(self, layer: str) -> float:
+        """max_p N(p, l) / mean_p N(p, l)"""
+        return _max_over_mean(self.nodes[layer])
+
+    def work_imbalance(self, edge_set: str) -> float:
+        """max_p W(p, s) / mean_p W(p, s): slowdown of one application."""
+        return _max_over_mean(self.work[edge_set])
+
+    @property
+    def slowdown(self) -> float:
+        """S: step compute time when every application waits for its
+        slowest GPU, relative to a perfectly balanced split (ideal 1)."""
+        slowest = sum(u * self.work[s].max() for s, u in self.uses.items())
+        average = sum(u * self.work[s].mean() for s, u in self.uses.items())
+        return slowest / average if average > 0 else 1.0
+
+    @property
+    def communication_sync(self) -> float:
+        """C_sync: halo states received per step when every exchange waits
+        for its busiest receiver (>= max_p C(p))."""
+        return float(
+            sum(x * self.halo[s].max() for s, x in self.exchanges.items())
+        )
+
+    @property
+    def sync_ratio(self) -> float:
+        """C_sync / max_p C(p) (ideal 1): extra cost of halos peaking on
+        different GPUs for different exchanges."""
+        busiest = self.communication.max()
+        return self.communication_sync / busiest if busiest > 0 else 1.0
+
 
 def partition_costs(
     graph: ViewerGraph, parts: List[np.ndarray], k: int, w: CostModel
 ) -> PartitionCosts:
     costs = PartitionCosts(k)
+    costs.uses = {es.name: w.uses[es.name] for es in graph.edge_sets}
+    costs.exchanges = {es.name: w.exchanges[es.name] for es in graph.edge_sets}
     for layer, p in zip(graph.layers, parts):
-        costs.node_terms[layer.name] = w.node[layer.name] * np.bincount(
-            p, minlength=k
+        costs.nodes[layer.name] = np.bincount(p, minlength=k)
+        costs.node_terms[layer.name] = (
+            w.node[layer.name] * costs.nodes[layer.name]
         )
     sends_to = np.zeros((k, k), dtype=bool)  # [sender part, receiver part]
     for es in graph.edge_sets:
         src_p, dst_p = parts[es.src], parts[es.dst]
-        costs.edge_terms[es.name] = w.edge[es.name] * np.bincount(
-            dst_p[es.edge_index[1]], minlength=k
+        edges = np.bincount(dst_p[es.edge_index[1]], minlength=k)
+        costs.edge_terms[es.name] = w.edge[es.name] * edges
+        costs.work[es.name] = (
+            edges + NODE_UPDATE_COST * costs.nodes[graph.layers[es.dst].name]
         )
-        costs.halo_terms[es.name] = w.uses[es.name] * halo_counts(
-            es.edge_index, src_p, dst_p, k
-        )
+        costs.halo[es.name] = halo_counts(es.edge_index, src_p, dst_p, k)
+        costs.halo_terms[es.name] = w.exchanges[es.name] * costs.halo[es.name]
         sends_to[src_p[es.edge_index[0]], dst_p[es.edge_index[1]]] = True
     np.fill_diagonal(sends_to, False)
     costs.neighbours = sends_to.sum(axis=0)

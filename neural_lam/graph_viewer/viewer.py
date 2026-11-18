@@ -8,8 +8,8 @@ The panel has:
 - a toggle per layer and per edge set,
 - colouring by layer, by partition or by information flow,
 - partition strategy and number of partitions, balanced by estimated memory
-  load, with the relative memory M(p) and communication C(p) of every
-  partition (see ``costs.py``),
+  load, with the communication C(p), per-operation compute balance and
+  relative memory M(p) of every partition (see ``costs.py``),
 - showing only cut edges,
 - information flow from a clicked node over the edge sets currently shown.
 """
@@ -27,7 +27,13 @@ import polyscope.imgui as psim
 # Local
 from .costs import CostModel, node_weights, partition_costs
 from .graph import EdgeSet, ViewerGraph
-from .partition import STRATEGIES, cut_mask, cut_stats, partition_layers
+from .partition import (
+    STRATEGIES,
+    PerLayerPartitioner,
+    cut_mask,
+    cut_stats,
+    partition_layers,
+)
 
 GRID_COLOR = (0.20, 0.45, 0.85)
 MESH_COLORS = [(0.95, 0.55, 0.10), (0.85, 0.25, 0.15), (0.60, 0.15, 0.45)]
@@ -41,8 +47,11 @@ EDGE_KIND_COLORS = {
 DIM_COLOR = np.array([0.35, 0.35, 0.38])
 CUT_COLOR = np.array([1.0, 1.0, 1.0])
 COLOR_MODES = ["Layer", "Partition", "Flow"]
-# Memory imbalance (max / mean) above which the memory check warns
+# Memory imbalance (max / mean) and compute slowdown above which the panel
+# warns
 MAX_BALANCED_IMBALANCE = 1.05
+WARN_COLOR = (1.0, 0.4, 0.3, 1.0)
+OK_COLOR = (0.45, 0.85, 0.45, 1.0)
 TEXT_COLOR = (1.0, 1.0, 1.0, 1.0)
 # Sizes (relative to the UI font) of the bold fonts that are loaded
 HEADLINE = 1.6
@@ -58,6 +67,8 @@ BOLD_FONT_PATHS = [
     "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
 ]
 NO_PARTITION = "none"
+# The project can use at most 4 GPUs (larger k: --k on the command line)
+MAX_PARTITIONS = 4
 
 
 def _short(edge_set_name):
@@ -160,6 +171,7 @@ class GraphViewer:
         self.parts: Optional[List[np.ndarray]] = None
         self.stats = None
         self.costs = None
+        self.partition_error: Optional[str] = None
         # Set by load_fonts() once polyscope is initialised
         self.bold_fonts = {}  # scale -> ImFont
 
@@ -255,17 +267,27 @@ class GraphViewer:
 
     # ------------------------------------------------------------ partitions
     def apply_partition(self):
-        if self.strategy == NO_PARTITION:
+        self.partition_error = None
+        parts = None
+        if self.strategy != NO_PARTITION:
+            try:
+                parts = partition_layers(
+                    [layer.xyz for layer in self.graph.layers],
+                    self.strategy,
+                    self.k,
+                    layer_weights=self.node_weights,
+                    layer_lon_lat=[
+                        layer.lon_lat for layer in self.graph.layers
+                    ],
+                )
+            except ValueError as e:  # e.g. a k the strategy does not support
+                self.partition_error = str(e)
+        if parts is None:
             self.parts, self.stats, self.costs = None, None, None
             if self.color_mode == "Partition":
                 self.color_mode = "Layer"
         else:
-            self.parts = partition_layers(
-                [layer.xyz for layer in self.graph.layers],
-                self.strategy,
-                self.k,
-                layer_weights=self.node_weights,
-            )
+            self.parts = parts
             self.stats = [
                 cut_stats(es.edge_index, self.parts[es.src], self.parts[es.dst])
                 for es in self.graph.edge_sets
@@ -279,6 +301,10 @@ class GraphViewer:
         self.refresh_colors()
 
     # ------------------------------------------------------------------ flow
+    def _per_layer_strategy(self):
+        cls = STRATEGIES.get(self.strategy)
+        return cls is not None and issubclass(cls, PerLayerPartitioner)
+
     def compute_flow(self):
         """Hop distance from the seed over the edge sets currently shown."""
         if self.flow_seed is None:
@@ -451,6 +477,8 @@ class GraphViewer:
     def _cost_panel(self):
         psim.SeparatorText("Communication")
         self._communication_section()
+        psim.SeparatorText("Compute balance")
+        self._balance_section()
         psim.SeparatorText("Memory")
         self._memory_section()
         if psim.TreeNode("Details per edge set"):
@@ -475,6 +503,16 @@ class GraphViewer:
             f"total {comm.sum():,.0f}   |   up to {costs.neighbours.max()} "
             "neighbours"
         )
+        psim.TextUnformatted(
+            f"Synchronised: {costs.communication_sync:,.0f} per step "
+            f"({costs.sync_ratio:.2f}x the busiest GPU)"
+        )
+        psim.SetItemTooltip(
+            "Each exchange waits for the GPU that receives most in that "
+            "exchange.\nC_sync = sum over edge sets of exchanges x largest "
+            "halo. It exceeds the busiest GPU's total\nwhen different "
+            "exchanges peak on different GPUs."
+        )
 
         # Where the busiest GPU's traffic comes from
         psim.Spacing()
@@ -489,12 +527,13 @@ class GraphViewer:
         psim.PushStyleColor(psim.ImGuiCol_PlotHistogram, color)
         for value, name in parts:
             fraction = value / comm[busiest] if comm[busiest] else 0.0
-            uses = self.cost_model.uses[name]
+            exchanges = costs.exchanges[name]
             psim.ProgressBar(
                 fraction,
                 (-1, 0),
                 f"{name}: {value:,.0f}  ({100 * fraction:.0f}%)  = "
-                f"{value / uses:,.0f} halo x {uses:g} uses",
+                f"{costs.halo[name][busiest]:,} halo x {exchanges:g} "
+                + ("exchange" if exchanges == 1 else "exchanges"),
             )
         psim.PopStyleColor()
 
@@ -517,12 +556,64 @@ class GraphViewer:
         )
         if psim.TreeNode("What do these numbers mean?"):
             psim.TextWrapped(
-                "C(p) = sum over edge sets s of u(s) x H(p,s): the node "
+                "C(p) = sum over edge sets s of x(s) x H(p,s): the node "
                 "states GPU p receives from other GPUs per forecast step. "
                 "H(p,s) = distinct nodes on other GPUs with an edge of s into "
-                "GPU p; u(s) = how often s is used per step. Multiply by "
+                "GPU p; x(s) = halo exchanges of s per step (applications "
+                "that read the same sender states share one). Multiply by "
                 "hidden_dim x bytes for bytes. Nbrs = GPUs that send to this "
-                "one (one exchange each)."
+                "one (one message each per exchange)."
+            )
+            psim.TreePop()
+
+    def _balance_section(self):
+        """Per-operation compute balance: every application of an edge set
+        waits for its slowest GPU."""
+        costs = self.costs
+        slowdown = costs.slowdown
+        self._bold(
+            f"Steps take {slowdown:.2f}x the balanced time",
+            WARN_COLOR if slowdown > MAX_BALANCED_IMBALANCE else TEXT_COLOR,
+            scale=HEADLINE,
+        )
+        psim.TextUnformatted(
+            "(compute only, every operation waits for its slowest GPU)"
+        )
+        rows = []
+        for es in self.graph.edge_sets:
+            work = costs.work[es.name]
+            rows.append(
+                [
+                    es.name,
+                    f"{costs.uses[es.name]:g}",
+                    f"{costs.work_imbalance(es.name):.2f}",
+                    f"{int(np.argmax(work))}",
+                ]
+            )
+        self._table(
+            "op_balance",
+            ["Operation", "Uses", "Slowest / mean", "Slowest GPU"],
+            rows,
+        )
+        psim.TextUnformatted(
+            "Nodes per GPU, max / mean:   "
+            + "   ".join(
+                f"{layer.name} {costs.node_imbalance(layer.name):.2f}"
+                for layer in self.graph.layers
+            )
+        )
+        if psim.TreeNode("What does this measure?"):
+            psim.TextWrapped(
+                "Work of one application on GPU p: W(p,s) = edges received + "
+                "0.75 x receiver nodes (an edge MLP per edge, a node-update "
+                "MLP of 3/4 the FLOPs per receiver node). S = sum_s u(s) "
+                "max_p W(p,s) / sum_s u(s) mean_p W(p,s). Balancing total "
+                "memory does not balance each operation: a GPU can hold many "
+                "grid nodes and few mesh nodes and still have average memory. "
+                "S counts FLOPs; small kernels are bound by memory bandwidth "
+                "and launch overhead, so treat it as a ranking, not a "
+                "measured time. Grid embedding and output layers (local, "
+                "about 10% of FLOPs) are left out."
             )
             psim.TreePop()
 
@@ -533,8 +624,10 @@ class GraphViewer:
         model = self.cost_model
         psim.TextWrapped(
             "Values stored per item, in units of hidden_dim, during one "
-            "checkpointed forecast step. Each node's load is its own value "
-            "plus that of the edges it receives."
+            "forecast step (the segment kept in memory with "
+            "--grad_checkpointing; without it every unrolled step adds the "
+            "same again). Each node's load is its own value plus that of the "
+            "edges it receives."
         )
         items = [
             (layer.name, "nodes", len(layer), model.node[layer.name])
@@ -573,7 +666,7 @@ class GraphViewer:
         balanced = costs.imbalance <= MAX_BALANCED_IMBALANCE
         if balanced:
             psim.TextColored(
-                (0.45, 0.85, 0.45, 1.0),
+                OK_COLOR,
                 f"Balanced: busiest GPU holds {costs.imbalance:.2f}x the "
                 "mean memory",
             )
@@ -581,7 +674,7 @@ class GraphViewer:
             self._bold(
                 f"NOT balanced: busiest GPU holds {costs.imbalance:.2f}x the "
                 "mean memory",
-                (1.0, 0.4, 0.3, 1.0),
+                WARN_COLOR,
             )
         self._memory_model_table()
         if not psim.TreeNode("Memory per GPU"):
@@ -589,7 +682,7 @@ class GraphViewer:
         memory = costs.memory
         busiest = costs.busiest
         psim.TextWrapped(
-            "Memory M(p): stored values of one checkpointed forecast step, "
+            "Memory M(p): stored values of one forecast step, "
             f"relative to one GPU. Busiest GPU {busiest}: "
             f"{100 * costs.max_share:.1f}% (ideal {100 / k:.1f}%)."
         )
@@ -731,13 +824,22 @@ class GraphViewer:
             changed, idx = psim.Combo(
                 "Strategy", options.index(self.strategy), options
             )
-            changed_k, k = psim.SliderInt("Partitions", self.k, 2, 32)
+            changed_k, k = psim.SliderInt(
+                "Partitions", self.k, 2, MAX_PARTITIONS
+            )
             if changed or changed_k:
                 self.strategy, self.k = options[idx], k
                 self.apply_partition()
-            psim.TextDisabled(
-                "Borders balance memory per node (see Memory below)"
-            )
+            if self.partition_error:
+                _wrapped(self.partition_error, WARN_COLOR)
+            elif self._per_layer_strategy():
+                psim.TextDisabled(
+                    "Each layer split on its own, balanced by node count"
+                )
+            else:
+                psim.TextDisabled(
+                    "Borders balance memory per node (see Memory below)"
+                )
             changed, self.only_cut = psim.Checkbox(
                 "Only cut edges", self.only_cut
             )

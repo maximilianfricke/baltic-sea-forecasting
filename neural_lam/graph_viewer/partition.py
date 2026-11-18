@@ -140,10 +140,91 @@ class RecursiveCoordinateBisection(Partitioner):
         return parts
 
 
+class PerLayerPartitioner(Partitioner):
+    """Base class for strategies that split every layer on its own.
+
+    Unlike the shared-border strategies above, these ignore node weights and
+    other layers: ``partition_layer`` maps one layer's (N, 2) longitude and
+    latitude in degrees to partition ids.
+    """
+
+    def partition_layer(self, lon_lat: np.ndarray) -> np.ndarray:
+        raise NotImplementedError
+
+
+def _lexicographic_order(indices, primary, secondary):
+    """Sort indices by ``primary``, then ``secondary`` (stable)."""
+    order = indices[np.argsort(secondary[indices], kind="stable")]
+    return order[np.argsort(primary[order], kind="stable")]
+
+
+class PerLayerGeographicRCB(PerLayerPartitioner):
+    """The geographic RCB baseline of the ``message-passing`` branch.
+
+    A port of ``geographic_rcb_owners`` in
+    ``neural_lam/geographic_partitioning.py`` on that branch, applied to
+    every layer (grid and each mesh level) separately, as its distributed
+    GraphEFM does:
+
+    * two partitions: sort south to north (longitude breaks ties) and split
+      the nodes into equal halves;
+    * four partitions: split each half again into equal halves along
+      longitude, measured eastwards from a seam at 120 degrees east.
+
+    Every layer is balanced by node count, not by memory or edges, and
+    borders differ between layers. Only k = 2 and 4 are supported, as in
+    the original. Coordinates are rounded to float32 like the original so
+    that ties on the regular grid are broken the same way.
+    """
+
+    name = "per_layer_geo_rcb"
+    SUPPORTED_K = (2, 4)
+    LONGITUDE_SEAM = 120.0
+
+    def __init__(self, k: int):
+        super().__init__(k)
+        if k not in self.SUPPORTED_K:
+            raise ValueError(
+                f"{self.name} supports only k = 2 or 4 (got {k}), like the "
+                "message-passing branch it reproduces"
+            )
+
+    def partition_layer(self, lon_lat):
+        lon_lat = np.asarray(lon_lat, dtype=np.float32)
+        lon, lat = lon_lat[:, 0], lon_lat[:, 1]
+        unwrapped = np.remainder(
+            lon - np.float32(self.LONGITUDE_SEAM), np.float32(360.0)
+        )
+        owners = np.empty(len(lon_lat), dtype=np.int64)
+        by_lat = _lexicographic_order(np.arange(len(lon_lat)), lat, unwrapped)
+        south, north = np.array_split(by_lat, 2)
+        if self.k == 2:
+            owners[south], owners[north] = 0, 1
+            return owners
+        for first_part, half in ((0, south), (2, north)):
+            by_lon = _lexicographic_order(half, unwrapped, lat)
+            west, east = np.array_split(by_lon, 2)
+            owners[west], owners[east] = first_part, first_part + 1
+        return owners
+
+
 STRATEGIES: Dict[str, Callable[[int], Partitioner]] = {
     LongitudeBands.name: LongitudeBands,
     RecursiveCoordinateBisection.name: RecursiveCoordinateBisection,
+    PerLayerGeographicRCB.name: PerLayerGeographicRCB,
 }
+
+
+def _xyz_to_lon_lat(xyz):
+    return np.rad2deg(
+        np.stack(
+            [
+                np.arctan2(xyz[:, 1], xyz[:, 0]),
+                np.arcsin(np.clip(xyz[:, 2], -1, 1)),
+            ],
+            axis=1,
+        )
+    )
 
 
 def partition_layers(
@@ -152,6 +233,7 @@ def partition_layers(
     k: int,
     layer_weights: Optional[List[np.ndarray]] = None,
     reference_layer: int = 0,
+    layer_lon_lat: Optional[List[np.ndarray]] = None,
 ) -> List[np.ndarray]:
     """Partition every layer with one geometric rule.
 
@@ -166,15 +248,24 @@ def partition_layers(
     layer_weights : list of (N_l,) arrays, optional
         Per-node load. If given, the borders are fitted on the nodes of all
         layers together so that every partition gets equal total weight.
+        Ignored by per-layer strategies.
     reference_layer : int
         Without ``layer_weights``: the layer the borders are fitted on,
         balanced by node count.
+    layer_lon_lat : list of (N_l, 2) arrays, optional
+        Longitude and latitude in degrees, used by per-layer strategies
+        (derived from ``layer_xyz`` if not given; passing the original
+        coordinates reproduces tie-breaking exactly).
 
     Returns
     -------
     list of (N_l,) int arrays with partition ids in [0, k).
     """
     partitioner = STRATEGIES[strategy](k)
+    if isinstance(partitioner, PerLayerPartitioner):
+        if layer_lon_lat is None:
+            layer_lon_lat = [_xyz_to_lon_lat(xyz) for xyz in layer_xyz]
+        return [partitioner.partition_layer(ll) for ll in layer_lon_lat]
     if layer_weights is None:
         partitioner.fit(layer_xyz[reference_layer])
     else:
