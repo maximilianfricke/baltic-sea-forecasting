@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mem=24G
-#SBATCH --time=12:00:00
+#SBATCH --time=01:00:00
 #SBATCH --output=benchmark_results/slurm-real-mp-%j.out
 
 set -euo pipefail
@@ -26,7 +26,7 @@ DATA_PARENT="/scratch/users/${USER}"
 DEFAULT_DATA_ROOT="${DATA_PARENT}/baltic-sea-forecasting-data"
 DEFAULT_DATA_ROOT="${DEFAULT_DATA_ROOT}/physical_repeat_16"
 DATA_ROOT="${NJORD_DATA_ROOT:-${DEFAULT_DATA_ROOT}}"
-NUM_WORKERS="${NJORD_NUM_WORKERS:-0}"
+NUM_WORKERS="${NJORD_NUM_WORKERS:-8}"
 PREFETCH_FACTOR="${NJORD_PREFETCH_FACTOR:-2}"
 DATA_MODE="${NJORD_DATA_MODE:-rank-local}"
 WARMUP_STEPS="${NJORD_WARMUP_STEPS:-1}"
@@ -65,6 +65,7 @@ fi
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
 
 RESULT_DIR="${NJORD_RESULT_DIR:-benchmark_results/model-parallel-real}"
 RUN_LABEL="${NJORD_RUN_LABEL:-run}"
@@ -84,6 +85,15 @@ echo "Progress interval: ${PROGRESS_INTERVAL}"
 nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --format=csv,noheader
 
+if [[ "${RUN_LABEL}" == *smoke ]]; then
+    echo "Checking AR4 checkpointed forecasts and gradients against original GraphEFM"
+    export NJORD_AR4_SMOKE_RESULT="${RESULT_DIR}/ar4-equivalence-${GPU_COUNT}gpu-${SLURM_JOB_ID}.json"
+    "${VENV_PATH}/bin/python" -m torch.distributed.run \
+        --standalone \
+        --nproc-per-node="${GPU_COUNT}" \
+        -m tests.test_distributed_graph_efm_rollout
+fi
+
 "${VENV_PATH}/bin/python" -m torch.distributed.run \
     --standalone \
     --nproc-per-node="${GPU_COUNT}" \
@@ -93,7 +103,7 @@ nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --hidden-dim 64 \
     --processor-layers 2 \
     --batch-size 2 \
-    --ar-steps 1 \
+    --ar-steps 4 \
     --num-workers "${NUM_WORKERS}" \
     --prefetch-factor "${PREFETCH_FACTOR}" \
     --warmup-steps "${WARMUP_STEPS}" \

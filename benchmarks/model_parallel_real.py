@@ -1,10 +1,9 @@
 """Real-data strong-scaling benchmark for model-parallel GraphEFM.
 
-The benchmark deliberately starts with one autoregressive step.  This covers
-the real data pipeline, all GraphEFM embeddings, prior, posterior, hierarchical
-decoder, loss, backward pass, model-parallel gradient reduction and optimizer
-step without pretending that an AR rollout is correct before differentiable
-full-grid reconstruction has been implemented.
+The default workload matches the max-branch H64/L2/B2/AR4/FP32 baseline,
+including per-step gradient checkpointing. The loader uses the original
+global-model AR4 scripts' eight persistent workers and prefetch factor two.
+Forecast feedback remains rank-local throughout the differentiable rollout.
 """
 
 from __future__ import annotations
@@ -31,13 +30,12 @@ import xarray as xr
 # First-party
 from neural_lam.config import load_config_and_datastores
 from neural_lam.datastore import MDPDatastore
-from neural_lam.distributed_message_passing import (
-    select_graph_embeddings,
-    select_owned,
-)
 from neural_lam.models.distributed_graph_efm import (
     build_partition_from_graph_efm,
     distributed_core_from_graph_efm,
+)
+from neural_lam.models.distributed_graph_efm_training import (
+    DistributedGraphEFMTraining,
 )
 from neural_lam.models.graph_efm import GraphEFM
 from neural_lam.weather_dataset import WeatherDataset
@@ -109,15 +107,15 @@ def _parse_args():
     parser.add_argument("--hidden-dim", type=int, default=64)
     parser.add_argument("--processor-layers", type=int, default=2)
     parser.add_argument("--batch-size", type=int, default=2)
-    parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument("--num-workers", type=int, default=8)
     parser.add_argument(
         "--prefetch-factor",
         type=int,
         default=2,
         help="batches prefetched by each DataLoader worker",
     )
-    parser.add_argument("--warmup-steps", type=int, default=5)
-    parser.add_argument("--steps", type=int, default=20)
+    parser.add_argument("--warmup-steps", type=int, default=10)
+    parser.add_argument("--steps", type=int, default=50)
     parser.add_argument(
         "--progress-interval",
         type=int,
@@ -146,7 +144,7 @@ def _parse_args():
         choices=("auto", "geographic", "latitude", "random"),
         default="auto",
     )
-    parser.add_argument("--ar-steps", type=int, default=1)
+    parser.add_argument("--ar-steps", type=int, default=4)
     args = parser.parse_args()
     if args.warmup_steps < 0 or args.steps < 1:
         parser.error("warmup-steps must be >=0 and steps must be >=1")
@@ -156,12 +154,8 @@ def _parse_args():
         parser.error("num-workers must be >=0")
     if args.prefetch_factor < 1:
         parser.error("prefetch-factor must be >=1")
-    if args.ar_steps != 1:
-        parser.error(
-            "this benchmark currently supports exactly one autoregressive "
-            "step; differentiable cross-rank rollout reconstruction is the "
-            "next implementation stage"
-        )
+    if args.ar_steps < 1:
+        parser.error("ar-steps must be positive")
     return args
 
 
@@ -175,8 +169,8 @@ def _model_args(args):
         crps_weight=0.0,
         encoder_processor_layers=1,
         ensemble_size=5,
-        epochs=1,
-        grad_checkpointing=False,
+        epochs=100,
+        grad_checkpointing=True,
         graph=args.graph,
         hidden_dim=args.hidden_dim,
         hidden_dim_edge=args.hidden_dim,
@@ -203,6 +197,7 @@ def _model_args(args):
         num_past_boundary_steps=2,
         num_past_forcing_steps=2,
         output_std=False,
+        optimizer="adamw",
         prior_dist="isotropic",
         prior_processor_layers=1,
         processor_layers=args.processor_layers,
@@ -215,7 +210,7 @@ def _model_args(args):
         soap_precondition_frequency=10,
         soap_weight_decay=0.0,
         train_distr_crps=False,
-        val_steps_to_log=[1],
+        val_steps_to_log=[1, 2, 3],
         var_leads_metrics_watch={},
     )
 
@@ -353,7 +348,7 @@ def _open_rank_local_datastore(config_path, store_path):
 def _data_loader_options(num_workers, prefetch_factor, device):
     options = {
         "num_workers": num_workers,
-        "pin_memory": device.type == "cuda",
+        "pin_memory": False,
         "persistent_workers": num_workers > 0,
     }
     if num_workers > 0:
@@ -377,6 +372,7 @@ class RankZeroBatchStream:
         prefetch_factor,
         rank,
         device,
+        seed=42,
     ):
         self.rank = rank
         self.device = device
@@ -388,8 +384,9 @@ class RankZeroBatchStream:
             self.loader = torch.utils.data.DataLoader(
                 dataset,
                 batch_size=batch_size,
-                shuffle=False,
-                drop_last=True,
+                shuffle=True,
+                drop_last=False,
+                generator=torch.Generator().manual_seed(seed),
                 **_data_loader_options(
                     num_workers,
                     prefetch_factor,
@@ -434,16 +431,9 @@ class RankZeroBatchStream:
             metadata = None
 
         broadcast_start = time.perf_counter()
-        if self.metadata is None:
-            container = [metadata]
-            dist.broadcast_object_list(
-                container,
-                src=0,
-                device=self.device,
-            )
-            self.metadata = container[0]
-        elif self.rank == 0 and metadata != self.metadata:
-            raise RuntimeError("benchmark batch shapes changed during the run")
+        container = [metadata]
+        dist.broadcast_object_list(container, src=0, device=self.device)
+        self.metadata = container[0]
 
         if self.rank != 0:
             device_batch = tuple(
@@ -482,13 +472,15 @@ class RankLocalBatchStream:
         num_workers,
         prefetch_factor,
         device,
+        seed=42,
     ):
         self.device = device
         self.loader = torch.utils.data.DataLoader(
             dataset,
             batch_size=batch_size,
-            shuffle=False,
-            drop_last=True,
+            shuffle=True,
+            drop_last=False,
+            generator=torch.Generator().manual_seed(seed),
             **_data_loader_options(
                 num_workers,
                 prefetch_factor,
@@ -541,15 +533,6 @@ def _partition_strategy(requested, world_size):
     return "geographic" if world_size in (1, 2, 4) else "random"
 
 
-def _num_latent_mesh_nodes(model):
-    """Read the top-level mesh size without negative BufferList indexing."""
-
-    if model.hierarchical_graph:
-        top_level = len(model.mesh_static_features) - 1
-        return model.mesh_static_features[top_level].shape[0]
-    return model.mesh_static_features.shape[0]
-
-
 def _build_sharded_training_modules(model, args, rank, world_size, device):
     strategy = _partition_strategy(args.partition_strategy, world_size)
     if strategy == "latitude" and world_size != 2:
@@ -582,250 +565,20 @@ def _build_sharded_training_modules(model, args, rank, world_size, device):
     return model, core, partition, strategy
 
 
-def _embed_local_graph(model, partition, batch_size):
-    def embedded(embedder, features, indices):
-        local_features = features.index_select(0, indices)
-        return model.expand_to_batch(
-            embedder(local_features),
-            batch_size,
-        )
-
-    graph = {
-        "g2m": embedded(
-            model.g2m_embedder,
-            model.g2m_features,
-            partition.g2m.edge_ids,
-        ),
-        "m2g": embedded(
-            model.m2g_embedder,
-            model.m2g_features,
-            partition.m2g.edge_ids,
-        ),
-    }
-    if model.hierarchical_graph:
-        graph["mesh"] = [
-            embedded(embedder, features, nodes)
-            for embedder, features, nodes in zip(
-                model.mesh_embedders,
-                model.mesh_static_features,
-                partition.mesh_nodes,
-            )
-        ]
-        if model.embedd_m2m:
-            graph["m2m"] = [
-                embedded(embedder, features, relation.edge_ids)
-                for embedder, features, relation in zip(
-                    model.m2m_embedders,
-                    model.m2m_features,
-                    partition.m2m,
-                )
-            ]
-        else:
-            graph["m2m"] = [
-                features.index_select(0, relation.edge_ids)
-                for features, relation in zip(
-                    model.m2m_features,
-                    partition.m2m,
-                )
-            ]
-        graph["mesh_up"] = [
-            embedded(embedder, features, relation.edge_ids)
-            for embedder, features, relation in zip(
-                model.mesh_up_embedders,
-                model.mesh_up_features,
-                partition.mesh_up,
-            )
-        ]
-        graph["mesh_down"] = [
-            embedded(embedder, features, relation.edge_ids)
-            for embedder, features, relation in zip(
-                model.mesh_down_embedders,
-                model.mesh_down_features,
-                partition.mesh_down,
-            )
-        ]
-    else:
-        graph["mesh"] = embedded(
-            model.mesh_embedder,
-            model.mesh_static_features,
-            partition.mesh_nodes[0],
-        )
-        graph["m2m"] = embedded(
-            model.m2m_embedder,
-            model.m2m_features,
-            partition.m2m[0].edge_ids,
-        )
-        graph["mesh_up"] = []
-        graph["mesh_down"] = []
-    return graph
-
-
-def _embed_rank_local_inputs(
-    model,
-    partition,
-    previous,
-    previous_previous,
-    forcing,
-    atmosphere_forcing,
-    target,
-):
-    if model.boundary_forced or model.use_atmosphere_g2m:
-        raise NotImplementedError(
-            "rank-local frontend currently supports the global-ocean "
-            "configuration without boundary or atmosphere graph nodes"
-        )
-    if not torch.equal(
-        partition.full_grid_nodes,
-        partition.interior_grid_nodes,
-    ):
-        raise ValueError("rank-local shard does not match full grid ownership")
-    local_nodes = partition.interior_grid_nodes
-    if previous.shape[-2] != local_nodes.numel():
-        raise ValueError(
-            "rank-local batch node count does not match graph partition"
-        )
-    batch_size = previous.shape[0]
-    local_static = model.grid_static_features.index_select(0, local_nodes)
-    static_batch = model.expand_to_batch(local_static, batch_size)
-
-    previous_parts = [previous]
-    current_parts = [previous]
-    if previous_previous is not None:
-        previous_parts.append(previous_previous)
-        current_parts.append(previous_previous)
-    previous_parts.extend((forcing, static_batch))
-    current_parts.extend((forcing, static_batch, target))
-    if model.concat_atmosphere:
-        previous_parts.append(atmosphere_forcing)
-        current_parts.append(atmosphere_forcing)
-
-    interior_previous = model.interior_embedder(
-        torch.cat(previous_parts, dim=-1)
-    )
-    grid_current = model.interior_current_embedder(
-        torch.cat(current_parts, dim=-1)
-    )
-    graph = _embed_local_graph(model, partition, batch_size)
-    return interior_previous, grid_current, graph
-
-
 def _forward_local_loss(
-    model,
-    core,
-    partition,
+    training_model,
     batch,
     generator,
     batch_is_local=False,
 ):
-    (
-        init_states,
-        target_states,
-        forcing,
-        boundary_forcing,
-        atmosphere_forcing,
-        _,
-    ) = batch
-    if forcing.shape[1] != 1:
-        raise RuntimeError("real-data benchmark expects exactly one AR step")
-
-    previous_previous = init_states[:, 0]
-    previous = init_states[:, 1]
-    target = target_states[:, 0]
-    if batch_is_local:
-        interior_previous, grid_current, local_graph = (
-            _embed_rank_local_inputs(
-                model,
-                partition,
-                previous,
-                previous_previous,
-                forcing[:, 0],
-                atmosphere_forcing[:, 0],
-                target,
-            )
-        )
-        grid_previous = interior_previous
-        local_previous = previous
-        local_target = target
-    else:
-        grid_previous, interior_previous, graph_embeddings = model.embedd_all(
-            previous,
-            previous_previous,
-            forcing[:, 0],
-            boundary_forcing[:, 0],
-            atmosphere_forcing[:, 0],
-        )
-        grid_current = model.embedd_current(
-            previous,
-            previous_previous,
-            forcing[:, 0],
-            boundary_forcing[:, 0],
-            atmosphere_forcing[:, 0],
-            target,
-        )
-        local_graph = select_graph_embeddings(graph_embeddings, partition)
-        local_previous = select_owned(
-            previous,
-            partition.interior_grid_nodes,
-        )
-        local_target = select_owned(target, partition.interior_grid_nodes)
-    local_loss_mask = select_owned(
-        model.loss_mask,
-        partition.interior_grid_nodes,
+    output = training_model(
+        batch, generator=generator, batch_is_local=batch_is_local
     )
-    latent_dim = model.args.latent_dim or model.args.hidden_dim
-    full_noise = torch.randn(
-        init_states.shape[0],
-        _num_latent_mesh_nodes(model),
-        latent_dim,
-        generator=generator,
-        device=init_states.device,
+    return (
+        output["loss"],
+        output["negative_likelihood"].detach(),
+        output["kl"].detach(),
     )
-    local_noise = select_owned(full_noise, partition.mesh_nodes[-1])
-    output = core.training_forward(
-        (
-            grid_previous
-            if batch_is_local
-            else select_owned(grid_previous, partition.full_grid_nodes)
-        ),
-        (
-            grid_current
-            if batch_is_local
-            else select_owned(grid_current, partition.full_grid_nodes)
-        ),
-        (
-            interior_previous
-            if batch_is_local
-            else select_owned(
-                interior_previous,
-                partition.interior_grid_nodes,
-            )
-        ),
-        local_previous,
-        local_graph,
-        local_noise,
-    )
-
-    predicted_mean = output["pred_mean"]
-    state_delta = predicted_mean - local_previous
-    predicted_mean = model.get_clamped_new_state(
-        state_delta,
-        local_previous,
-    )
-    predicted_std = (
-        output["pred_std"] if model.output_std else model.per_var_std
-    )
-    entry_losses = model.loss(
-        predicted_mean,
-        local_target,
-        predicted_std,
-        mask=local_loss_mask,
-        average_grid=False,
-        sum_vars=False,
-    )
-    local_negative_likelihood = entry_losses.sum(dim=(1, 2)).mean()
-    local_kl = output["local_kl"].mean()
-    local_loss = local_negative_likelihood + model.kl_beta * local_kl
-    return local_loss, local_negative_likelihood.detach(), local_kl.detach()
 
 
 def _gradient_buckets(parameters, bucket_bytes=25 * 1024 * 1024):
@@ -1004,9 +757,7 @@ def _hardware_metadata(device, rank):
 
 
 def _step_record(
-    model,
-    core,
-    partition,
+    training_model,
     optimizer,
     parameters,
     batch,
@@ -1031,9 +782,7 @@ def _step_record(
         progress_callback("forward started")
     events["start"].record()
     loss, local_nll, local_kl = _forward_local_loss(
-        model,
-        core,
-        partition,
+        training_model,
         batch,
         generator,
         batch_is_local=batch_is_local,
@@ -1098,6 +847,7 @@ def _step_record(
         )
 
     return {
+        "batch_samples": int(batch[0].shape[0]),
         "forward_ms": events["start"].elapsed_time(events["forward_end"]),
         "backward_ms": events["forward_end"].elapsed_time(
             events["backward_end"]
@@ -1155,6 +905,7 @@ def _aggregate_records(rank_payloads):
         for key in time_keys + memory_keys:
             item[key] = max(record[key] for record in records)
         for key in (
+            "batch_samples",
             "loss",
             "negative_likelihood",
             "kl",
@@ -1188,16 +939,19 @@ def _result_summary(records, batch_size, measurement_window_ms):
     }
     compute_mean = summary["compute_ms"]["mean"]
     end_to_end_mean = summary["end_to_end_ms"]["mean"]
+    sample_count = sum(record["batch_samples"] for record in records)
+    mean_batch_size = sample_count / len(records)
     summary.update(
         {
             "global_batch_size": batch_size,
-            "compute_samples_per_second": batch_size * 1000 / compute_mean,
+            "measured_samples": sample_count,
+            "compute_samples_per_second": mean_batch_size * 1000 / compute_mean,
             "end_to_end_samples_per_second": (
-                batch_size * 1000 / end_to_end_mean
+                mean_batch_size * 1000 / end_to_end_mean
             ),
             "observed_window_ms": measurement_window_ms,
             "observed_samples_per_second": (
-                batch_size * len(records) * 1000 / measurement_window_ms
+                sample_count * 1000 / measurement_window_ms
             ),
             "peak_memory_allocated_bytes_per_gpu": max(
                 record["peak_memory_allocated_bytes"] for record in records
@@ -1212,6 +966,7 @@ def _result_summary(records, batch_size, measurement_window_ms):
 
 def main():
     args = _parse_args()
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     if not torch.cuda.is_available():
         raise RuntimeError("the official real-data benchmark requires CUDA")
 
@@ -1235,6 +990,7 @@ def main():
 
     try:
         torch.manual_seed(args.seed)
+        torch.use_deterministic_algorithms(True)
         phase_start = time.perf_counter()
         _progress(rank, f"loading real workload from {args.config_path}")
         dataset, reference_model, config = _load_workload(
@@ -1307,7 +1063,8 @@ def main():
             )
 
         phase_start = time.perf_counter()
-        parameters = list(model.parameters()) + list(core.parameters())
+        training_model = DistributedGraphEFMTraining(model, core, partition)
+        parameters = list(training_model.parameters())
         optimizer = torch.optim.AdamW(
             parameters,
             lr=args.lr,
@@ -1321,6 +1078,7 @@ def main():
                 args.num_workers,
                 args.prefetch_factor,
                 device,
+                seed=args.seed,
             )
         else:
             stream = RankZeroBatchStream(
@@ -1330,6 +1088,7 @@ def main():
                 args.prefetch_factor,
                 rank,
                 device,
+                seed=args.seed,
             )
         initialization_timings["optimizer_and_stream_ms"] = (
             time.perf_counter() - phase_start
@@ -1367,9 +1126,7 @@ def main():
         _progress(rank, "preflight: forward pass started")
         with torch.no_grad():
             preflight_local, _, _ = _forward_local_loss(
-                model,
-                core,
-                partition,
+                training_model,
                 preflight_batch,
                 preflight_generator,
                 batch_is_local=batch_is_local,
@@ -1436,9 +1193,7 @@ def main():
                     _progress(rank, step_prefix + message)
 
             record = _step_record(
-                model,
-                core,
-                partition,
+                training_model,
                 optimizer,
                 parameters,
                 batch,
@@ -1492,7 +1247,7 @@ def main():
                 payload["measurement_window_ms"] for payload in payloads
             )
             result = {
-                "schema_version": 3,
+                "schema_version": 4,
                 "status": "completed",
                 "benchmark": "real_data_model_parallel_graph_efm",
                 "scaling_mode": "strong",
@@ -1514,12 +1269,46 @@ def main():
                     "dataset": _dataset_metadata(dataset),
                     "graph": args.graph,
                     "hidden_dim": args.hidden_dim,
+                    "hidden_dim_grid": model.args.hidden_dim_grid,
+                    "hidden_dim_mesh_nodes": model.args.hidden_dim_mesh_nodes,
+                    "hidden_dim_edge": model.args.hidden_dim_edge,
+                    "latent_dim": model.args.latent_dim or args.hidden_dim,
+                    "learn_prior": model.args.learn_prior,
+                    "prior_dist": model.args.prior_dist,
+                    "output_std": model.output_std,
+                    "sample_obs_noise": model.sample_obs_noise,
                     "processor_layers": args.processor_layers,
                     "batch_size_global": args.batch_size,
                     "global_surface_grid_nodes": int(
                         model.num_interior_nodes
                     ),
                     "ar_steps": args.ar_steps,
+                    "gradient_checkpointing": model.grad_checkpointing,
+                    "checkpoint_scope": "complete autoregressive step",
+                    "checkpoint_early_stop": False,
+                    "hidden_layers": model.args.hidden_layers,
+                    "encoder_processor_layers": (
+                        model.args.encoder_processor_layers
+                    ),
+                    "prior_processor_layers": (
+                        model.args.prior_processor_layers
+                    ),
+                    "input_steps": model.input_steps,
+                    "loss": model.args.loss,
+                    "loss_time_reduction": "sum",
+                    "kl_beta": model.kl_beta,
+                    "crps_weight": model.crps_weight,
+                    "optimizer": "adamw",
+                    "optimizer_betas": [0.9, 0.95],
+                    "optimizer_weight_decay": 0.1,
+                    "shuffle": True,
+                    "sampler_seed": args.seed,
+                    "deterministic_algorithms": (
+                        torch.are_deterministic_algorithms_enabled()
+                    ),
+                    "drop_last": False,
+                    "pin_memory": False,
+                    "baseline_reference": "global-model-ar4-elbo-fp32",
                     "precision": "float32",
                     "num_workers": args.num_workers,
                     "prefetch_factor": (
@@ -1536,7 +1325,7 @@ def main():
                         not batch_is_local
                     ),
                     "replicated_frontend_parameters": True,
-                    "rank_local_frontend_compute": batch_is_local,
+                    "rank_local_frontend_compute": True,
                     "data_phase_rank_barrier": True,
                     "partitioned_components": [
                         "prior",
@@ -1576,9 +1365,11 @@ def main():
                         args.progress_interval == 0
                     ),
                     "global_batch_size_is_constant": True,
+                    "last_batch_may_be_smaller": True,
                     "compare_speed_with_same_gpu_model_only": True,
                     "limitations": [
-                        "one autoregressive training step",
+                        "full autoregressive feedback stays rank-local; "
+                        "halo exchange runs in forward and checkpoint replay",
                         "embedding parameters are replicated; rank-local mode "
                         "computes embeddings only for owned nodes and edges",
                         "phase timing uses CUDA events; headline observed "

@@ -1,0 +1,94 @@
+{
+  "status": "completed",
+  "backend": "gloo",
+  "device": "cpu",
+  "performance_comparable_to_cuda": false,
+  "world_size": 1,
+  "ar_steps": 4,
+  "gradient_checkpointing": true,
+  "hidden_dim": 64,
+  "processor_layers": 2,
+  "global_batch_size": 2,
+  "parameters_per_rank": 645020,
+  "num_workers_per_rank": 8,
+  "prefetch_factor": 2,
+  "batch_fingerprint": {
+    "shapes": [
+      [
+        2,
+        2,
+        42348,
+        28
+      ],
+      [
+        2,
+        4,
+        42348,
+        28
+      ],
+      [
+        2,
+        4,
+        42348,
+        6
+      ],
+      [
+        2,
+        4,
+        0,
+        0
+      ],
+      [
+        2,
+        4,
+        42348,
+        24
+      ],
+      [
+        2,
+        4
+      ]
+    ],
+    "dtypes": [
+      "torch.float32",
+      "torch.float32",
+      "torch.float32",
+      "torch.float32",
+      "torch.float32",
+      "torch.int64"
+    ],
+    "sums": [
+      23901.173975408456,
+      52588.70412654353,
+      -228957.14533737302,
+      0.0,
+      -9009.375296833607,
+      1.35368064e+19
+    ]
+  },
+  "ranks": [
+    {
+      "rank": 0,
+      "owned_grid_nodes": 42348,
+      "workers": 8,
+      "prefetch_factor": 2,
+      "elapsed_seconds": 45.2247876659967,
+      "records": [
+        {
+          "step": 0,
+          "global_loss": 1102355200.0,
+          "data_wait_ms": 897.5110829924233,
+          "forward_cpu_ms": 2621.603250008775,
+          "backward_cpu_ms": 6594.140291999793
+        },
+        {
+          "step": 1,
+          "global_loss": 290406464.0,
+          "data_wait_ms": 2.459209004882723,
+          "forward_cpu_ms": 2229.893124982482,
+          "backward_cpu_ms": 6482.090915989829
+        }
+      ]
+    }
+  ]
+}

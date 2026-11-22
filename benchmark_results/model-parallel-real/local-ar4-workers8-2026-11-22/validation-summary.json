@@ -1,0 +1,17 @@
+{
+  "status": "completed",
+  "test": "physical_ar4_workers8_prefetch2",
+  "finished_at_utc": "2026-11-22T16:26:10.860242+00:00",
+  "world_sizes": [
+    1,
+    2,
+    4
+  ],
+  "same_batch_and_close_losses": true,
+  "performance_comparable_to_cuda": false,
+  "results": [
+    "ar4-workers8-prefetch2-1rank.json",
+    "ar4-workers8-prefetch2-2rank.json",
+    "ar4-workers8-prefetch2-4rank.json"
+  ]
+}

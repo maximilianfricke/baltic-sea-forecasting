@@ -739,7 +739,6 @@ class DistributedGraphEFMCore(nn.Module):
     ):
         """Run the full variational training path on locally owned nodes."""
 
-        prior_dist = self.prior_model(grid_prev_rep, graph_emb=graph_emb)
         posterior_dist = self.encoder(grid_current_rep, graph_emb=graph_emb)
         if latent_noise is None:
             latent_noise = torch.randn_like(posterior_dist.mean)
@@ -753,6 +752,7 @@ class DistributedGraphEFMCore(nn.Module):
             last_state,
             graph_emb,
         )
+        prior_dist = self.prior_model(grid_prev_rep, graph_emb=graph_emb)
         local_kl = torch.distributions.kl_divergence(
             posterior_dist,
             prior_dist,

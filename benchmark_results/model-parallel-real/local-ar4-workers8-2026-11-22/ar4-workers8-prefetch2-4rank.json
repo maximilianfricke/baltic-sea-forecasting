@@ -1,0 +1,163 @@
+{
+  "status": "completed",
+  "backend": "gloo",
+  "device": "cpu",
+  "performance_comparable_to_cuda": false,
+  "world_size": 4,
+  "ar_steps": 4,
+  "gradient_checkpointing": true,
+  "hidden_dim": 64,
+  "processor_layers": 2,
+  "global_batch_size": 2,
+  "parameters_per_rank": 645020,
+  "num_workers_per_rank": 8,
+  "prefetch_factor": 2,
+  "batch_fingerprint": {
+    "shapes": [
+      [
+        2,
+        2,
+        42348,
+        28
+      ],
+      [
+        2,
+        4,
+        42348,
+        28
+      ],
+      [
+        2,
+        4,
+        42348,
+        6
+      ],
+      [
+        2,
+        4,
+        0,
+        0
+      ],
+      [
+        2,
+        4,
+        42348,
+        24
+      ],
+      [
+        2,
+        4
+      ]
+    ],
+    "dtypes": [
+      "torch.float32",
+      "torch.float32",
+      "torch.float32",
+      "torch.float32",
+      "torch.float32",
+      "torch.int64"
+    ],
+    "sums": [
+      23901.17397540844,
+      52588.704126543525,
+      -228957.14533737302,
+      0.0,
+      -9009.375296833517,
+      1.35368064e+19
+    ]
+  },
+  "ranks": [
+    {
+      "rank": 0,
+      "owned_grid_nodes": 10587,
+      "workers": 8,
+      "prefetch_factor": 2,
+      "elapsed_seconds": 43.59519900000305,
+      "records": [
+        {
+          "step": 0,
+          "global_loss": 1102355328.0,
+          "data_wait_ms": 3462.6109169912525,
+          "forward_cpu_ms": 2344.391332997475,
+          "backward_cpu_ms": 2874.436540994793
+        },
+        {
+          "step": 1,
+          "global_loss": 290406464.0,
+          "data_wait_ms": 0.6371249910444021,
+          "forward_cpu_ms": 877.8480420005508,
+          "backward_cpu_ms": 2312.3552500037476
+        }
+      ]
+    },
+    {
+      "rank": 1,
+      "owned_grid_nodes": 10587,
+      "workers": 8,
+      "prefetch_factor": 2,
+      "elapsed_seconds": 43.58910220800317,
+      "records": [
+        {
+          "step": 0,
+          "global_loss": 1102355328.0,
+          "data_wait_ms": 3403.875957999844,
+          "forward_cpu_ms": 2338.5438340192195,
+          "backward_cpu_ms": 2871.1422919877805
+        },
+        {
+          "step": 1,
+          "global_loss": 290406464.0,
+          "data_wait_ms": 0.6208330160006881,
+          "forward_cpu_ms": 871.8227919889614,
+          "backward_cpu_ms": 2307.0200830115937
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "owned_grid_nodes": 10587,
+      "workers": 8,
+      "prefetch_factor": 2,
+      "elapsed_seconds": 43.59232433300349,
+      "records": [
+        {
+          "step": 0,
+          "global_loss": 1102355328.0,
+          "data_wait_ms": 3556.8392499990296,
+          "forward_cpu_ms": 2343.6792500142474,
+          "backward_cpu_ms": 2886.519083986059
+        },
+        {
+          "step": 1,
+          "global_loss": 290406464.0,
+          "data_wait_ms": 0.6690409791190177,
+          "forward_cpu_ms": 878.2786250230856,
+          "backward_cpu_ms": 2325.1476250006817
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "owned_grid_nodes": 10587,
+      "workers": 8,
+      "prefetch_factor": 2,
+      "elapsed_seconds": 43.588481707993196,
+      "records": [
+        {
+          "step": 0,
+          "global_loss": 1102355328.0,
+          "data_wait_ms": 3095.2003749844152,
+          "forward_cpu_ms": 2353.98187499959,
+          "backward_cpu_ms": 2865.6160419923253
+        },
+        {
+          "step": 1,
+          "global_loss": 290406464.0,
+          "data_wait_ms": 0.6874169921502471,
+          "forward_cpu_ms": 887.6670419995207,
+          "backward_cpu_ms": 2301.2469169916585
+        }
+      ]
+    }
+  ]
+}

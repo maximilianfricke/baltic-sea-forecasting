@@ -1,0 +1,117 @@
+{
+  "status": "completed",
+  "backend": "gloo",
+  "device": "cpu",
+  "performance_comparable_to_cuda": false,
+  "world_size": 2,
+  "ar_steps": 4,
+  "gradient_checkpointing": true,
+  "hidden_dim": 64,
+  "processor_layers": 2,
+  "global_batch_size": 2,
+  "parameters_per_rank": 645020,
+  "num_workers_per_rank": 8,
+  "prefetch_factor": 2,
+  "batch_fingerprint": {
+    "shapes": [
+      [
+        2,
+        2,
+        42348,
+        28
+      ],
+      [
+        2,
+        4,
+        42348,
+        28
+      ],
+      [
+        2,
+        4,
+        42348,
+        6
+      ],
+      [
+        2,
+        4,
+        0,
+        0
+      ],
+      [
+        2,
+        4,
+        42348,
+        24
+      ],
+      [
+        2,
+        4
+      ]
+    ],
+    "dtypes": [
+      "torch.float32",
+      "torch.float32",
+      "torch.float32",
+      "torch.float32",
+      "torch.float32",
+      "torch.int64"
+    ],
+    "sums": [
+      23901.173975408445,
+      52588.70412654355,
+      -228957.14533737302,
+      0.0,
+      -9009.375296833576,
+      1.35368064e+19
+    ]
+  },
+  "ranks": [
+    {
+      "rank": 0,
+      "owned_grid_nodes": 21174,
+      "workers": 8,
+      "prefetch_factor": 2,
+      "elapsed_seconds": 40.07317408398376,
+      "records": [
+        {
+          "step": 0,
+          "global_loss": 1102355200.0,
+          "data_wait_ms": 1082.6680420141201,
+          "forward_cpu_ms": 2008.8390830205753,
+          "backward_cpu_ms": 3769.036582991248
+        },
+        {
+          "step": 1,
+          "global_loss": 290406464.0,
+          "data_wait_ms": 2.227542019682005,
+          "forward_cpu_ms": 1309.7520419978537,
+          "backward_cpu_ms": 3573.24866700219
+        }
+      ]
+    },
+    {
+      "rank": 1,
+      "owned_grid_nodes": 21174,
+      "workers": 8,
+      "prefetch_factor": 2,
+      "elapsed_seconds": 40.0799746249977,
+      "records": [
+        {
+          "step": 0,
+          "global_loss": 1102355200.0,
+          "data_wait_ms": 913.30200000084,
+          "forward_cpu_ms": 2000.7673330255784,
+          "backward_cpu_ms": 3771.953207993647
+        },
+        {
+          "step": 1,
+          "global_loss": 290406464.0,
+          "data_wait_ms": 1.3077500043436885,
+          "forward_cpu_ms": 1290.1897080009803,
+          "backward_cpu_ms": 3556.140917004086
+        }
+      ]
+    }
+  ]
+}
