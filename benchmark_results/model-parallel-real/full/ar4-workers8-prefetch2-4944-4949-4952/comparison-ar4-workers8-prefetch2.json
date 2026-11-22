@@ -1,0 +1,230 @@
+{
+  "checks": {
+    "non_instrumented_results": true,
+    "preflight_loss_numerically_close": true,
+    "same_global_preflight_batch": true,
+    "same_gpu_model": true,
+    "same_workload": true
+  },
+  "comparison": "real_data_model_parallel_1_vs_2_vs_4_gpu",
+  "hardware": {
+    "1_gpu": [
+      "NVIDIA GeForce GTX 1080 Ti"
+    ],
+    "2_gpu": [
+      "NVIDIA GeForce GTX 1080 Ti",
+      "NVIDIA GeForce GTX 1080 Ti"
+    ],
+    "4_gpu": [
+      "NVIDIA GeForce GTX 1080 Ti",
+      "NVIDIA GeForce GTX 1080 Ti",
+      "NVIDIA GeForce GTX 1080 Ti",
+      "NVIDIA GeForce GTX 1080 Ti"
+    ]
+  },
+  "headline": {
+    "data_staging_ms": {
+      "1_gpu": 11265.0,
+      "2_gpu": 5657.0,
+      "4_gpu": 7914.0
+    },
+    "observed_samples_per_second": {
+      "1_gpu": 1.2468588397395624,
+      "2_gpu": 1.6864390946966332,
+      "4_gpu": 1.5819606708213056
+    },
+    "observed_speedup": {
+      "1_gpu": 1.0,
+      "2_gpu": 1.352550137150159,
+      "4_gpu": 1.2687568314884288
+    },
+    "parallel_efficiency": {
+      "1_gpu": 1.0,
+      "2_gpu": 0.6762750685750795,
+      "4_gpu": 0.3171892078721072
+    },
+    "peak_memory_bytes_per_gpu": {
+      "1_gpu": 3752770560,
+      "2_gpu": 1933562880,
+      "4_gpu": 1035996160
+    }
+  },
+  "inputs": {
+    "1_gpu": "benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-1gpu-4944.json",
+    "2_gpu": "benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-2gpu-4949.json",
+    "4_gpu": "benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-4gpu-4952.json"
+  },
+  "numerical_equivalence": {
+    "accuracy_note": "This checks one-step numerical training equivalence, not forecast accuracy. Accuracy requires equal validation rollouts.",
+    "preflight_loss": {
+      "1_gpu": 1102826112.0,
+      "2_gpu": 1102826240.0,
+      "4_gpu": 1102826112.0
+    },
+    "relative_difference_from_1_gpu": {
+      "2_gpu": 1.1606542840329951e-07,
+      "4_gpu": 0.0
+    }
+  },
+  "phases": {
+    "backward_ms": {
+      "mean_ms": {
+        "1_gpu": 1004.2537316894532,
+        "2_gpu": 697.0281909179688,
+        "4_gpu": 761.7462329101562
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.4407648711695233,
+        "4_gpu": 1.3183573325368836
+      }
+    },
+    "batch_broadcast_ms": {
+      "mean_ms": {
+        "1_gpu": 0.0,
+        "2_gpu": 0.0,
+        "4_gpu": 0.0
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": null,
+        "4_gpu": null
+      }
+    },
+    "compute_ms": {
+      "mean_ms": {
+        "1_gpu": 1540.0930004882812,
+        "2_gpu": 1144.7449621582032,
+        "4_gpu": 1230.4976940917968
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.3453590549852459,
+        "4_gpu": 1.2516016957065408
+      }
+    },
+    "data_distribution_ms": {
+      "mean_ms": {
+        "1_gpu": 59.559308900497854,
+        "2_gpu": 37.18056609854102,
+        "4_gpu": 29.968977813841775
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.6018935468235107,
+        "4_gpu": 1.987365377306569
+      }
+    },
+    "data_rank_wait_ms": {
+      "mean_ms": {
+        "1_gpu": 0.0005123403389006853,
+        "2_gpu": 13.087014097254723,
+        "4_gpu": 15.801763081690297
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 3.914875731723705e-05,
+        "4_gpu": 3.242298572963295e-05
+      }
+    },
+    "data_read_ms": {
+      "mean_ms": {
+        "1_gpu": 6.057692558970302,
+        "2_gpu": 6.2435388984158635,
+        "4_gpu": 8.336222717771307
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 0.9702338141125837,
+        "4_gpu": 0.7266711511985406
+      }
+    },
+    "end_to_end_ms": {
+      "mean_ms": {
+        "1_gpu": 1599.8970750137792,
+        "2_gpu": 1182.4895527058188,
+        "4_gpu": 1260.5704828096555
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.3529904525184449,
+        "4_gpu": 1.2691849419223324
+      }
+    },
+    "forward_ms": {
+      "mean_ms": {
+        "1_gpu": 535.2047009277344,
+        "2_gpu": 435.7966198730469,
+        "4_gpu": 449.4115399169922
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.2281065903715507,
+        "4_gpu": 1.190901108206052
+      }
+    },
+    "gradient_sync_ms": {
+      "mean_ms": {
+        "1_gpu": 0.002129280010703951,
+        "2_gpu": 7.072382152080536,
+        "4_gpu": 13.794225883483886
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 0.0003010697053577011,
+        "4_gpu": 0.00015436023947189254
+      }
+    },
+    "host_to_device_ms": {
+      "mean_ms": {
+        "1_gpu": 30.584983862936497,
+        "2_gpu": 18.00198924378492,
+        "4_gpu": 11.977456662571058
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.6989780100827347,
+        "4_gpu": 2.5535457755829762
+      }
+    },
+    "metric_reduce_ms": {
+      "mean_ms": {
+        "1_gpu": 0.24477311998605727,
+        "2_gpu": 11.141895699501038,
+        "4_gpu": 16.488294968605043
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 0.02196871399514347,
+        "4_gpu": 0.014845265714382461
+      }
+    },
+    "optimizer_ms": {
+      "mean_ms": {
+        "1_gpu": 0.6324236822128296,
+        "2_gpu": 7.60918023109436,
+        "4_gpu": 10.823350467681884
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 0.08311324781459065,
+        "4_gpu": 0.058431414939507216
+      }
+    },
+    "step_ms": {
+      "mean_ms": {
+        "1_gpu": 1540.3377661132813,
+        "2_gpu": 1145.5930102539062,
+        "4_gpu": 1231.5348278808594
+      },
+      "speedup": {
+        "1_gpu": 1.0,
+        "2_gpu": 1.3445767845352732,
+        "4_gpu": 1.250746411097272
+      }
+    }
+  },
+  "schema_version": 2,
+  "valid_comparison": true,
+  "workload_differences": {}
+}

@@ -1,0 +1,17 @@
+{
+  "status": "completed",
+  "test": "ar4_checkpoint_equivalence",
+  "backend": "nccl",
+  "world_size": 1,
+  "slurm_job_id": "4941",
+  "ranks": [
+    {
+      "rank": 0,
+      "autoregressive_steps": 4,
+      "gradient_checkpointing": true,
+      "validated_optimizer_updates": 2,
+      "max_forecast_absolute_error": 0.0,
+      "max_gradient_absolute_error": 0.0
+    }
+  ]
+}

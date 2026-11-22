@@ -1,0 +1,25 @@
+{
+  "status": "completed",
+  "test": "ar4_checkpoint_equivalence",
+  "backend": "nccl",
+  "world_size": 2,
+  "slurm_job_id": "4948",
+  "ranks": [
+    {
+      "rank": 0,
+      "autoregressive_steps": 4,
+      "gradient_checkpointing": true,
+      "validated_optimizer_updates": 2,
+      "max_forecast_absolute_error": 2.384185791015625e-07,
+      "max_gradient_absolute_error": 6.103515625e-05
+    },
+    {
+      "rank": 1,
+      "autoregressive_steps": 4,
+      "gradient_checkpointing": true,
+      "validated_optimizer_updates": 2,
+      "max_forecast_absolute_error": 2.384185791015625e-07,
+      "max_gradient_absolute_error": 6.103515625e-05
+    }
+  ]
+}

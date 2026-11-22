@@ -1,0 +1,575 @@
+{
+  "backend": "nccl",
+  "benchmark": "real_data_model_parallel_graph_efm",
+  "finished_at_utc": "2026-11-22T17:17:22.094284+00:00",
+  "git": {
+    "commit": "aa5829a48bbafa14f9846a3aba087f1e316bbb7f",
+    "tracked_dirty": false,
+    "untracked_file_count": 47
+  },
+  "interpretation": {
+    "comparable_across_world_sizes": true,
+    "compare_speed_with_same_gpu_model_only": true,
+    "global_batch_size_is_constant": true,
+    "last_batch_may_be_smaller": true,
+    "limitations": [
+      "full autoregressive feedback stays rank-local; halo exchange runs in forward and checkpoint replay",
+      "embedding parameters are replicated; rank-local mode computes embeddings only for owned nodes and edges",
+      "phase timing uses CUDA events; headline observed throughput uses wall time",
+      "a rank barrier after batch loading attributes loader imbalance to data_rank_wait_ms instead of forward_ms",
+      "progress output adds diagnostic synchronization when progress_interval is nonzero"
+    ]
+  },
+  "model": {
+    "core_parameters_per_rank": 585628,
+    "frontend_parameters": 59392,
+    "gradient_sync_rule": "sum model-parallel contributions",
+    "trainable_parameters_per_rank": 645020
+  },
+  "partition_strategy": "geographic",
+  "preflight": {
+    "batch_fingerprint": {
+      "dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.float32",
+        "torch.float32",
+        "torch.float32",
+        "torch.int64"
+      ],
+      "shapes": [
+        [
+          2,
+          2,
+          42348,
+          28
+        ],
+        [
+          2,
+          4,
+          42348,
+          28
+        ],
+        [
+          2,
+          4,
+          42348,
+          6
+        ],
+        [
+          2,
+          4,
+          0,
+          0
+        ],
+        [
+          2,
+          4,
+          42348,
+          24
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "sums": [
+        23901.17397540846,
+        52588.704126543525,
+        -228957.14533737302,
+        0.0,
+        -9009.375296833576,
+        1.35368064e+19
+      ]
+    },
+    "loss": 1102826240.0
+  },
+  "rank_metadata": [
+    {
+      "hardware": {
+        "cuda_runtime": "12.6",
+        "gpu": {
+          "compute_capability": "6.1",
+          "index": 0,
+          "name": "NVIDIA GeForce GTX 1080 Ti",
+          "total_memory_bytes": 11707809792
+        },
+        "hostname": "studgpu-node02.inf.ethz.ch",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3",
+        "rank": 0,
+        "torch": "2.14.1+cu126"
+      },
+      "initialization_timings": {
+        "data_staging_ms": 25339.0,
+        "optimizer_and_stream_ms": 94064.14036697242,
+        "preflight_batch_ms": 15967.132639023475,
+        "preflight_forward_ms": 2524.992048041895,
+        "rank_local_dataset_load_ms": 781.8774019833654,
+        "sharded_model_build_ms": 208.09085201472044,
+        "total_before_training_ms": 115158.54837402003,
+        "workload_load_ms": 1370.9860250237398
+      },
+      "measurement_window_ms": 1853.0666420119815,
+      "partition": {
+        "owned_full_grid_nodes": 21174,
+        "owned_interior_grid_nodes": 21174,
+        "owned_mesh_nodes_by_level": [
+          4228,
+          1049
+        ],
+        "rank": 0,
+        "relations": {
+          "g2m": [
+            {
+              "halo_nodes": 0,
+              "owned_edges": 34807
+            }
+          ],
+          "m2g": [
+            {
+              "halo_nodes": 268,
+              "owned_edges": 63392
+            }
+          ],
+          "m2m": [
+            {
+              "halo_nodes": 150,
+              "owned_edges": 24833
+            },
+            {
+              "halo_nodes": 76,
+              "owned_edges": 6039
+            }
+          ],
+          "mesh_down": [
+            {
+              "halo_nodes": 25,
+              "owned_edges": 4228
+            }
+          ],
+          "mesh_up": [
+            {
+              "halo_nodes": 45,
+              "owned_edges": 4237
+            }
+          ]
+        }
+      },
+      "rank": 0,
+      "records": [
+        {
+          "backward_ms": 964.537353515625,
+          "batch_broadcast_ms": 0.0,
+          "batch_samples": 2,
+          "compute_ms": 1784.1868896484375,
+          "data_distribution_ms": 65.50472800154239,
+          "data_rank_wait_ms": 34.18341197539121,
+          "data_read_ms": 0.16119697829708457,
+          "end_to_end_ms": 1850.263150853105,
+          "forward_ms": 699.994140625,
+          "gradient_all_reduce_calls": 1,
+          "gradient_sync_bytes": 2580080,
+          "gradient_sync_ms": 15.175680160522461,
+          "host_to_device_ms": 18.3420050307177,
+          "kl": 224111.09375,
+          "loss": 1070512128.0,
+          "measurement_step": 0,
+          "memory_allocated_bytes": 200775680,
+          "memory_reserved_bytes": 2227175424,
+          "metric_reduce_ms": 0.5715839862823486,
+          "negative_likelihood": 1070288000.0,
+          "optimizer_ms": 104.47974395751953,
+          "peak_memory_allocated_bytes": 1932396032,
+          "peak_memory_reserved_bytes": 2227175424,
+          "step_ms": 1784.7584228515625
+        }
+      ]
+    },
+    {
+      "hardware": {
+        "cuda_runtime": "12.6",
+        "gpu": {
+          "compute_capability": "6.1",
+          "index": 1,
+          "name": "NVIDIA GeForce GTX 1080 Ti",
+          "total_memory_bytes": 11707809792
+        },
+        "hostname": "studgpu-node02.inf.ethz.ch",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3",
+        "rank": 1,
+        "torch": "2.14.1+cu126"
+      },
+      "initialization_timings": {
+        "data_staging_ms": 25339.0,
+        "optimizer_and_stream_ms": 100953.53952201549,
+        "preflight_batch_ms": 4411.019046034198,
+        "preflight_forward_ms": 2510.342821944505,
+        "rank_local_dataset_load_ms": 497.5125449709594,
+        "sharded_model_build_ms": 193.9818609971553,
+        "total_before_training_ms": 115158.98433001712,
+        "workload_load_ms": 6389.97208798537
+      },
+      "measurement_window_ms": 1853.1288439990021,
+      "partition": {
+        "owned_full_grid_nodes": 21174,
+        "owned_interior_grid_nodes": 21174,
+        "owned_mesh_nodes_by_level": [
+          4228,
+          1048
+        ],
+        "rank": 1,
+        "relations": {
+          "g2m": [
+            {
+              "halo_nodes": 652,
+              "owned_edges": 35833
+            }
+          ],
+          "m2g": [
+            {
+              "halo_nodes": 1,
+              "owned_edges": 62715
+            }
+          ],
+          "m2m": [
+            {
+              "halo_nodes": 149,
+              "owned_edges": 23713
+            },
+            {
+              "halo_nodes": 78,
+              "owned_edges": 5601
+            }
+          ],
+          "mesh_down": [
+            {
+              "halo_nodes": 31,
+              "owned_edges": 4228
+            }
+          ],
+          "mesh_up": [
+            {
+              "halo_nodes": 36,
+              "owned_edges": 4219
+            }
+          ]
+        }
+      },
+      "rank": 1,
+      "records": [
+        {
+          "backward_ms": 964.4205932617188,
+          "batch_broadcast_ms": 0.0,
+          "batch_samples": 2,
+          "compute_ms": 1754.0218505859375,
+          "data_distribution_ms": 60.924265009816736,
+          "data_rank_wait_ms": 0.503390037920326,
+          "data_read_ms": 3.2394950394518673,
+          "end_to_end_ms": 1850.4279271191917,
+          "forward_ms": 704.7474975585938,
+          "gradient_all_reduce_calls": 1,
+          "gradient_sync_bytes": 2580080,
+          "gradient_sync_ms": 3.0361599922180176,
+          "host_to_device_ms": 32.05578395863995,
+          "kl": 224111.09375,
+          "loss": 1070512128.0,
+          "measurement_step": 0,
+          "memory_allocated_bytes": 200599552,
+          "memory_reserved_bytes": 2183135232,
+          "metric_reduce_ms": 35.481727600097656,
+          "negative_likelihood": 1070288000.0,
+          "optimizer_ms": 81.81763458251953,
+          "peak_memory_allocated_bytes": 1914841600,
+          "peak_memory_reserved_bytes": 2183135232,
+          "step_ms": 1789.503662109375
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "backward_ms": 964.537353515625,
+      "batch_broadcast_ms": 0.0,
+      "batch_samples": 2,
+      "compute_ms": 1784.1868896484375,
+      "data_distribution_ms": 65.50472800154239,
+      "data_rank_wait_ms": 34.18341197539121,
+      "data_read_ms": 3.2394950394518673,
+      "end_to_end_ms": 1850.4279271191917,
+      "forward_ms": 704.7474975585938,
+      "gradient_all_reduce_calls": 1,
+      "gradient_sync_bytes": 2580080,
+      "gradient_sync_ms": 15.175680160522461,
+      "host_to_device_ms": 32.05578395863995,
+      "kl": 224111.09375,
+      "loss": 1070512128.0,
+      "measurement_step": 0,
+      "memory_allocated_bytes": 200775680,
+      "memory_reserved_bytes": 2227175424,
+      "metric_reduce_ms": 35.481727600097656,
+      "negative_likelihood": 1070288000.0,
+      "optimizer_ms": 104.47974395751953,
+      "peak_memory_allocated_bytes": 1932396032,
+      "peak_memory_reserved_bytes": 2227175424,
+      "step_ms": 1789.503662109375
+    }
+  ],
+  "scaling_mode": "strong",
+  "schema_version": 4,
+  "slurm_job_id": "4948",
+  "started_at_utc": "2026-11-22T17:15:25.051699+00:00",
+  "status": "completed",
+  "summary": {
+    "backward_ms": {
+      "count": 1,
+      "max": 964.537353515625,
+      "mean": 964.537353515625,
+      "median": 964.537353515625,
+      "min": 964.537353515625,
+      "p95": 964.537353515625,
+      "std": 0.0
+    },
+    "batch_broadcast_ms": {
+      "count": 1,
+      "max": 0.0,
+      "mean": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "p95": 0.0,
+      "std": 0.0
+    },
+    "compute_ms": {
+      "count": 1,
+      "max": 1784.1868896484375,
+      "mean": 1784.1868896484375,
+      "median": 1784.1868896484375,
+      "min": 1784.1868896484375,
+      "p95": 1784.1868896484375,
+      "std": 0.0
+    },
+    "compute_samples_per_second": 1.1209588029167097,
+    "data_distribution_ms": {
+      "count": 1,
+      "max": 65.50472800154239,
+      "mean": 65.50472800154239,
+      "median": 65.50472800154239,
+      "min": 65.50472800154239,
+      "p95": 65.50472800154239,
+      "std": 0.0
+    },
+    "data_rank_wait_ms": {
+      "count": 1,
+      "max": 34.18341197539121,
+      "mean": 34.18341197539121,
+      "median": 34.18341197539121,
+      "min": 34.18341197539121,
+      "p95": 34.18341197539121,
+      "std": 0.0
+    },
+    "data_read_ms": {
+      "count": 1,
+      "max": 3.2394950394518673,
+      "mean": 3.2394950394518673,
+      "median": 3.2394950394518673,
+      "min": 3.2394950394518673,
+      "p95": 3.2394950394518673,
+      "std": 0.0
+    },
+    "end_to_end_ms": {
+      "count": 1,
+      "max": 1850.4279271191917,
+      "mean": 1850.4279271191917,
+      "median": 1850.4279271191917,
+      "min": 1850.4279271191917,
+      "p95": 1850.4279271191917,
+      "std": 0.0
+    },
+    "end_to_end_samples_per_second": 1.0808310719313814,
+    "forward_ms": {
+      "count": 1,
+      "max": 704.7474975585938,
+      "mean": 704.7474975585938,
+      "median": 704.7474975585938,
+      "min": 704.7474975585938,
+      "p95": 704.7474975585938,
+      "std": 0.0
+    },
+    "global_batch_size": 2,
+    "gradient_sync_ms": {
+      "count": 1,
+      "max": 15.175680160522461,
+      "mean": 15.175680160522461,
+      "median": 15.175680160522461,
+      "min": 15.175680160522461,
+      "p95": 15.175680160522461,
+      "std": 0.0
+    },
+    "host_to_device_ms": {
+      "count": 1,
+      "max": 32.05578395863995,
+      "mean": 32.05578395863995,
+      "median": 32.05578395863995,
+      "min": 32.05578395863995,
+      "p95": 32.05578395863995,
+      "std": 0.0
+    },
+    "loss": {
+      "count": 1,
+      "max": 1070512128.0,
+      "mean": 1070512128.0,
+      "median": 1070512128.0,
+      "min": 1070512128.0,
+      "p95": 1070512128.0,
+      "std": 0.0
+    },
+    "measured_samples": 2,
+    "metric_reduce_ms": {
+      "count": 1,
+      "max": 35.481727600097656,
+      "mean": 35.481727600097656,
+      "median": 35.481727600097656,
+      "min": 35.481727600097656,
+      "p95": 35.481727600097656,
+      "std": 0.0
+    },
+    "observed_samples_per_second": 1.0792557713817965,
+    "observed_window_ms": 1853.1288439990021,
+    "optimizer_ms": {
+      "count": 1,
+      "max": 104.47974395751953,
+      "mean": 104.47974395751953,
+      "median": 104.47974395751953,
+      "min": 104.47974395751953,
+      "p95": 104.47974395751953,
+      "std": 0.0
+    },
+    "peak_memory_allocated_bytes_per_gpu": 1932396032,
+    "peak_memory_reserved_bytes_per_gpu": 2227175424,
+    "step_ms": {
+      "count": 1,
+      "max": 1789.503662109375,
+      "mean": 1789.503662109375,
+      "median": 1789.503662109375,
+      "min": 1789.503662109375,
+      "p95": 1789.503662109375,
+      "std": 0.0
+    }
+  },
+  "workload": {
+    "ar_steps": 4,
+    "baseline_reference": "global-model-ar4-elbo-fp32",
+    "batch_size_global": 2,
+    "checkpoint_early_stop": false,
+    "checkpoint_scope": "complete autoregressive step",
+    "config_path": "/scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16/global_ocean_1.yaml",
+    "crps_weight": 0.0,
+    "data_kind": "physical Njord Zarr samples",
+    "data_mode": "rank-local",
+    "data_phase_rank_barrier": true,
+    "dataset": {
+      "forcing_variables": [
+        "day_of_year_sin",
+        "day_of_year_cos"
+      ],
+      "root": "/scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16",
+      "source_benchmark_attributes": {
+        "benchmark_data_kind": "physical_repeat_io_proxy",
+        "benchmark_effective_time_steps": 496,
+        "benchmark_original_time_steps": 31,
+        "benchmark_repeat_count": 16,
+        "benchmark_source_store": "global_ocean_1_mdp_config.zarr"
+      },
+      "state_variables": [
+        "zos",
+        "siconc",
+        "sithick",
+        "thetao_0m",
+        "thetao_47m",
+        "thetao_92m",
+        "thetao_222m",
+        "thetao_318m",
+        "thetao_541m",
+        "so_0m",
+        "so_47m",
+        "so_92m",
+        "so_222m",
+        "so_318m",
+        "so_541m",
+        "uo_0m",
+        "uo_47m",
+        "uo_92m",
+        "uo_222m",
+        "uo_318m",
+        "uo_541m",
+        "vo_0m",
+        "vo_47m",
+        "vo_92m",
+        "vo_222m",
+        "vo_318m",
+        "vo_541m"
+      ],
+      "train_samples": 473,
+      "train_time_end": "2024-04-23T00:00:00.000000000",
+      "train_time_start": "2023-01-01T00:00:00.000000000",
+      "train_time_steps": 479
+    },
+    "dataset_root": "/scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16",
+    "dataset_samples": 473,
+    "deterministic_algorithms": true,
+    "drop_last": false,
+    "encoder_processor_layers": 1,
+    "global_surface_grid_nodes": 42348,
+    "gradient_checkpointing": true,
+    "graph": "global_cluster_graph",
+    "hidden_dim": 64,
+    "hidden_dim_edge": 64,
+    "hidden_dim_grid": 64,
+    "hidden_dim_mesh_nodes": 64,
+    "hidden_layers": 1,
+    "input_steps": 2,
+    "kl_beta": 1.0,
+    "latent_dim": 64,
+    "learn_prior": 1,
+    "learning_rate": 0.001,
+    "loss": "wmse",
+    "loss_time_reduction": "sum",
+    "measurement_steps": 1,
+    "model_parallel_same_batch_on_all_ranks": true,
+    "num_workers": 8,
+    "optimizer": "adamw",
+    "optimizer_betas": [
+      0.9,
+      0.95
+    ],
+    "optimizer_weight_decay": 0.1,
+    "output_std": false,
+    "partitioned_components": [
+      "prior",
+      "posterior",
+      "grid_to_mesh",
+      "mesh_up",
+      "mesh_intra_level",
+      "mesh_down",
+      "mesh_to_grid"
+    ],
+    "pin_memory": false,
+    "precision": "float32",
+    "prefetch_factor": 2,
+    "prior_dist": "isotropic",
+    "prior_processor_layers": 1,
+    "processor_layers": 2,
+    "progress_interval": 0,
+    "rank_data_root": "/tmp/njord-partitioned/geographic_rcb_ws2/rank_0",
+    "rank_local_frontend_compute": true,
+    "rank_zero_loads_and_broadcasts_batch": false,
+    "replicated_frontend_parameters": true,
+    "sample_obs_noise": false,
+    "sampler_seed": 42,
+    "seed": 42,
+    "shuffle": true,
+    "warmup_steps": 0
+  },
+  "world_size": 2
+}
