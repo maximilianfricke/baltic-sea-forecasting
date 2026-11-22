@@ -88,8 +88,9 @@ including the real masks, clamping, density channel, loss and gradients.
 CPU process tests verify correctness, not GPU performance.
 
 Local verification on 2026-11-22: all 26 tests in this command passed,
-including the physical full-graph test. CUDA/NCCL remains to be checked on
-the cluster; the smoke jobs perform that check automatically.
+including the physical full-graph test. Subsequent cluster smoke jobs
+4941/4948/4950 also passed the CUDA/NCCL equivalence checks and the physical
+optimizer step on 1/2/4 GPUs.
 
 ## Sequential cluster runs
 
@@ -145,7 +146,100 @@ gradient synchronization, optimizer, input phase, rank wait, loss, throughput
 and memory. Forward and backward include halo communication; this suite
 does not claim to isolate communication as a separate timer.
 
-GPU/NCCL and performance results are pending execution on the cluster.
+GPU/NCCL checks and the first controlled AR4 performance runs have now
+completed. The archived 1/2/4-GPU results (4944/4949/4952) are under
+`benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/`.
+These compare the distributed implementation across GPU counts; they do not
+yet measure its overhead against the original, unpartitioned implementation.
+
+## Original unpartitioned one-GPU reference
+
+`benchmarks/original_graph_efm.py` calls the unchanged original
+`GraphEFM.training_step`, including its original checkpointed rollout and
+loss. It captures the logged ELBO components without using Lightning's
+training loop, and reuses the same CUDA timers and AdamW step as the
+distributed benchmark. It does not partition the graph or use halo exchange.
+
+The reference freezes our experimental starting point,
+`origin/global-model` commit `76b30d7`, and verifies the Git blob identities
+of 13 original model, message-passing, loss and data-loader files before
+running. `upstream/global-model` has newer changes, but merging those would
+change the experiment's source baseline.
+
+Both paths use H64/L2/B2/AR4/FP32, the learned prior, KL beta 1, checkpointing,
+AdamW at 0.001, seed 42, eight persistent spawn workers, prefetch two, and
+the same explicit shuffled sample order. The reference preserves the original
+default CUDA RNG and seeds it to the scenario stream used by the distributed
+benchmark. Its preflight must match the archived 1-GPU batch fingerprint and
+initial loss or the job stops before collecting measurements.
+The comparison canonicalizes the recorded shape of unused zero-element
+inputs, because the original loader retains a rectangular grid extent in
+its empty boundary placeholder. Actual tensors are not changed; their raw
+shapes are also saved.
+
+Two execution differences are retained and recorded:
+
+- The original WeatherDataset reads the full rectangular Zarr store and
+  applies the ocean masks. The distributed runs read prebuilt ocean shards.
+  End-to-end comparisons therefore include input layout differences; report
+  the model-compute and input phases separately.
+- Original non-reentrant checkpointing retains early stopping. Distributed
+  replay disables early stopping to execute a consistent collective schedule.
+  Backward timing includes the cost of that required replay policy as well
+  as the distributed implementation and communication.
+
+The reference job stages the original source directory, including config,
+statistics and graph, into its job-local `$TMPDIR`. This startup copy is
+recorded separately from the measured training window. It requests the same
+1080 Ti model and course allocation as the earlier single-GPU runs; the
+cluster applies its normal CPU allocation. Eight loader workers do not imply
+eight allocated CPU cores.
+
+Local verification:
+
+```bash
+.venv/bin/python -m pytest --noconftest \
+  tests/test_original_graph_efm_benchmark.py \
+  tests/test_model_parallel_real_benchmark.py -q
+bash -n jobs/original_graph_efm_benchmark.sbatch
+```
+
+All nine tests in this reference/configuration check passed locally on
+22 November, including the actual full-grid loader with eight spawn workers,
+prefetch two and a matching archived first-batch fingerprint. The logging
+adapter preserves the original checkpointed AR4 loss and gradients in the
+equivalence test. This is CPU verification; the new reference GPU timings
+still need the cluster run.
+
+Submit on the student cluster, from the repository root:
+
+```bash
+cd /home/mfricke/baltic-sea-forecasting
+git pull --ff-only origin message-passing
+NJORD_WARMUP_STEPS=10 NJORD_MEASUREMENT_STEPS=50 \
+  sbatch jobs/original_graph_efm_benchmark.sbatch
+```
+
+The job performs ten warmup and fifty measured optimizer steps, matching
+4944/4949/4952. Every optimizer step unrolls four forecast steps. This is a
+performance window, not a full training epoch or a scientific accuracy study.
+The result includes individual measured records, phase distributions,
+observed samples/second, allocated/reserved peak GPU memory, loss components,
+hardware, source identities, original dataset metadata and staging time.
+Output files are:
+
+```text
+benchmark_results/model-parallel-real/slurm-original-ar4-JOBID.out
+benchmark_results/model-parallel-real/original-graph-efm-ar4-1gpu-JOBID.json
+```
+
+The existing three-way comparison command is deliberately specific to
+distributed results and cannot accept this new reference as a substitute.
+After the reference completes, analyze original 1 GPU versus distributed
+1 GPU, then the already controlled distributed 1/2/4-GPU scaling. Check
+hardware, batch identity and the measured loss trajectory before interpreting
+timing differences. No new loader tuning or partition changes are needed
+for this reference run.
 
 ## Real-data local loader integration smoke
 
