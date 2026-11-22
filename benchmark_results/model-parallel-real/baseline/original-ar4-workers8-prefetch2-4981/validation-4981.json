@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "comparisons": {
+    "1_gpu": {
+      "reference": "benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-1gpu-4944.json",
+      "max_relative_loss_difference": 0.0
+    },
+    "2_gpu": {
+      "reference": "benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-2gpu-4949.json",
+      "max_relative_loss_difference": 2.1770989438131038e-07
+    },
+    "4_gpu": {
+      "reference": "benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-4gpu-4952.json",
+      "max_relative_loss_difference": 1.8209678990673913e-07
+    }
+  },
+  "intentional_differences": [
+    "checkpoint_early_stop",
+    "data_mode",
+    "data_phase_rank_barrier"
+  ]
+}
