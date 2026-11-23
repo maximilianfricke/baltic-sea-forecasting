@@ -1,0 +1,74 @@
+.                                                                        [100%]
+=============================== warnings summary ===============================
+../NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68
+  /home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+_____________________ test_cuda_distributed_equivalence[2] _____________________
+----------------------------- Captured stdout call -----------------------------
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+HiGraphLatentEncoder hidden_dim: 4, hidden_dim_grid: 4
+----------------------------- Captured stderr call -----------------------------
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026/11/18 17:16:43 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /home/abertran/NJORD-ENV/lib/python3.12/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+2026/11/18 17:16:43 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /home/abertran/NJORD-ENV/lib/python3.12/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/trainer/configuration_validator.py:70: You defined a `validation_step` but have no `val_dataloader`. Skipping val loop.
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
+LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1]
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+`Trainer.fit` stopped: `max_steps=1` reached.
+`weights_only` was not set, defaulting to `False`.
+`weights_only` was not set, defaulting to `False`.
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
+LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1]
+Restoring states from the checkpoint path at /tmp/pytest-of-abertran/pytest-0/test_cuda_distributed_equivale0/graph_parallel.ckpt
+Restored all states from the checkpoint at /tmp/pytest-of-abertran/pytest-0/test_cuda_distributed_equivale0/graph_parallel.ckpt
+/home/abertran/NJORD-ENV/lib/python3.12/site-packages/pytorch_lightning/loops/training_epoch_loop.py:224: You're resuming from a checkpoint that ended before the epoch ended and your dataloader is not resumable. This can cause unreliable results if further training is done. Consider using an end-of-epoch checkpoint or make your dataloader resumable by implementing the `state_dict` / `load_state_dict` interface.
+`Trainer.fit` stopped: `max_steps=2` reached.
+`weights_only` was not set, defaulting to `False`.
+`weights_only` was not set, defaulting to `False`.
+=========================== short test summary info ============================
+PASSED tests/test_graph_parallel.py::test_cuda_distributed_equivalence[2]
+1 passed, 1 warning in 51.23s

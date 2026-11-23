@@ -1,0 +1,11 @@
+srun: GPU count: 1
+srun: GPU model(s): 1080ti|2080ti|5060ti
+srun: CPU count: 4
+...                                                                      [100%]
+=============================== warnings summary ===============================
+../NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68
+  /home/abertran/NJORD-ENV/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 2 deselected, 1 warning in 74.36s (0:01:14)

@@ -16,10 +16,13 @@ Raw Slurm logs, datasets, checkpoints, and PyTorch profiler traces are not
 committed. They remain in `benchmark_results/` or scratch because they are
 large, noisy, or reproducible from the archived evidence.
 
-The [graph-parallel report](graph-parallel/report.md) covers the November 18,
-2026 GTX 1080 Ti runs. Its directory contains the timed, smoke, and capacity
+The [initial graph-parallel report](graph-parallel/report.md) covers the November
+18, 2026 GTX 1080 Ti runs. Its directory contains the timed, smoke, and capacity
 result JSONs, NCCL transport probes, GPU topology, correctness logs, and
-representative overlap OOM traces. See the
+representative overlap OOM traces. The
+[overlap checkpoint fix report](graph-parallel/overlap-checkpoint-fix/report.md)
+records the subsequent correctness checks and matched throughput and memory
+comparisons. See the
 [graph-parallel workflow](../benchmarks/graph_parallel.md) for launch commands.
 
 Rebuild the archive from results inside an allocated compute job:

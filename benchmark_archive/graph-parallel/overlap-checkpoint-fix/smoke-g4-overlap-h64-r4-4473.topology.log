@@ -1,0 +1,27 @@
+JobId=4473 JobName=njord-graph UserId=abertran(651124) GroupId=abertran-group(532792) MCS_label=N/A Priority=3793 Nice=0 Account=dphpc_4gpu QOS=abertran-dphpc_4gpu JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:01 TimeLimit=00:30:00 TimeMin=N/A SubmitTime=2026-11-18T17:18:35 EligibleTime=2026-11-18T17:18:35 AccrueTime=2026-11-18T17:18:35 StartTime=2026-11-18T17:18:35 EndTime=2026-11-18T17:48:35 Deadline=N/A PreemptEligibleTime=2026-11-18T17:18:35 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-11-18T17:18:35 Scheduler=Main Partition=jobs AllocNode:Sid=student-cluster1.inf.ethz.ch:625139 ReqNodeList=(null) ExcNodeList=(null) NodeList=studgpu-node06 BatchHost=studgpu-node06 NumNodes=1 NumCPUs=8 NumTasks=1 CPUs/Task=8 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=8,mem=96G,node=1,billing=4,gres/gpu=4,gres/gpu:1080ti=4 AllocTRES=cpu=8,mem=96G,node=1,billing=4,gres/gpu=4,gres/gpu:1080ti=4 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=8 MinMemoryNode=96G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=YES Exclusive=NO Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/home/abertran/baltic-sea-forecasting/jobs/benchmark_graph_parallel_1080ti.sbatch SubmitLine=sbatch --parsable --account=dphpc_4gpu --gpus=1080ti:4 --ntasks=1 --mem=96G --wait jobs/benchmark_graph_parallel_1080ti.sbatch smoke 4 overlap 64 4 WorkDir=/home/abertran/baltic-sea-forecasting StdErr= StdIn=/dev/null StdOut=/home/abertran/baltic-sea-forecasting/benchmark_results/graph-parallel/slurm-4473.out TresPerJob=gres/gpu:1080ti:4
+name, uuid, driver_version, memory.total [MiB], power.limit [W]
+NVIDIA GeForce GTX 1080 Ti, GPU-d21f3f92-502f-a6f0-4278-551bca4138e1, 580.178.04, 11264 MiB, 250.00 W
+NVIDIA GeForce GTX 1080 Ti, GPU-b4a4ae41-03e6-165a-8430-fb54e55feb1c, 580.178.04, 11264 MiB, 250.00 W
+NVIDIA GeForce GTX 1080 Ti, GPU-5d86033c-2646-a31f-1c9e-47f1bc303ec7, 580.178.04, 11264 MiB, 250.00 W
+NVIDIA GeForce GTX 1080 Ti, GPU-18b1597a-5aa5-98ef-6c0b-375d814b54fd, 580.178.04, 11264 MiB, 250.00 W
+	[4mGPU0	GPU1	GPU2	GPU3	NIC0	CPU Affinity	NUMA Affinity	GPU NUMA ID[0m
+GPU0	 X 	PIX	PIX	PIX	PIX	0-7	0		N/A
+GPU1	PIX	 X 	PIX	PIX	PIX	0-7	0		N/A
+GPU2	PIX	PIX	 X 	PIX	PIX	0-7	0		N/A
+GPU3	PIX	PIX	PIX	 X 	PIX	0-7	0		N/A
+NIC0	PIX	PIX	PIX	PIX	 X 				
+
+Legend:
+
+  X    = Self
+  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)
+  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node
+  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)
+  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)
+  PIX  = Connection traversing at most a single PCIe bridge
+  NV#  = Connection traversing a bonded set of # NVLinks
+
+NIC Legend:
+
+  NIC0: mlx5_0
+

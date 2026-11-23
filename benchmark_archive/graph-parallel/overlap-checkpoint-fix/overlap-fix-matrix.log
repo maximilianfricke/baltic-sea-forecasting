@@ -1,0 +1,29 @@
+2026-11-18T17:18:35+01:00 smoke 4 overlap 64 4
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+4473
+2026-11-18T17:19:17+01:00 smoke 2 blocking 64 4
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+4474
+2026-11-18T17:19:59+01:00 smoke 4 blocking 64 4
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+4475
+2026-11-18T17:20:41+01:00 timed 2 blocking 64 4
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+4476
+2026-11-18T17:34:43+01:00 timed 2 overlap 64 4
+sbatch: GPU count: 2
+sbatch: CPU count: 4
+4480
+2026-11-18T17:49:50+01:00 timed 4 blocking 64 4
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+4481
+2026-11-18T18:14:32+01:00 timed 4 overlap 64 4
+sbatch: GPU count: 4
+sbatch: CPU count: 8
+4486
+Overlap comparison complete at 2026-11-18T18:32:18+01:00

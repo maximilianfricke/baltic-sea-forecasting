@@ -1,0 +1,216 @@
+{
+  "torch": "2.14.1+cu126",
+  "cuda_runtime": "12.6",
+  "nccl": [
+    2,
+    29,
+    3
+  ],
+  "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+  "ranks": [
+    {
+      "rank": 0,
+      "hostname": "studgpu-node06.inf.ethz.ch",
+      "device": "NVIDIA GeForce GTX 1080 Ti",
+      "compute_capability": [
+        6,
+        1
+      ]
+    },
+    {
+      "rank": 1,
+      "hostname": "studgpu-node06.inf.ethz.ch",
+      "device": "NVIDIA GeForce GTX 1080 Ti",
+      "compute_capability": [
+        6,
+        1
+      ]
+    },
+    {
+      "rank": 2,
+      "hostname": "studgpu-node06.inf.ethz.ch",
+      "device": "NVIDIA GeForce GTX 1080 Ti",
+      "compute_capability": [
+        6,
+        1
+      ]
+    },
+    {
+      "rank": 3,
+      "hostname": "studgpu-node06.inf.ethz.ch",
+      "device": "NVIDIA GeForce GTX 1080 Ti",
+      "compute_capability": [
+        6,
+        1
+      ]
+    }
+  ],
+  "topology": "\t\u001b[4mGPU0\tGPU1\tGPU2\tGPU3\tNIC0\tCPU Affinity\tNUMA Affinity\tGPU NUMA ID\u001b[0m\nGPU0\t X \tPIX\tPIX\tPIX\tPIX\t0-7\t0\t\tN/A\nGPU1\tPIX\t X \tPIX\tPIX\tPIX\t0-7\t0\t\tN/A\nGPU2\tPIX\tPIX\t X \tPIX\tPIX\t0-7\t0\t\tN/A\nGPU3\tPIX\tPIX\tPIX\t X \tPIX\t0-7\t0\t\tN/A\nNIC0\tPIX\tPIX\tPIX\tPIX\t X \t\t\t\t\n\nLegend:\n\n  X    = Self\n  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)\n  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node\n  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)\n  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)\n  PIX  = Connection traversing at most a single PCIe bridge\n  NV#  = Connection traversing a bonded set of # NVLinks\n\nNIC Legend:\n\n  NIC0: mlx5_0\n\n",
+  "topology_error": "",
+  "iterations": 50,
+  "warmup": 10,
+  "measurements": [
+    {
+      "ranks": [
+        0,
+        1
+      ],
+      "bytes_each_direction": 4096,
+      "duplex_exchange_seconds": 0.0001526644267141819,
+      "duplex_bytes_per_second": 53660175.95793321
+    },
+    {
+      "ranks": [
+        0,
+        1
+      ],
+      "bytes_each_direction": 1048576,
+      "duplex_exchange_seconds": 0.00015734374523162842,
+      "duplex_bytes_per_second": 13328473889.52606
+    },
+    {
+      "ranks": [
+        0,
+        1
+      ],
+      "bytes_each_direction": 16777216,
+      "duplex_exchange_seconds": 0.0015232443250715732,
+      "duplex_bytes_per_second": 22028266541.169205
+    },
+    {
+      "ranks": [
+        0,
+        2
+      ],
+      "bytes_each_direction": 4096,
+      "duplex_exchange_seconds": 0.00015581900253891945,
+      "duplex_bytes_per_second": 52573818.767411605
+    },
+    {
+      "ranks": [
+        0,
+        2
+      ],
+      "bytes_each_direction": 1048576,
+      "duplex_exchange_seconds": 0.00015475399792194366,
+      "duplex_bytes_per_second": 13551520659.632858
+    },
+    {
+      "ranks": [
+        0,
+        2
+      ],
+      "bytes_each_direction": 16777216,
+      "duplex_exchange_seconds": 0.001710646077990532,
+      "duplex_bytes_per_second": 19615063823.96518
+    },
+    {
+      "ranks": [
+        0,
+        3
+      ],
+      "bytes_each_direction": 4096,
+      "duplex_exchange_seconds": 0.00015403764322400093,
+      "duplex_bytes_per_second": 53181805.61933959
+    },
+    {
+      "ranks": [
+        0,
+        3
+      ],
+      "bytes_each_direction": 1048576,
+      "duplex_exchange_seconds": 0.00014479031786322595,
+      "duplex_bytes_per_second": 14484062407.964626
+    },
+    {
+      "ranks": [
+        0,
+        3
+      ],
+      "bytes_each_direction": 16777216,
+      "duplex_exchange_seconds": 0.0015258410386741162,
+      "duplex_bytes_per_second": 21990778298.345688
+    },
+    {
+      "ranks": [
+        1,
+        2
+      ],
+      "bytes_each_direction": 4096,
+      "duplex_exchange_seconds": 0.00016243886202573776,
+      "duplex_bytes_per_second": 50431281.63937772
+    },
+    {
+      "ranks": [
+        1,
+        2
+      ],
+      "bytes_each_direction": 1048576,
+      "duplex_exchange_seconds": 0.00015438569709658623,
+      "duplex_bytes_per_second": 13583849018.656096
+    },
+    {
+      "ranks": [
+        1,
+        2
+      ],
+      "bytes_each_direction": 16777216,
+      "duplex_exchange_seconds": 0.0015239723585546018,
+      "duplex_bytes_per_second": 22017743177.32666
+    },
+    {
+      "ranks": [
+        1,
+        3
+      ],
+      "bytes_each_direction": 4096,
+      "duplex_exchange_seconds": 0.00016234379261732102,
+      "duplex_bytes_per_second": 50460814.47234815
+    },
+    {
+      "ranks": [
+        1,
+        3
+      ],
+      "bytes_each_direction": 1048576,
+      "duplex_exchange_seconds": 0.00014803262427449227,
+      "duplex_bytes_per_second": 14166823092.396961
+    },
+    {
+      "ranks": [
+        1,
+        3
+      ],
+      "bytes_each_direction": 16777216,
+      "duplex_exchange_seconds": 0.00152302673086524,
+      "duplex_bytes_per_second": 22031413710.60345
+    },
+    {
+      "ranks": [
+        2,
+        3
+      ],
+      "bytes_each_direction": 4096,
+      "duplex_exchange_seconds": 0.00015131376683712007,
+      "duplex_bytes_per_second": 54139158.460169606
+    },
+    {
+      "ranks": [
+        2,
+        3
+      ],
+      "bytes_each_direction": 1048576,
+      "duplex_exchange_seconds": 0.00014603130519390107,
+      "duplex_bytes_per_second": 14360975526.551594
+    },
+    {
+      "ranks": [
+        2,
+        3
+      ],
+      "bytes_each_direction": 16777216,
+      "duplex_exchange_seconds": 0.0015185903944075108,
+      "duplex_bytes_per_second": 22095775215.996613
+    }
+  ]
+}

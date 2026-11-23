@@ -1,0 +1,63 @@
+{
+  "torch": "2.14.1+cu126",
+  "cuda_runtime": "12.6",
+  "nccl": [
+    2,
+    29,
+    3
+  ],
+  "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+  "ranks": [
+    {
+      "rank": 0,
+      "hostname": "studgpu-node06.inf.ethz.ch",
+      "device": "NVIDIA GeForce GTX 1080 Ti",
+      "compute_capability": [
+        6,
+        1
+      ]
+    },
+    {
+      "rank": 1,
+      "hostname": "studgpu-node06.inf.ethz.ch",
+      "device": "NVIDIA GeForce GTX 1080 Ti",
+      "compute_capability": [
+        6,
+        1
+      ]
+    }
+  ],
+  "topology": "\t\u001b[4mGPU0\tGPU1\tNIC0\tCPU Affinity\tNUMA Affinity\tGPU NUMA ID\u001b[0m\nGPU0\t X \tPIX\tPIX\t0-3\t0\t\tN/A\nGPU1\tPIX\t X \tPIX\t0-3\t0\t\tN/A\nNIC0\tPIX\tPIX\t X \t\t\t\t\n\nLegend:\n\n  X    = Self\n  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)\n  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node\n  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)\n  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)\n  PIX  = Connection traversing at most a single PCIe bridge\n  NV#  = Connection traversing a bonded set of # NVLinks\n\nNIC Legend:\n\n  NIC0: mlx5_0\n\n",
+  "topology_error": "",
+  "iterations": 50,
+  "warmup": 10,
+  "measurements": [
+    {
+      "ranks": [
+        0,
+        1
+      ],
+      "bytes_each_direction": 4096,
+      "duplex_exchange_seconds": 0.00014211736619472502,
+      "duplex_bytes_per_second": 57642498.023609325
+    },
+    {
+      "ranks": [
+        0,
+        1
+      ],
+      "bytes_each_direction": 1048576,
+      "duplex_exchange_seconds": 0.00013466568663716316,
+      "duplex_bytes_per_second": 15573024222.944534
+    },
+    {
+      "ranks": [
+        0,
+        1
+      ],
+      "bytes_each_direction": 16777216,
+      "duplex_exchange_seconds": 0.0015408093109726905,
+      "duplex_bytes_per_second": 21777147737.261253
+    }
+  ]
+}
