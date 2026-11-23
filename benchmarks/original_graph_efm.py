@@ -1,12 +1,13 @@
 """One-GPU reference using the unchanged original GraphEFM.training_step.
 
 Same H64/L2/B2/AR4/FP32, optimizer, shuffle and RNG schedule as the archived
-distributed runs. The original full-grid Zarr/WeatherDataset path is used;
-there is no graph partitioning, halo exchange or distributed model wrapper.
+distributed runs. Input can come from the original full-grid Zarr or the
+existing one-rank ocean shard; the original model is unpartitioned in both.
 Only metric logging is captured by the benchmark instead of Lightning.
 """
 
 # Standard library
+import hashlib
 import json
 import math
 import os
@@ -27,6 +28,7 @@ from benchmarks.model_parallel_real import (
     _git_metadata,
     _global_scalar,
     _hardware_metadata,
+    _load_rank_local_dataset,
     _load_workload,
     _parse_args,
     _progress,
@@ -83,6 +85,84 @@ def comparison_fingerprint(batch):
     return fingerprint
 
 
+def validate_ocean_shard_order(dataset, model):
+    """Require the complete original ocean-node order, not a graph cut."""
+    expected_surface = torch.arange(model.num_interior_nodes)
+    expected_grid = torch.where(
+        torch.as_tensor(model.surface_mask, dtype=torch.bool)
+    )[0]
+    stores = [dataset.datastore]
+    if dataset.datastore_atmosphere is not None:
+        stores.append(dataset.datastore_atmosphere)
+    for datastore in stores:
+        source = datastore._ds
+        for name, expected in (
+            ("global_surface_index", expected_surface),
+            ("global_grid_index", expected_grid),
+        ):
+            actual = torch.as_tensor(source[name].values, dtype=torch.long)
+            if not torch.equal(actual, expected):
+                raise ValueError(f"ocean shard has wrong {name} order")
+
+
+def load_reference_workload(args):
+    """Change only dynamic input storage; build the same original model."""
+    use_shard = args.data_mode == "rank-local"
+    dataset, model, config = _load_workload(
+        args, include_global_dataset=not use_shard
+    )
+    input_metadata = {
+        "data_mode": "original-full-grid-zarr",
+        "rank_data_root": None,
+        "model_graph_partitioned": False,
+    }
+    if use_shard:
+        dataset, rank_root = _load_rank_local_dataset(args, config, 0, 1)
+        validate_ocean_shard_order(dataset, model)
+        manifest_path = rank_root.parent / "manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        if (
+            manifest["world_size"] != 1
+            or manifest["rank_counts"] != [model.num_interior_nodes]
+        ):
+            raise ValueError("reference needs the complete one-rank shard")
+        input_metadata.update({
+            "data_mode": "original-ocean-shard-zarr",
+            "rank_data_root": str(rank_root),
+            "manifest_sha256": hashlib.sha256(
+                manifest_path.read_bytes()
+            ).hexdigest(),
+            "original_ocean_node_order_verified": True,
+        })
+    return dataset, model, input_metadata
+
+
+def check_loss_trajectory(records, reference, warmup_steps):
+    """Reject a changed training trajectory when windows are comparable."""
+    if (
+        len(records) != len(reference["records"])
+        or warmup_steps != reference["workload"]["warmup_steps"]
+    ):
+        return {"checked": False, "reason": "different measurement window"}
+    errors = []
+    for actual, expected in zip(records, reference["records"]):
+        if actual["measurement_step"] != expected["measurement_step"]:
+            raise ValueError("reference measurement-step order differs")
+        left, right = actual["loss"], expected["loss"]
+        if not math.isclose(left, right, rel_tol=1e-4, abs_tol=1e-2):
+            raise ValueError(
+                "original reference loss trajectory mismatch at "
+                f"step {actual['measurement_step']}: {left} != {right}"
+            )
+        errors.append(abs(left - right) / max(abs(left), abs(right), 1e-12))
+    return {
+        "checked": True,
+        "steps": len(records),
+        "max_relative_loss_difference": max(errors),
+        "exactly_equal": all(error == 0 for error in errors),
+    }
+
+
 class OriginalGraphEFMTraining(nn.Module):
     """Capture original ELBO logs without changing rollout or loss code."""
 
@@ -123,8 +203,10 @@ def main():
     try:
         torch.manual_seed(args.seed)
         torch.use_deterministic_algorithms(True)
-        _progress(0, "loading original full-grid GraphEFM and WeatherDataset")
-        dataset, model, _ = _load_workload(args)
+        _progress(0, "loading original GraphEFM and selected input store")
+        dataset, model, input_metadata = load_reference_workload(args)
+        use_shard = input_metadata["data_mode"] == "original-ocean-shard-zarr"
+        _progress(0, f"original model input: {input_metadata['data_mode']}")
         model.to(device).train()
         training = OriginalGraphEFMTraining(model)
         parameters = list(training.parameters())
@@ -153,9 +235,12 @@ def main():
         with torch.no_grad():
             preflight = _global_scalar(training(batch)["loss"])
         reference_check = None
+        reference = None
         reference_path = os.environ.get("NJORD_REFERENCE_RESULT")
         if reference_path:
             reference = json.loads(Path(reference_path).read_text())
+            if reference["status"] != "completed":
+                raise ValueError("comparison reference did not complete")
             same_batch = _fingerprints_match(
                 fingerprint, reference["preflight"]["batch_fingerprint"]
             )
@@ -167,15 +252,16 @@ def main():
             )
             if not same_batch or not close_loss:
                 raise RuntimeError(
-                    "original/distributed preflight mismatch: "
+                    "original/reference preflight mismatch: "
                     f"same_batch={same_batch}, loss={preflight:.9g}, "
                     f"reference_loss={reference['preflight']['loss']:.9g}"
                 )
             reference_check = {
                 "path": reference_path,
+                "benchmark": reference["benchmark"],
                 "same_batch": same_batch,
                 "preflight_loss_close": close_loss,
-                "distributed_preflight_loss": reference["preflight"]["loss"],
+                "reference_preflight_loss": reference["preflight"]["loss"],
             }
         torch.cuda.synchronize(device)
         initialization_ms = (time.perf_counter() - start) * 1000
@@ -212,6 +298,20 @@ def main():
                 records.append(record)
         torch.cuda.synchronize(device)
         window_ms = (time.perf_counter() - window_start) * 1000
+        trajectory_check = (
+            check_loss_trajectory(records, reference, args.warmup_steps)
+            if reference is not None else None
+        )
+        hardware = _hardware_metadata(device, 0)
+        hardware["cpu"] = {
+            "affinity": (
+                sorted(os.sched_getaffinity(0))
+                if hasattr(os, "sched_getaffinity") else None
+            ),
+            "torch_num_threads": torch.get_num_threads(),
+            "slurm_cpus_on_node": os.environ.get("SLURM_CPUS_ON_NODE"),
+            "slurm_cpus_per_task": os.environ.get("SLURM_CPUS_PER_TASK"),
+        }
         result = {
             "schema_version": 1,
             "status": "completed",
@@ -227,6 +327,10 @@ def main():
             "workload": {
                 "config_path": str(args.config_path),
                 "source_data_root": os.environ.get("NJORD_SOURCE_DATA_ROOT"),
+                "source_partitioned_data_root": os.environ.get(
+                    "NJORD_SOURCE_PARTITIONED_DATA_ROOT"
+                ),
+                "rank_data_root": input_metadata["rank_data_root"],
                 "dataset": _dataset_metadata(dataset),
                 "dataset_samples": len(dataset),
                 "data_kind": "physical Njord Zarr samples",
@@ -277,7 +381,7 @@ def main():
                 "crps_weight": model.crps_weight,
                 "warmup_steps": args.warmup_steps,
                 "measurement_steps": args.steps,
-                "data_mode": "original-full-grid-zarr",
+                "data_mode": input_metadata["data_mode"],
                 "halo_exchange": False,
                 "data_phase_rank_barrier": False,
                 "rank_zero_loads_and_broadcasts_batch": False,
@@ -286,21 +390,30 @@ def main():
             "model": {
                 "trainable_parameters": sum(p.numel() for p in parameters)
             },
+            "input": input_metadata,
             "preflight": {
                 "loss": preflight,
                 "batch_fingerprint": fingerprint,
                 "original_batch_shapes": original_batch_shapes,
                 "empty_spatial_dimensions_canonicalized": True,
                 "distributed_reference_check": reference_check,
+                "reference_check": reference_check,
+                "loss_trajectory_check": trajectory_check,
             },
             "rank_metadata": [
                 {
                     "rank": 0,
-                    "hardware": _hardware_metadata(device, 0),
+                    "hardware": hardware,
                     "initialization_timings": {
                         "total_before_training_ms": initialization_ms,
                         "data_staging_ms": float(
                             os.environ.get("NJORD_STAGING_MS", 0)
+                        ),
+                        "source_data_staging_ms": float(
+                            os.environ.get("NJORD_SOURCE_STAGING_MS", 0)
+                        ),
+                        "ocean_shard_staging_ms": float(
+                            os.environ.get("NJORD_SHARD_STAGING_MS", 0)
                         ),
                     },
                     "records": records,
@@ -310,8 +423,13 @@ def main():
             "summary": _result_summary(records, args.batch_size, window_ms),
             "interpretation": {
                 "same_model_source_as_distributed_base": True,
-                "loader_reads_original_full_grid_before_ocean_mask": True,
-                "end_to_end_comparison_includes_input_layout_difference": True,
+                "loader_reads_original_full_grid_before_ocean_mask": (
+                    not use_shard
+                ),
+                "end_to_end_comparison_includes_input_layout_difference": (
+                    not use_shard
+                ),
+                "original_model_input_layout_control": use_shard,
                 "original_checkpoint_early_stop_preserved": True,
                 "timing_protocol_shared_with_distributed_runs": True,
             },
