@@ -1,0 +1,222 @@
+Original GraphEFM: H64/L2/B2/AR4/FP32, checkpointing, 8 workers, prefetch 2
+Input mode: ocean-shard; checkpoint early stop: original default (on)
+Original full-grid source: /scratch/users/mfricke/baltic-sea-forecasting-data/physical_repeat_16; staged: /tmp/njord-original-5031/physical_repeat_16
+Staging: 50454 ms; output: benchmark_results/model-parallel-real/original-graph-efm-ar4-ocean-shard-1gpu-5031.json
+NVIDIA GeForce GTX 1080 Ti, GPU-51e02b32-2371-69cf-0040-2ee73ee5b82f, 580.178.04, 11264 MiB
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+[2026-11-23T09:37:30.387386+00:00] loading original GraphEFM and selected input store
+The loaded datastore contains the following features:
+ state   : zos siconc sithick thetao_0m thetao_47m thetao_92m thetao_222m thetao_318m thetao_541m so_0m so_47m so_92m so_222m so_318m so_541m uo_0m uo_47m uo_92m uo_222m uo_318m uo_541m vo_0m vo_47m vo_92m vo_222m vo_318m vo_541m
+ forcing : day_of_year_sin day_of_year_cos
+ static  : deptho mdt sin_lon cos_lon sin_lat cos_lat coast_dist
+ mask    : zos siconc sithick thetao_0m thetao_47m thetao_92m thetao_222m thetao_318m thetao_541m so_0m so_47m so_92m so_222m so_318m so_541m uo_0m uo_47m uo_92m uo_222m uo_318m uo_541m vo_0m vo_47m vo_92m vo_222m vo_318m vo_541m
+With the following splits (over time):
+ train   : 2023-01-01T00:00 to 2024-04-23T00:00
+ val     : 2024-04-24T00:00 to 2024-05-01T00:00
+ test    : 2024-05-02T00:00 to 2024-05-10T00:00
+The loaded datastore contains the following features:
+/home/mfricke/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no state data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+ forcing : sotemair sowinu10 sowinv10 sosudosw sosudolw sowaprec sod2m somslpre
+/home/mfricke/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no static data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+/home/mfricke/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no mask data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+With the following splits (over time):
+ train   : 2023-01-01T00:00 to 2024-04-23T00:00
+ val     : 2024-04-24T00:00 to 2024-05-01T00:00
+ test    : 2024-05-02T00:00 to 2024-05-10T00:00
+Using hidden_dim_grid=64, hidden_dim_mesh_nodes=64, hidden_dim_edge=64, hidden_dim=64
+g2m_dim.shape: 4, m2g_dim.shape: 4
+GraphEFM, self.interior_dim=93, self.boundary_dim=None, self.atmosphere_dim=24, 
+Loaded hierarchical graph with structure:
+level 0 - 8456 nodes, 48546 same-level edges
+  0<->1
+ - 8456 up edges, 8456 down edges
+level 1 - 2097 nodes, 11640 same-level edges
+Loaded graph with 52901 nodes (42348 grid, 10553 mesh)
+HiGraphLatentEncoder hidden_dim: 64, hidden_dim_grid: 64
+HiGraphLatentEncoder hidden_dim: 64, hidden_dim_grid: 64
+The loaded datastore contains the following features:
+ state   : zos siconc sithick thetao_0m thetao_47m thetao_92m thetao_222m thetao_318m thetao_541m so_0m so_47m so_92m so_222m so_318m so_541m uo_0m uo_47m uo_92m uo_222m uo_318m uo_541m vo_0m vo_47m vo_92m vo_222m vo_318m vo_541m
+ forcing : day_of_year_sin day_of_year_cos
+ static  : deptho mdt sin_lon cos_lon sin_lat cos_lat coast_dist
+ mask    : zos siconc sithick thetao_0m thetao_47m thetao_92m thetao_222m thetao_318m thetao_541m so_0m so_47m so_92m so_222m so_318m so_541m uo_0m uo_47m uo_92m uo_222m uo_318m uo_541m vo_0m vo_47m vo_92m vo_222m vo_318m vo_541m
+With the following splits (over time):
+ train   : 2023-01-01T00:00 to 2024-04-23T00:00
+ val     : 2024-04-24T00:00 to 2024-05-01T00:00
+ test    : 2024-05-02T00:00 to 2024-05-10T00:00
+The loaded datastore contains the following features:
+/home/mfricke/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no state data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+ forcing : sotemair sowinu10 sowinv10 sosudosw sosudolw sowaprec sod2m somslpre
+/home/mfricke/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no static data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+/home/mfricke/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no mask data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+With the following splits (over time):
+ train   : 2023-01-01T00:00 to 2024-04-23T00:00
+ val     : 2024-04-24T00:00 to 2024-05-01T00:00
+ test    : 2024-05-02T00:00 to 2024-05-10T00:00
+[2026-11-23T09:37:33.497685+00:00] original model input: original-ocean-shard-zarr
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py:431: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  self.check_worker_number_rationality()
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py:437: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  self.check_worker_number_rationality()
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/mfricke/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+[2026-11-23T09:39:54.420755+00:00] original preflight passed; loss=1.10282611e+09
+{
+  "data_distribution_ms": {
+    "count": 50,
+    "mean": 92.08366055972874,
+    "median": 93.31388800637797,
+    "std": 26.040504022436753,
+    "min": 42.23278001882136,
+    "p95": 135.63239300856367,
+    "max": 153.49511604290456
+  },
+  "data_read_ms": {
+    "count": 50,
+    "mean": 7.035039119655266,
+    "median": 6.674796022707596,
+    "std": 3.0294569228689827,
+    "min": 0.16546703409403563,
+    "p95": 13.264473003800958,
+    "max": 15.009028953500092
+  },
+  "host_to_device_ms": {
+    "count": 50,
+    "mean": 55.00792593811639,
+    "median": 54.66770951170474,
+    "std": 16.509167375605994,
+    "min": 22.354216023813933,
+    "p95": 82.23381300922483,
+    "max": 99.50717800529674
+  },
+  "batch_broadcast_ms": {
+    "count": 50,
+    "mean": 0.0,
+    "median": 0.0,
+    "std": 0.0,
+    "min": 0.0,
+    "p95": 0.0,
+    "max": 0.0
+  },
+  "data_rank_wait_ms": {
+    "count": 50,
+    "mean": 0.0,
+    "median": 0.0,
+    "std": 0.0,
+    "min": 0.0,
+    "p95": 0.0,
+    "max": 0.0
+  },
+  "forward_ms": {
+    "count": 50,
+    "mean": 555.3183166503907,
+    "median": 509.0693359375,
+    "std": 155.6275490296198,
+    "min": 442.93939208984375,
+    "p95": 866.7842407226562,
+    "max": 1272.5985107421875
+  },
+  "backward_ms": {
+    "count": 50,
+    "mean": 1008.4753918457031,
+    "median": 1001.5610656738281,
+    "std": 75.05705688969205,
+    "min": 889.4904174804688,
+    "p95": 1160.33642578125,
+    "max": 1249.46533203125
+  },
+  "gradient_sync_ms": {
+    "count": 50,
+    "mean": 0.008585599984508007,
+    "median": 0.002047999994829297,
+    "std": 0.012458239445203042,
+    "min": 0.0010239999974146485,
+    "p95": 0.03379200026392937,
+    "max": 0.03993599861860275
+  },
+  "optimizer_ms": {
+    "count": 50,
+    "mean": 9.361533420085907,
+    "median": 0.6379519999027252,
+    "std": 9.899779911769686,
+    "min": 0.609279990196228,
+    "p95": 24.11622428894043,
+    "max": 27.55072021484375
+  },
+  "compute_ms": {
+    "count": 50,
+    "mean": 1573.1638305664062,
+    "median": 1517.76513671875,
+    "std": 177.48454709813538,
+    "min": 1360.067626953125,
+    "p95": 1943.226318359375,
+    "max": 2354.24267578125
+  },
+  "metric_reduce_ms": {
+    "count": 50,
+    "mean": 0.5796972769498825,
+    "median": 0.41310399770736694,
+    "std": 0.8026563618990483,
+    "min": 0.1801919937133789,
+    "p95": 2.4237759113311768,
+    "max": 4.555520057678223
+  },
+  "step_ms": {
+    "count": 50,
+    "mean": 1573.7435278320313,
+    "median": 1518.0946655273438,
+    "std": 177.4171443647016,
+    "min": 1360.247802734375,
+    "p95": 1943.450439453125,
+    "max": 2354.452880859375
+  },
+  "end_to_end_ms": {
+    "count": 50,
+    "mean": 1665.82718839176,
+    "median": 1628.2433023741469,
+    "std": 187.98328389424586,
+    "min": 1428.6245697760023,
+    "p95": 2096.9455554960296,
+    "max": 2465.058381847106
+  },
+  "loss": {
+    "count": 50,
+    "mean": 15698777.445,
+    "median": 12622751.5,
+    "std": 11303069.307091448,
+    "min": 3833167.5,
+    "p95": 39747068.0,
+    "max": 48831792.0
+  },
+  "global_batch_size": 2,
+  "measured_samples": 100,
+  "compute_samples_per_second": 1.2713234064629584,
+  "end_to_end_samples_per_second": 1.2006047289520232,
+  "observed_window_ms": 83511.22978900094,
+  "observed_samples_per_second": 1.1974437480163986,
+  "peak_memory_allocated_bytes_per_gpu": 3659039744,
+  "peak_memory_reserved_bytes_per_gpu": 4175429632
+}
+[2026-11-23T09:41:41.682178+00:00] Result: benchmark_results/model-parallel-real/original-graph-efm-ar4-ocean-shard-1gpu-5031.json

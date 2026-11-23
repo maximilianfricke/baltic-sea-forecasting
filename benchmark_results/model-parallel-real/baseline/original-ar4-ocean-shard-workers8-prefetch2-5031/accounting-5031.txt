@@ -1,0 +1,5 @@
+JobID             State    Elapsed ExitCode                                                                        AllocTRES 
+------------ ---------- ---------- -------- -------------------------------------------------------------------------------- 
+5031          COMPLETED   00:06:07      0:0                      billing=1,cpu=2,gres/gpu:1080ti=1,gres/gpu=1,mem=24G,node=1 
+5031.batch    COMPLETED   00:06:07      0:0                                cpu=2,gres/gpu:1080ti=1,gres/gpu=1,mem=24G,node=1 
+5031.extern   COMPLETED   00:06:07      0:0                      billing=1,cpu=2,gres/gpu:1080ti=1,gres/gpu=1,mem=24G,node=1 
