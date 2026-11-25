@@ -43,14 +43,14 @@ def build(k, **kw):
     return owners, comm
 
 
-for k in (2, 4):
+for k in (4,):
     pass
     """
     ref = np.load(parts_dir / f"max_split_viewer_k{k}.npz")
     same = all(np.array_equal(geo[i], ref[n])
                for i, n in enumerate(("grid", "mesh_0", "mesh_1")))
     """
-    for name in ("nils_weighted_rcb", "nils_weighted_mtkahypar_km1"):
+    for name in sys.argv[2].split(","):
         f = parts_dir / f"{name}_k{k}.npz"
         owners, comm = build(k, strategy="file", partition_file=f)
         z = np.load(f)
