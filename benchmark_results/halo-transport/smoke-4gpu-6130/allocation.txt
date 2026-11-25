@@ -1,0 +1,30 @@
+JobId=6130 JobName=halo-ab-smoke-4g
+   UserId=mfricke(531514) GroupId=mfricke-group(438550) MCS_label=N/A
+   Priority=3831 Nice=0 Account=dphpc_4gpu QOS=mfricke-dphpc_4gpu
+   JobState=RUNNING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:19 TimeLimit=00:15:00 TimeMin=N/A
+   SubmitTime=2026-11-25T23:07:59 EligibleTime=2026-11-25T23:07:59
+   AccrueTime=2026-11-25T23:07:59
+   StartTime=2026-11-25T23:07:59 EndTime=2026-11-25T23:22:59 Deadline=N/A
+   PreemptEligibleTime=2026-11-25T23:07:59 PreemptTime=None
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-11-25T23:07:59 Scheduler=Main
+   Partition=jobs AllocNode:Sid=student-cluster1.inf.ethz.ch:1062625
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=studgpu-node02
+   BatchHost=studgpu-node02
+   NumNodes=1 NumCPUs=8 NumTasks=1 CPUs/Task=8 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=8,mem=96G,node=1,billing=4,gres/gpu=4,gres/gpu:1080ti=4
+   AllocTRES=cpu=8,mem=96G,node=1,billing=4,gres/gpu=4,gres/gpu:1080ti=4
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=8 MinMemoryNode=96G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=YES Exclusive=NO Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/home/mfricke/baltic-sea-forecasting/jobs/halo_transport_comparison.sbatch
+   SubmitLine=sbatch --account=dphpc_4gpu --gpus=1080ti:4 --time=00:15:00 --job-name=halo-ab-smoke-4g --output=benchmark_results/halo-transport/slurm-smoke-4g-%j.out --export=ALL,NJORD_AB_GPUS=4,NJORD_AB_PHASE=smoke,NJORD_AB_REPEATS=1,NJORD_AB_WARMUP=0,NJORD_AB_STEPS=1 jobs/halo_transport_comparison.sbatch
+   WorkDir=/home/mfricke/baltic-sea-forecasting
+   StdErr=
+   StdIn=/dev/null
+   StdOut=/home/mfricke/baltic-sea-forecasting/benchmark_results/halo-transport/slurm-smoke-4g-6130.out
+   TresPerJob=gres/gpu:1080ti:4
+

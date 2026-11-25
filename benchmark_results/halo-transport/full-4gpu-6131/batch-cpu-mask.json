@@ -1,0 +1,23 @@
+{
+  "cpu_affinity": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "environment": {
+    "SLURM_CPUS_PER_TASK": null,
+    "SLURM_CPUS_ON_NODE": "8",
+    "SLURM_CPU_BIND": null,
+    "OMP_PROC_BIND": null,
+    "OMP_PLACES": null,
+    "GOMP_CPU_AFFINITY": null,
+    "KMP_AFFINITY": null,
+    "NCCL_IGNORE_CPU_AFFINITY": null,
+    "TORCH_DIST_USE_NCCL2": null
+  }
+}

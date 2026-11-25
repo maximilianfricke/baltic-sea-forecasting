@@ -1,0 +1,65 @@
+{
+  "all_cpu_affinity_checks_passed": true,
+  "all_equivalence_checks_passed": true,
+  "ci_scope": "Paired independent launches only; three repeats provide limited uncertainty resolution",
+  "controls_sha256": "1ea61497f0f95fe00d9aa4edb1567e810114ce1a549793534fa94cfc60eb8972",
+  "cpu_placement": {
+    "job_cpu_ids": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "policy": "slurm-disjoint-ranks-v1",
+    "rank_cpu_ids": [
+      [
+        10,
+        11
+      ],
+      [
+        12,
+        13
+      ],
+      [
+        14,
+        15
+      ],
+      [
+        16,
+        17
+      ]
+    ]
+  },
+  "independent_paired_launches": 3,
+  "paired_launch_bootstrap_ci95": [
+    1.0151302900824455,
+    1.1010570393200954
+  ],
+  "per_launch_model_wall_medians_ms": {
+    "p2p": [
+      771.866851951927,
+      759.4455470098183,
+      748.7735414761119
+    ],
+    "physicsnemo": [
+      760.3623490431346,
+      689.7422384936363,
+      734.8716199630871
+    ]
+  },
+  "physicsnemo_speedup_over_p2p": 1.0334397551615417,
+  "prefetch_factor": null,
+  "source_files": [
+    "benchmark_results/halo-transport/full-4gpu-6131/repeat-0.json",
+    "benchmark_results/halo-transport/full-4gpu-6131/repeat-1.json",
+    "benchmark_results/halo-transport/full-4gpu-6131/repeat-2.json"
+  ],
+  "status": "completed",
+  "timer": "Cached model wall step after H2D and rank barrier; excludes input/setup",
+  "workers_per_rank": 0,
+  "world_size": 4
+}

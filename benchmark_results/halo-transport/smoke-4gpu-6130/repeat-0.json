@@ -1,0 +1,6504 @@
+{
+  "cases": {
+    "p2p": {
+      "peak_allocated_bytes_per_gpu": 1009153536,
+      "rank_records": [
+        [
+          {
+            "backward_ms": 553.0972290039062,
+            "batch_samples": 2,
+            "batch_slot": 0,
+            "compute_ms": 848.8857421875,
+            "forward_ms": 254.9811248779297,
+            "gradient_all_reduce_calls": 1,
+            "gradient_sync_bytes": 2580080,
+            "gradient_sync_ms": 9.523200035095215,
+            "h2d_outside_timer_ms": 8.401260012760758,
+            "kl": 241199.40625,
+            "loss": 1257342592.0,
+            "measurement_step": 0,
+            "memory_allocated_bytes": 123150336,
+            "memory_reserved_bytes": 1136656384,
+            "metric_reduce_ms": 0.49958398938179016,
+            "model_wall_ms": 853.2982859760523,
+            "negative_likelihood": 1257101440.0,
+            "optimizer_ms": 31.284223556518555,
+            "peak_memory_allocated_bytes": 1009153536,
+            "peak_memory_reserved_bytes": 1136656384,
+            "step_ms": 849.3853149414062
+          }
+        ],
+        [
+          {
+            "backward_ms": 554.8789672851562,
+            "batch_samples": 2,
+            "batch_slot": 0,
+            "compute_ms": 831.3118896484375,
+            "forward_ms": 252.1426239013672,
+            "gradient_all_reduce_calls": 1,
+            "gradient_sync_bytes": 2580080,
+            "gradient_sync_ms": 5.944416046142578,
+            "h2d_outside_timer_ms": 8.623379981145263,
+            "kl": 241199.40625,
+            "loss": 1257342592.0,
+            "measurement_step": 0,
+            "memory_allocated_bytes": 123150336,
+            "memory_reserved_bytes": 1157627904,
+            "metric_reduce_ms": 17.919872283935547,
+            "model_wall_ms": 853.1419379869476,
+            "negative_likelihood": 1257101440.0,
+            "optimizer_ms": 18.345888137817383,
+            "peak_memory_allocated_bytes": 1007036928,
+            "peak_memory_reserved_bytes": 1157627904,
+            "step_ms": 849.2317504882812
+          }
+        ],
+        [
+          {
+            "backward_ms": 558.645263671875,
+            "batch_samples": 2,
+            "batch_slot": 0,
+            "compute_ms": 841.332763671875,
+            "forward_ms": 252.14259338378906,
+            "gradient_all_reduce_calls": 1,
+            "gradient_sync_bytes": 2580080,
+            "gradient_sync_ms": 7.761919975280762,
+            "h2d_outside_timer_ms": 8.187544997781515,
+            "kl": 241199.40625,
+            "loss": 1257342592.0,
+            "measurement_step": 0,
+            "memory_allocated_bytes": 123117568,
+            "memory_reserved_bytes": 1147142144,
+            "metric_reduce_ms": 7.89785623550415,
+            "model_wall_ms": 853.1307089142501,
+            "negative_likelihood": 1257101440.0,
+            "optimizer_ms": 22.782976150512695,
+            "peak_memory_allocated_bytes": 991460864,
+            "peak_memory_reserved_bytes": 1147142144,
+            "step_ms": 849.2305908203125
+          }
+        ],
+        [
+          {
+            "backward_ms": 555.7483520507812,
+            "batch_samples": 2,
+            "batch_slot": 0,
+            "compute_ms": 837.8541259765625,
+            "forward_ms": 252.2090606689453,
+            "gradient_all_reduce_calls": 1,
+            "gradient_sync_bytes": 2580080,
+            "gradient_sync_ms": 6.910975933074951,
+            "h2d_outside_timer_ms": 7.810708018951118,
+            "kl": 241199.40625,
+            "loss": 1257342592.0,
+            "measurement_step": 0,
+            "memory_allocated_bytes": 123016704,
+            "memory_reserved_bytes": 1094713344,
+            "metric_reduce_ms": 11.415103912353516,
+            "model_wall_ms": 853.0851749237627,
+            "negative_likelihood": 1257101440.0,
+            "optimizer_ms": 22.985727310180664,
+            "peak_memory_allocated_bytes": 981774848,
+            "peak_memory_reserved_bytes": 1094713344,
+            "step_ms": 849.2692260742188
+          }
+        ]
+      ],
+      "records": [
+        {
+          "backward_ms": 558.645263671875,
+          "batch_samples": 2,
+          "batch_slot": 0,
+          "compute_ms": 848.8857421875,
+          "critical_rank": 0,
+          "critical_rank_phases": {
+            "backward_ms": 553.0972290039062,
+            "forward_ms": 254.9811248779297,
+            "gradient_sync_ms": 9.523200035095215,
+            "metric_reduce_ms": 0.49958398938179016,
+            "optimizer_ms": 31.284223556518555
+          },
+          "forward_ms": 254.9811248779297,
+          "gradient_all_reduce_calls": 1,
+          "gradient_sync_bytes": 2580080,
+          "gradient_sync_ms": 9.523200035095215,
+          "h2d_outside_timer_ms": 8.623379981145263,
+          "kl": 241199.40625,
+          "loss": 1257342592.0,
+          "measurement_step": 0,
+          "memory_allocated_bytes": 123150336,
+          "memory_reserved_bytes": 1157627904,
+          "metric_reduce_ms": 17.919872283935547,
+          "model_wall_ms": 853.2982859760523,
+          "negative_likelihood": 1257101440.0,
+          "optimizer_ms": 31.284223556518555,
+          "peak_memory_allocated_bytes": 1009153536,
+          "peak_memory_reserved_bytes": 1157627904,
+          "step_ms": 849.3853149414062
+        }
+      ],
+      "summary": {
+        "backward_ms": {
+          "count": 1,
+          "max": 558.645263671875,
+          "mean": 558.645263671875,
+          "median": 558.645263671875,
+          "min": 558.645263671875,
+          "p95": 558.645263671875,
+          "std": 0.0
+        },
+        "forward_ms": {
+          "count": 1,
+          "max": 254.9811248779297,
+          "mean": 254.9811248779297,
+          "median": 254.9811248779297,
+          "min": 254.9811248779297,
+          "p95": 254.9811248779297,
+          "std": 0.0
+        },
+        "gradient_sync_ms": {
+          "count": 1,
+          "max": 9.523200035095215,
+          "mean": 9.523200035095215,
+          "median": 9.523200035095215,
+          "min": 9.523200035095215,
+          "p95": 9.523200035095215,
+          "std": 0.0
+        },
+        "h2d_outside_timer_ms": {
+          "count": 1,
+          "max": 8.623379981145263,
+          "mean": 8.623379981145263,
+          "median": 8.623379981145263,
+          "min": 8.623379981145263,
+          "p95": 8.623379981145263,
+          "std": 0.0
+        },
+        "loss": {
+          "count": 1,
+          "max": 1257342592.0,
+          "mean": 1257342592.0,
+          "median": 1257342592.0,
+          "min": 1257342592.0,
+          "p95": 1257342592.0,
+          "std": 0.0
+        },
+        "metric_reduce_ms": {
+          "count": 1,
+          "max": 17.919872283935547,
+          "mean": 17.919872283935547,
+          "median": 17.919872283935547,
+          "min": 17.919872283935547,
+          "p95": 17.919872283935547,
+          "std": 0.0
+        },
+        "model_wall_ms": {
+          "count": 1,
+          "max": 853.2982859760523,
+          "mean": 853.2982859760523,
+          "median": 853.2982859760523,
+          "min": 853.2982859760523,
+          "p95": 853.2982859760523,
+          "std": 0.0
+        },
+        "optimizer_ms": {
+          "count": 1,
+          "max": 31.284223556518555,
+          "mean": 31.284223556518555,
+          "median": 31.284223556518555,
+          "min": 31.284223556518555,
+          "p95": 31.284223556518555,
+          "std": 0.0
+        },
+        "step_ms": {
+          "count": 1,
+          "max": 849.3853149414062,
+          "mean": 849.3853149414062,
+          "median": 849.3853149414062,
+          "min": 849.3853149414062,
+          "p95": 849.3853149414062,
+          "std": 0.0
+        }
+      }
+    },
+    "physicsnemo": {
+      "peak_allocated_bytes_per_gpu": 1009153536,
+      "rank_records": [
+        [
+          {
+            "backward_ms": 468.9530944824219,
+            "batch_samples": 2,
+            "batch_slot": 0,
+            "compute_ms": 741.3452758789062,
+            "forward_ms": 229.76409912109375,
+            "gradient_all_reduce_calls": 1,
+            "gradient_sync_bytes": 2580080,
+            "gradient_sync_ms": 11.267071723937988,
+            "h2d_outside_timer_ms": 6.8875489523634315,
+            "kl": 241199.40625,
+            "loss": 1257342592.0,
+            "measurement_step": 0,
+            "memory_allocated_bytes": 123150336,
+            "memory_reserved_bytes": 1136656384,
+            "metric_reduce_ms": 0.33744001388549805,
+            "model_wall_ms": 745.5813009291887,
+            "negative_likelihood": 1257101440.0,
+            "optimizer_ms": 31.361024856567383,
+            "peak_memory_allocated_bytes": 1009153536,
+            "peak_memory_reserved_bytes": 1136656384,
+            "step_ms": 741.6827392578125
+          }
+        ],
+        [
+          {
+            "backward_ms": 470.6631774902344,
+            "batch_samples": 2,
+            "batch_slot": 0,
+            "compute_ms": 727.89404296875,
+            "forward_ms": 228.03762817382812,
+            "gradient_all_reduce_calls": 1,
+            "gradient_sync_bytes": 2580080,
+            "gradient_sync_ms": 6.456319808959961,
+            "h2d_outside_timer_ms": 7.279341924004257,
+            "kl": 241199.40625,
+            "loss": 1257342592.0,
+            "measurement_step": 0,
+            "memory_allocated_bytes": 123150336,
+            "memory_reserved_bytes": 1157627904,
+            "metric_reduce_ms": 13.712096214294434,
+            "model_wall_ms": 745.5728759523481,
+            "negative_likelihood": 1257101440.0,
+            "optimizer_ms": 22.736896514892578,
+            "peak_memory_allocated_bytes": 1007036928,
+            "peak_memory_reserved_bytes": 1157627904,
+            "step_ms": 741.6061401367188
+          }
+        ],
+        [
+          {
+            "backward_ms": 470.6222229003906,
+            "batch_samples": 2,
+            "batch_slot": 0,
+            "compute_ms": 728.3404541015625,
+            "forward_ms": 228.0130615234375,
+            "gradient_all_reduce_calls": 1,
+            "gradient_sync_bytes": 2580080,
+            "gradient_sync_ms": 6.888448238372803,
+            "h2d_outside_timer_ms": 7.133926963433623,
+            "kl": 241199.40625,
+            "loss": 1257342592.0,
+            "measurement_step": 0,
+            "memory_allocated_bytes": 123117568,
+            "memory_reserved_bytes": 1147142144,
+            "metric_reduce_ms": 13.271807670593262,
+            "model_wall_ms": 745.626736083068,
+            "negative_likelihood": 1257101440.0,
+            "optimizer_ms": 22.816768646240234,
+            "peak_memory_allocated_bytes": 991460864,
+            "peak_memory_reserved_bytes": 1147142144,
+            "step_ms": 741.6123046875
+          }
+        ],
+        [
+          {
+            "backward_ms": 472.25958251953125,
+            "batch_samples": 2,
+            "batch_slot": 0,
+            "compute_ms": 730.9373168945312,
+            "forward_ms": 228.04684448242188,
+            "gradient_all_reduce_calls": 1,
+            "gradient_sync_bytes": 2580080,
+            "gradient_sync_ms": 7.9482879638671875,
+            "h2d_outside_timer_ms": 5.613049026578665,
+            "kl": 241199.40625,
+            "loss": 1257342592.0,
+            "measurement_step": 0,
+            "memory_allocated_bytes": 123016704,
+            "memory_reserved_bytes": 1094713344,
+            "metric_reduce_ms": 10.662848472595215,
+            "model_wall_ms": 745.4965939978138,
+            "negative_likelihood": 1257101440.0,
+            "optimizer_ms": 22.68262481689453,
+            "peak_memory_allocated_bytes": 981774848,
+            "peak_memory_reserved_bytes": 1094713344,
+            "step_ms": 741.6002197265625
+          }
+        ]
+      ],
+      "records": [
+        {
+          "backward_ms": 472.25958251953125,
+          "batch_samples": 2,
+          "batch_slot": 0,
+          "compute_ms": 741.3452758789062,
+          "critical_rank": 2,
+          "critical_rank_phases": {
+            "backward_ms": 470.6222229003906,
+            "forward_ms": 228.0130615234375,
+            "gradient_sync_ms": 6.888448238372803,
+            "metric_reduce_ms": 13.271807670593262,
+            "optimizer_ms": 22.816768646240234
+          },
+          "forward_ms": 229.76409912109375,
+          "gradient_all_reduce_calls": 1,
+          "gradient_sync_bytes": 2580080,
+          "gradient_sync_ms": 11.267071723937988,
+          "h2d_outside_timer_ms": 7.279341924004257,
+          "kl": 241199.40625,
+          "loss": 1257342592.0,
+          "measurement_step": 0,
+          "memory_allocated_bytes": 123150336,
+          "memory_reserved_bytes": 1157627904,
+          "metric_reduce_ms": 13.712096214294434,
+          "model_wall_ms": 745.626736083068,
+          "negative_likelihood": 1257101440.0,
+          "optimizer_ms": 31.361024856567383,
+          "peak_memory_allocated_bytes": 1009153536,
+          "peak_memory_reserved_bytes": 1157627904,
+          "step_ms": 741.6827392578125
+        }
+      ],
+      "summary": {
+        "backward_ms": {
+          "count": 1,
+          "max": 472.25958251953125,
+          "mean": 472.25958251953125,
+          "median": 472.25958251953125,
+          "min": 472.25958251953125,
+          "p95": 472.25958251953125,
+          "std": 0.0
+        },
+        "forward_ms": {
+          "count": 1,
+          "max": 229.76409912109375,
+          "mean": 229.76409912109375,
+          "median": 229.76409912109375,
+          "min": 229.76409912109375,
+          "p95": 229.76409912109375,
+          "std": 0.0
+        },
+        "gradient_sync_ms": {
+          "count": 1,
+          "max": 11.267071723937988,
+          "mean": 11.267071723937988,
+          "median": 11.267071723937988,
+          "min": 11.267071723937988,
+          "p95": 11.267071723937988,
+          "std": 0.0
+        },
+        "h2d_outside_timer_ms": {
+          "count": 1,
+          "max": 7.279341924004257,
+          "mean": 7.279341924004257,
+          "median": 7.279341924004257,
+          "min": 7.279341924004257,
+          "p95": 7.279341924004257,
+          "std": 0.0
+        },
+        "loss": {
+          "count": 1,
+          "max": 1257342592.0,
+          "mean": 1257342592.0,
+          "median": 1257342592.0,
+          "min": 1257342592.0,
+          "p95": 1257342592.0,
+          "std": 0.0
+        },
+        "metric_reduce_ms": {
+          "count": 1,
+          "max": 13.712096214294434,
+          "mean": 13.712096214294434,
+          "median": 13.712096214294434,
+          "min": 13.712096214294434,
+          "p95": 13.712096214294434,
+          "std": 0.0
+        },
+        "model_wall_ms": {
+          "count": 1,
+          "max": 745.626736083068,
+          "mean": 745.626736083068,
+          "median": 745.626736083068,
+          "min": 745.626736083068,
+          "p95": 745.626736083068,
+          "std": 0.0
+        },
+        "optimizer_ms": {
+          "count": 1,
+          "max": 31.361024856567383,
+          "mean": 31.361024856567383,
+          "median": 31.361024856567383,
+          "min": 31.361024856567383,
+          "p95": 31.361024856567383,
+          "std": 0.0
+        },
+        "step_ms": {
+          "count": 1,
+          "max": 741.6827392578125,
+          "mean": 741.6827392578125,
+          "median": 741.6827392578125,
+          "min": 741.6827392578125,
+          "p95": 741.6827392578125,
+          "std": 0.0
+        }
+      }
+    }
+  },
+  "controls": {
+    "cached_workers_active_during_timing": false,
+    "checkpoint_early_stop": false,
+    "cpu_placement": {
+      "job_cpu_ids": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "policy": "slurm-disjoint-ranks-v1",
+      "rank_cpu_ids": [
+        [
+          10,
+          11
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          14,
+          15
+        ],
+        [
+          16,
+          17
+        ]
+      ]
+    },
+    "deterministic_algorithms": true,
+    "distribution_validate_args": true,
+    "graph_sha256": "aca12c6fa703a279af5dacdc6019e94e5a71177a0c5d2800454f8f38f04333ba",
+    "initial_state_sha256": "adf73faa502218345b8b872f7d93a4815d40efea15342cc3720644cb0777db51",
+    "measurement_steps": 1,
+    "model": {
+      "ar_steps_train": 4,
+      "batch_size": 2,
+      "crps_alpha": 0.95,
+      "crps_weight": 0.0,
+      "encoder_processor_layers": 1,
+      "ensemble_size": 5,
+      "epochs": 100,
+      "grad_checkpointing": true,
+      "graph": "global_cluster_graph",
+      "hidden_dim": 64,
+      "hidden_dim_edge": 64,
+      "hidden_dim_grid": 64,
+      "hidden_dim_mesh_nodes": 64,
+      "hidden_layers": 1,
+      "input_steps": 2,
+      "kl_beta": 1.0,
+      "latent_dim": null,
+      "learn_prior": 1,
+      "loss": "wmse",
+      "lr": 0.001,
+      "metrics_watch": [],
+      "min_lr": 0.001,
+      "muon_exclude_patterns": [],
+      "muon_momentum": 0.95,
+      "muon_weight_decay": 0.0,
+      "n_example_pred": 0,
+      "num_future_atmosphere_steps": 0,
+      "num_future_boundary_steps": 0,
+      "num_future_forcing_steps": 0,
+      "num_latents_plot": 4,
+      "num_past_atmosphere_steps": 2,
+      "num_past_boundary_steps": 2,
+      "num_past_forcing_steps": 2,
+      "optimizer": "adamw",
+      "output_std": false,
+      "prior_dist": "isotropic",
+      "prior_processor_layers": 1,
+      "processor_layers": 2,
+      "restore_opt": false,
+      "sample_obs_noise": 0,
+      "seed": 42,
+      "soap_betas": [
+        0.95,
+        0.95
+      ],
+      "soap_muon_betas": [
+        0.95,
+        0.98
+      ],
+      "soap_muon_disable_sqrt": false,
+      "soap_precondition_frequency": 10,
+      "soap_weight_decay": 0.0,
+      "train_distr_crps": false,
+      "val_steps_to_log": [
+        1,
+        2,
+        3
+      ],
+      "var_leads_metrics_watch": {}
+    },
+    "pin_memory": false,
+    "prefetch_factor": null,
+    "rank_input_hashes": [
+      [
+        [
+          "16479685a88a31253b9a74817db3d20dcc94287aa9fbecdc5e206948751518bf",
+          "87df915e9e2d5cc2b654d3c11344cf5f276d34ca6b3e938ed1b88b49ad0649cc",
+          "e1c3ed40c5ec1b7a4981229b49f40272ff78048d352d75c59898d04e5618a1f4",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "eaaf072fa6e47b91c003f78591d93169bc8659ddf19d52b708140cafece18357",
+          "f0a116153fb11f389e4aaca6a9c2927f17952d8ed10821d7a599c56ada99060b"
+        ],
+        [
+          "0f23a0951ffa982d5698abbc91d3ab7980769519375aac5846735a9f15a49727",
+          "f94ce2db2eeb1be1ee8bb9a2644278c336685223f1eaf7fe6dec24d843c5711e",
+          "c08db500d4ef3fd1951e57e235275a9768fb368581b7897e84f6d9119fe13ed7",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "39de0c1ee598b8bdd589f8992f39290036ecbc824f91674b0c3892c922f268c4",
+          "55132625950815ebaba0ab821746c2d64d2b183fa814d3b9f60eb5545b3f78d1"
+        ],
+        [
+          "6901742cdc29c4e361a30000d5849c89bc243db96ba836df19fca848b2a07e38",
+          "41dc8b7426808e7d558270c650d8b9efa6efc113f3bbc276431b2fee071e68fe",
+          "5d37da7388bdde9e8e72f96e3776f9520922ef21266430cc902f85509d25e576",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "75ef4049e0000760b9ca2a67ec18d14697fd7f9b85aa9a37667c524796a8c85c",
+          "d26b1e3359b03aa7b1aacbb3966c1efdfd53f1ea317989fea7ace3a270835d3f"
+        ],
+        [
+          "22c92532ef771a89d5e4eef425aed11808cb4b3f715e82caf999886a217c833c",
+          "d83ca4263fadf140bace6dd4a08d22ae45e52a40bca1f7883379595f31bcfccd",
+          "18e506121f621bbd4820e50f8dfcdedde7ae046ae84eba10de4d522b4520652c",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "bbdd6abdd766909fc487b8604672c56cf1a859756cc09adea83be71117a40e7f",
+          "7d4bc4a861045482d2b2039c37bc2ed9e52bb8de6882633560cbffa21d751f05"
+        ]
+      ],
+      [
+        [
+          "2e3553dc44c2cbf0f7ad86c21f15bf3cc3088e368dfd9c9ce552832b62c5ff31",
+          "a6260c7570585e80a23df8ccc90ce79ab567b514a482fedd1655e98ddba8d028",
+          "e1c3ed40c5ec1b7a4981229b49f40272ff78048d352d75c59898d04e5618a1f4",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "889d4f7cf37b66605ade32953f0e260a0b26cb79b1cdf9757a220a825543890d",
+          "f0a116153fb11f389e4aaca6a9c2927f17952d8ed10821d7a599c56ada99060b"
+        ],
+        [
+          "7ffa33498f5f29f199ea0fae21ccf71d811c6e48007f8bcf5432e3cafc7ddd9a",
+          "041dedd8e71fa39ff170f76aff13db22f24f82e5f80cfa47bceb98db3f3e4174",
+          "c08db500d4ef3fd1951e57e235275a9768fb368581b7897e84f6d9119fe13ed7",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "3d097b1ba5a75060aebb12c438a8e2f42384611996bda75333977e48189397df",
+          "55132625950815ebaba0ab821746c2d64d2b183fa814d3b9f60eb5545b3f78d1"
+        ],
+        [
+          "b0f4808f2533a636aec2638c8fa0426e083b458c4aa82039b5fa3356610f8f93",
+          "c8ca3982f4d007dd736ce2f13cc27861db00c9f9c8726686f54b4d36d906b989",
+          "5d37da7388bdde9e8e72f96e3776f9520922ef21266430cc902f85509d25e576",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "b736d8aa29229869326b6319518948e9be10ff4837ee7d5d77de75cc7eeca7b3",
+          "d26b1e3359b03aa7b1aacbb3966c1efdfd53f1ea317989fea7ace3a270835d3f"
+        ],
+        [
+          "2c498d141c98d01530ce3b62fe6fddb835e571ba46a656769c846383a63c5c38",
+          "a2600e6ecf09299c1a52bfd005d59919ebb31b5c90f2f76e5c758231c117bb3d",
+          "18e506121f621bbd4820e50f8dfcdedde7ae046ae84eba10de4d522b4520652c",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "5153f88892efd75203784a411455d10e8848414f0d9348f98abd494a8b986faa",
+          "7d4bc4a861045482d2b2039c37bc2ed9e52bb8de6882633560cbffa21d751f05"
+        ]
+      ],
+      [
+        [
+          "2d8976d094061dd98b4f6d801d13c81ce6f601bbbfbde48df6082bc728c22a4d",
+          "638da69325ce5ec99dad2d0be27a934af779bdba6a80aedee6cc5556112b5669",
+          "e1c3ed40c5ec1b7a4981229b49f40272ff78048d352d75c59898d04e5618a1f4",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "4fc780dd60c5441a474e625e7678e85510e2f4b29efaf2abc15d8df2e4a472db",
+          "f0a116153fb11f389e4aaca6a9c2927f17952d8ed10821d7a599c56ada99060b"
+        ],
+        [
+          "61e0274ba0ad8ce96a415bfe2a4dbc39e0972964f38914498d3e5eadf6241f63",
+          "1cb7ea1df2b8f4ca26a8e7221a11ad005b5a9aacd2a785e126b88669b746737f",
+          "c08db500d4ef3fd1951e57e235275a9768fb368581b7897e84f6d9119fe13ed7",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "bcf9bd06a1ae4b4e6fb6a159a3a24c983eee2251b10eaacb17e1734d24e0883a",
+          "55132625950815ebaba0ab821746c2d64d2b183fa814d3b9f60eb5545b3f78d1"
+        ],
+        [
+          "cb21dbe8ffe72ce1484055bc80d2bba40d0645aa982a35d39c55ef835bfc9be4",
+          "6b46f16e156297d72cbd2a3b8961b7d4cc3bb2a21d878ed0e443a3945f023bbb",
+          "5d37da7388bdde9e8e72f96e3776f9520922ef21266430cc902f85509d25e576",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "e3992fa1d221ce1f6e8179e204e666267fa075a2dcc18b59b9570480a84b071e",
+          "d26b1e3359b03aa7b1aacbb3966c1efdfd53f1ea317989fea7ace3a270835d3f"
+        ],
+        [
+          "9b70392f6c62bf27512d245d03a83cf853d83f9d61262460e637c26b18b7c1bc",
+          "cf7122c112c8d7a679a9e2f83a821df3e4c2adcde34ab02fbe01d7830aa8fafc",
+          "18e506121f621bbd4820e50f8dfcdedde7ae046ae84eba10de4d522b4520652c",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "e83d1841f53335495683e5e02f29c819b7d665b8b1b07ec76a252e0ce43c1554",
+          "7d4bc4a861045482d2b2039c37bc2ed9e52bb8de6882633560cbffa21d751f05"
+        ]
+      ],
+      [
+        [
+          "1d195e0a158d618ab8ded462af20cc60b1ed5f91056a0d148fb3055c96c8f650",
+          "af555d5742b6c7785112c401fa978813f1b15c4a8395132de5f96abaf011f0cb",
+          "e1c3ed40c5ec1b7a4981229b49f40272ff78048d352d75c59898d04e5618a1f4",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "cf483ddb87d52d5cc35663a0bedea00dbaf1e72d86214733ecba930aed3737d0",
+          "f0a116153fb11f389e4aaca6a9c2927f17952d8ed10821d7a599c56ada99060b"
+        ],
+        [
+          "0a0c4f9683a5ced4068a560185a1c428c6e57f8eb3dd8f53616f66709d61f387",
+          "95d86ff22bae8bdeec9099d4aad0d42c690e5766a67ade808b1b3fb43af26870",
+          "c08db500d4ef3fd1951e57e235275a9768fb368581b7897e84f6d9119fe13ed7",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "c49e7e96f8597470b4bab6717d5fe814b2af558d10aa81f39e5b305cc0c58f91",
+          "55132625950815ebaba0ab821746c2d64d2b183fa814d3b9f60eb5545b3f78d1"
+        ],
+        [
+          "5f7702118a45b04175af444ac1a221007122cdfbee95528d72d369411f80bc0a",
+          "46f5cffb96b04d1a5b991210ea2c11f28a8064676af3a75ce0708c575c31355b",
+          "5d37da7388bdde9e8e72f96e3776f9520922ef21266430cc902f85509d25e576",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "fa4c9c564fcb6d79be4773b58f2d487da40bd852dbeaad75b12b16e95817bd0c",
+          "d26b1e3359b03aa7b1aacbb3966c1efdfd53f1ea317989fea7ace3a270835d3f"
+        ],
+        [
+          "bd349ba0dadd5791782ccd5eabcccb1770fea7d23723527aa8e27186c4cbd31a",
+          "79b2e1bdcfb019dc59a243252aaa8c91dd9fa11012fb3d66d5104d8bbf0b3559",
+          "18e506121f621bbd4820e50f8dfcdedde7ae046ae84eba10de4d522b4520652c",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "9a5cadd337ddf3eaeadb411664dee578230b8e5bcfb130aaf531330edf49c1d8",
+          "7d4bc4a861045482d2b2039c37bc2ed9e52bb8de6882633560cbffa21d751f05"
+        ]
+      ]
+    ],
+    "rank_partition_hashes": [
+      {
+        "g2m": {
+          "edges": "6fa9798b7847a236f80574224670fdb592f9302105bbfa8a00b890c94a2c0089",
+          "halos": "444dacff8fb2c41d933b2be3c387a4622326a9cddc8f99cbaf2402ef4708e5ca",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "a6c9b5ddcc4d95c1d723dd730e1a696f3dcfd679b5dac08a6386964eb60b0692",
+            "9781bd5b651b8f4fb311df3d72489e74b004d18e51281ad06066994f00618cbd",
+            "82c903e77361f3f18f2f03e8328659caf49e0f14113c9eb703c23900ac6a599c"
+          ],
+          "receivers": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f",
+          "senders": "a8909519372b0f44c50fcf4188d3aae7e8491b38631dae3e311a68a364e7f6f7"
+        },
+        "m2g": {
+          "edges": "c6f3ac53a2d16b07a2e302660fe26c21d0b4991296eee3d5345d0e6a6f501c27",
+          "halos": "f2a678ace5d3b622db9e1e2b9579c8b02f98deec5ed866a0c377f4f5195f62c1",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "a2aba3363387b776dda6932beb6b04cc6bfef61a8aef6ef56e1632d168bd9674",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "a8909519372b0f44c50fcf4188d3aae7e8491b38631dae3e311a68a364e7f6f7",
+          "senders": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f"
+        },
+        "m2m_0": {
+          "edges": "35d1589c4a14560363f14da3d6922e56f097d3d10dd43aff4a3cbf0b90804343",
+          "halos": "8773d9d731632243a4e04a3daf55966a93f06f862db95259a559f0796b6f33e7",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "1255a57552baf42d01a349f5ca2b82352c9c7684b091416a27fadd0a8342a027",
+            "4922e32a8a8af9ddeecba42f060f884446726a386d58656ae6358752d1ff29ad",
+            "3eb45eb3f86ea51a9b34bd4716273becb69084d5797e39464e397c05db5b3d8a"
+          ],
+          "receivers": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f",
+          "senders": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f"
+        },
+        "m2m_1": {
+          "edges": "0039246063e66976592237890815cb473046382b30cfbd4aec4e70f88113b02f",
+          "halos": "a22907d3aea5b1b64a3a0a95d9b2d61c184b1d82d6e628a5f85703deda696ada",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "f75b7ff6effe24cc1fdbfecdb4aa9f9856587fca1f349da1243e34952d51aa42",
+            "a87ef2174334574132e706b050ecd2951450d7f09fac9bc29d763e90908ab000",
+            "821931cde59ac99c6aeb0e94e0d2e7b261aa7dda24c12e14f51f6e7f5a2b029d"
+          ],
+          "receivers": "c115c085a787342f49ae17254724db732944e53f898ce1ccd7df262b6ff2a615",
+          "senders": "c115c085a787342f49ae17254724db732944e53f898ce1ccd7df262b6ff2a615"
+        },
+        "mesh_down_0": {
+          "edges": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f",
+          "halos": "a3510fd9d9c66909e11dc3a922d801f3bf60a22f63370d340c5a9fd77d1b5743",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "4e57da10c4ef14c5b004ddf1e8a22c6293d457bb0f6b0f8eacc249609fe31ba9",
+            "0d78fae56a0f32950061525edb365f0a6b7cb6d9a24149a6287e0fe80e5df7f4",
+            "82bb33719cd9153214a0fad0fc4100fa2050b0c2643dfdf623edf3b491d7704d"
+          ],
+          "receivers": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f",
+          "senders": "c115c085a787342f49ae17254724db732944e53f898ce1ccd7df262b6ff2a615"
+        },
+        "mesh_up_0": {
+          "edges": "9f654fcf245a5d9e2950e6825332e14dd3a8a330c1b64f1e8e6416a10a263cf9",
+          "halos": "efc507e5dcf4c72dccfd2430e8050ac0edaf538effddc66b3a8615161e87a234",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "c3bbd181cbbbf36b814fb2696d29054116b68e34c0ddc8365aa4bb2ad36ef929",
+            "9bc7693b448b5a50f720e2f54a627cd9f31de879236d073a6ded2cea64a57910",
+            "fefb2dfa05a984a4e70e1444c65bbeb6c78e431987377c93491520b44da876be"
+          ],
+          "receivers": "c115c085a787342f49ae17254724db732944e53f898ce1ccd7df262b6ff2a615",
+          "senders": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f"
+        }
+      },
+      {
+        "g2m": {
+          "edges": "0dff854e9cc338e42d000c6c31cbf67a8844440367d5cbb59485859c4b964e14",
+          "halos": "54f1508db41d7805ad23f52f1d22bc4bf534c831b939125881014bc79b65d0b0",
+          "pack_indices": [
+            "1d1bd41e5870795c3e3d9aad6435bb59768b5da54d3c5e72f7bdfda6a04fd306",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "250c77b46be989f10998b6675414223e8169ff6f951473975c0b5b346bf43bf0"
+          ],
+          "receivers": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09",
+          "senders": "75d8b7c115c3c08abf678f4a9525acd5089783c93f1afac569b279449cfc3926"
+        },
+        "m2g": {
+          "edges": "9697ff6bf550720767a432409b7abab204c31bee0fef4bcaed8cb0bddadb1718",
+          "halos": "4441a04baec0a7d25c0b509cb4d639ac7eafac90c6e04b9074e31383a09380ed",
+          "pack_indices": [
+            "18dc0faf82ef4fd5a02ae9912f3c68d858156f0efedd89bb917a847bc47094a5",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "f459e377ff7f2707cd9109dc16b4f9a5ddce4369568a93727d7223887c2d4a18"
+          ],
+          "receivers": "75d8b7c115c3c08abf678f4a9525acd5089783c93f1afac569b279449cfc3926",
+          "senders": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09"
+        },
+        "m2m_0": {
+          "edges": "fd41dbc49e6e82bba495f9af16d12b251563d7d26577d00ef5aa01087f032ccc",
+          "halos": "1bdac448bf0fac2fd3f5d6f558007e6d73f6d696c66a10343458e33172be653f",
+          "pack_indices": [
+            "0ae1d091856c5ba04c165cedbd11f695ce808c1c3c6924706555adccc31f1990",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "5ffd874226ad3ebbaab3beef7f8b0b393564984d45712fe8f21e66360f7034f6"
+          ],
+          "receivers": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09",
+          "senders": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09"
+        },
+        "m2m_1": {
+          "edges": "602228f88e1bf92ee850b941b73c6c7b1f88120ffd35de1e536744a57c6b54ad",
+          "halos": "0bf15199fd023897a5e88ed82ce333b6421eff2dc1b81898a1b09710c2b2c091",
+          "pack_indices": [
+            "a0f7f95f2d4783e3839f614fa6bedf399e3fe3da2d2f9fe6aa315cb24737b50a",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "3b67c07d67516936cbf2a04810714fd72c8dae8f39d043ef81f79cee41fc4a80"
+          ],
+          "receivers": "67263cf4a124e048a53fe8f22efaadc4445f9de679fe1834c482b9e7430159dd",
+          "senders": "67263cf4a124e048a53fe8f22efaadc4445f9de679fe1834c482b9e7430159dd"
+        },
+        "mesh_down_0": {
+          "edges": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09",
+          "halos": "de7866baa59f927ca7ff1d110ef228cc07501bee9afc47f69b2347dac9485287",
+          "pack_indices": [
+            "b48a4b65e43b33478d8caa50c51a77a87b47681ad6ae83847ee681a8cdc82879",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "e6a5b6c67d5808f4d4bf8a85accb3b32a9d1920f7803b8fd9a5af05611c968eb"
+          ],
+          "receivers": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09",
+          "senders": "67263cf4a124e048a53fe8f22efaadc4445f9de679fe1834c482b9e7430159dd"
+        },
+        "mesh_up_0": {
+          "edges": "a454f3c98cc982e0e8655ee1f40ecca7bad38634a782d4fe53c98969ec645fa8",
+          "halos": "0758d96a8c4117b400ec3630330adf521901aca090cef46ea4b1cdde141a1fc3",
+          "pack_indices": [
+            "381b9627b5d72ca610c489879aa043817633d53e465643c125b17695a88fd614",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "b24f0684c8924b615d27535f9ea61bcd266504d511b4aaa5d24100ca4cf8e25b"
+          ],
+          "receivers": "67263cf4a124e048a53fe8f22efaadc4445f9de679fe1834c482b9e7430159dd",
+          "senders": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09"
+        }
+      },
+      {
+        "g2m": {
+          "edges": "7fedc766211401cc7b9fcdfeeb29d3181c173b8c974a845f7920954ad5ce19a4",
+          "halos": "a8f3a93e6b57d61af906ad0d06f28dcf50e4d0dafde5c4e5c195313c453ffaca",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "adb1f5568915ba79df1cdb23efaff5ae3e968af31963bc7b7c040ff1112e29a5"
+          ],
+          "receivers": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634",
+          "senders": "abd35e53d2aad23d4910aa36ea7d019d640c33f0c56d2ab56208e9a2fb1e1771"
+        },
+        "m2g": {
+          "edges": "cf44bdc12bcfcdee13d46bb5792dc67d2496db2f6f1aaafbafd01a1b8f2999e6",
+          "halos": "3b3bd5496662a93cff55543ab993a0bb86a234be2b6ba9dd30a84cd613dc2275",
+          "pack_indices": [
+            "90146c773987d9bd547f59d59b6be7f9d91b69bfab6ade9cf9756ab9dc798e2c",
+            "de1d06a6ebae2222de058ab830a32cf715bed52b380292bb773dd51f1b20ee8b",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "6153c2a3217e782166e05084a332efd2dbe5c698f040f44c447f79ab003c560d"
+          ],
+          "receivers": "abd35e53d2aad23d4910aa36ea7d019d640c33f0c56d2ab56208e9a2fb1e1771",
+          "senders": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634"
+        },
+        "m2m_0": {
+          "edges": "8454d9b60f2103523251d5b01a86583bf6b061e00d019c7e1e84df58c7e21ef9",
+          "halos": "28a0d203a7ac626059fd24650090f67a5b19cf226214113a71bbb69322515a3a",
+          "pack_indices": [
+            "3afd18aa3efef020ea2c33fa6f027e6e29a6b5e273e3620fd6d0aff50e29f0be",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "c3907c3ee00e0e0b00842bd07c35cd9cd71ddc0532f1fa84a748f59cc14edf7f"
+          ],
+          "receivers": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634",
+          "senders": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634"
+        },
+        "m2m_1": {
+          "edges": "2799b402e7b970074d9ff9f53e1e9bdc63446297a5c70da0096f08e511e014d3",
+          "halos": "ef06b986d0e802ab3b9e7bdd633ac92821fc385cd5f70f6607d049fd63fc180a",
+          "pack_indices": [
+            "717b7c2840eb73847f63c4bef91e0e6bb61f9d6efcc9db665482c7ae5f8bfe4c",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "d5453f20273ac6e9584e6eebc88bf7a05bd331f0699a30b13e6ed3dfe9d1fb46"
+          ],
+          "receivers": "6ac1760cc66cf37df1dd826cf6617d75d6d0cc6821eebe0b045d003f6c709afd",
+          "senders": "6ac1760cc66cf37df1dd826cf6617d75d6d0cc6821eebe0b045d003f6c709afd"
+        },
+        "mesh_down_0": {
+          "edges": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634",
+          "halos": "3e6727ce171237b58f735a094282281c9fa980b3c1a514ba3938c462f9370bdb",
+          "pack_indices": [
+            "9cef83f62c9783a3b952c07d29868e257cf02faca7dc6b46e69f5b43f692577b",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "073cbd4f8ad1b2e788b18d38c7dfa40264defd50fc9d6585b54d08e79c720344"
+          ],
+          "receivers": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634",
+          "senders": "6ac1760cc66cf37df1dd826cf6617d75d6d0cc6821eebe0b045d003f6c709afd"
+        },
+        "mesh_up_0": {
+          "edges": "6d21dccd99c4036f051cd36e79fc0c04cf5ff2750a97ef46334274139936ddf0",
+          "halos": "4ca13c618ac70dafb19c016f1d1a7f05dfa93bacdd9db322cee1afd1ba72d00f",
+          "pack_indices": [
+            "9e3824411768492fc1d22739d3111b46f67b927724929c6cf3fddcb157d4ee00",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "8bf8ad9b1c1b0ed63186e10e4e069f3bd45fb823c1234d22e4598d2b237358ea"
+          ],
+          "receivers": "6ac1760cc66cf37df1dd826cf6617d75d6d0cc6821eebe0b045d003f6c709afd",
+          "senders": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634"
+        }
+      },
+      {
+        "g2m": {
+          "edges": "ae2b841eeb2bfaf372ca94086f4db36c34efed98a39000d39bc80f3a3af78818",
+          "halos": "a168ad6b555271865e47a58aedf73980836831bfc4f6b998df4df86054aaf21a",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "ad40a44f6a1494f36ccd6423c67a05aeccdea2705b39aaff0a242d48f457b5c4",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7",
+          "senders": "ec09214c50e3408dfe895179cbc976bf2cc808510c7e79bb3a71f393e23d921c"
+        },
+        "m2g": {
+          "edges": "3a1d41f6d42dd0d7bd5718085d13d2c78f662f494bf1f6aaa1b4ec1d3b659ef4",
+          "halos": "a6a72d683457f02a8b4aeb673737dc236fb0f47592b6c76f3264c2b32f123a3d",
+          "pack_indices": [
+            "1dadd77e02e935cde6db4e0831e4cb443a913489a97f7e6ec97986e29d7101d6",
+            "85876c95951b5a5edc62b0e0d4359f1059e0ae2c95c7f70be83dffca7638dd15",
+            "3a9e174eb116c8b70f29152047915cec1dac805a56c0b98b1c5b996c560d0a72",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "ec09214c50e3408dfe895179cbc976bf2cc808510c7e79bb3a71f393e23d921c",
+          "senders": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7"
+        },
+        "m2m_0": {
+          "edges": "ff79ed1ba3b68c2f747961b8c69fb3f202be43fda6374bfa3c036cdda356eb92",
+          "halos": "56510098ae83a537d307d6184765ecd9bd2318e923e2da744f796d52864ed25c",
+          "pack_indices": [
+            "1b67e65ffecd030db670f34178172b6dd5ed5727457d13068b0aeebaa3dc7534",
+            "624b59bfd72246d125895191b0fa3134fd1201a963317f1a0e8f6fcb7a979cf2",
+            "8ed91d0277862efea8c8a4649464b20303e00d6e7577b270601005eed0b48146",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7",
+          "senders": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7"
+        },
+        "m2m_1": {
+          "edges": "da1bc1a961050dffe7815f15c9fc039d1873cfe774f0a280df479523f3f33e8b",
+          "halos": "3bb35e4c8692061692208a193731d8bc185c2ddb220a8915d6b77fd30a08f53e",
+          "pack_indices": [
+            "08eba980f4b3d88008de09c59b27e6880e616fd703e94ce85ed072645d6645fc",
+            "21282b3b071eeda52bec70e05cbd9200e619fa37919b4593e179c3676e6beeea",
+            "04b0facde52a2674a464760253a9070d7934afca7b78dc8502c245089586b2dc",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "b3e803dabfde41fb02fc6b447037348273bbe260b02edaabef82a215d76b113a",
+          "senders": "b3e803dabfde41fb02fc6b447037348273bbe260b02edaabef82a215d76b113a"
+        },
+        "mesh_down_0": {
+          "edges": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7",
+          "halos": "f585818db8e73a1b188ecfe0d9581059e3d9aa60a78833a997d598e0fa4b51d3",
+          "pack_indices": [
+            "1ef4b709e01908ceed17b6c9f13549240371cadd49e9fb7b2b3b478a1aa496e7",
+            "cc717f05ba019f244e95e900873e6e2e75f77ef6182f397b26ccf7c591ec9552",
+            "2cb0ced86cabdeb7391fac9bde22d5fda146014dc601f0a8e5427d9521eb2a25",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7",
+          "senders": "b3e803dabfde41fb02fc6b447037348273bbe260b02edaabef82a215d76b113a"
+        },
+        "mesh_up_0": {
+          "edges": "c2b7a4df7eedad1c5fd1ef4056f3b134817f926b23f67efa126d8d3d9afc9540",
+          "halos": "9528af3bf0d4d694af3e7052e65fd9219d8c1142bb0b43de5c4188fccf820480",
+          "pack_indices": [
+            "605882e01bf244cba1a247837fdf899230cec4079dc7f2a97544786185b5b16d",
+            "967beba5618c7a835e1a7091a08b62783605b8f8fd91108bb6bab830ceb270d0",
+            "9516ecd0b9c3197b734a7775dd4340dcb8acb8a74c36dcde2b5880b5a71e4166",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "b3e803dabfde41fb02fc6b447037348273bbe260b02edaabef82a215d76b113a",
+          "senders": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7"
+        }
+      }
+    ],
+    "sample_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "source_hashes": {
+      "benchmarks/compare_halo_transports.py": "79b2e5fc4c7c6934be4a7532d1ac18aa8769137fbc09f5a1b0f8f3b49f7ea9be",
+      "benchmarks/cpu_affinity.py": "807fc335b4a9b11ccb602720fbef4a3f7f2fc47a7fbc5e9cbd27b3b99249f325",
+      "benchmarks/halo_transport_backends.py": "d2dbea143ff5598d92a2a23bf8ce3307b871308c1e5a30c89517cb706c8007d8",
+      "benchmarks/model_parallel_real.py": "6c538c90c8ceb41a5c1913ca4da827422160c008a9d630d8dc9b8a68d9083333",
+      "benchmarks/vendor/physicsnemo/distributed/autograd.py": "c0070cb0c5eddc691f7e5a18b9cd647b2a1d812d96bb31a20cfbe371cbaa0a4f",
+      "benchmarks/vendor/physicsnemo/distributed/utils.py": "20312750d2655c418cd956d3e5c6fdf4d06f1cb5509a5cbb838750a2523b7a4a",
+      "jobs/halo_transport_comparison.sbatch": "57464180ca9fc9d523304b22dc93a3801bbd8829ea15d2bf49dc2130cad9c756",
+      "neural_lam/distributed_message_passing.py": "33d5842d42951e6904bd281403455ecbb855fede2ab21c8689c6835f54ae219f",
+      "neural_lam/models/distributed_graph_efm.py": "25a08348465cff72c0bec2f82a22a0ac8da962b0fbda88b03bd6c832497f3cc0",
+      "neural_lam/models/distributed_graph_efm_training.py": "1cefd3825de65cb54f17ef1a81df79567af771c77e1bf22fa0c4aaca50bb6fdb",
+      "neural_lam/models/graph_efm.py": "3a6135ac03679288e43f745d07e498545fbb3dcae12ce70354e0e3423e5da2ba"
+    },
+    "transport_plans": {
+      "g2m": {
+        "global_remote_rows_per_exchange": 1648,
+        "sizes_by_sender_receiver": [
+          [
+            0,
+            43,
+            304,
+            59
+          ],
+          [
+            81,
+            0,
+            0,
+            291
+          ],
+          [
+            0,
+            0,
+            0,
+            628
+          ],
+          [
+            0,
+            0,
+            242,
+            0
+          ]
+        ]
+      },
+      "m2g": {
+        "global_remote_rows_per_exchange": 477,
+        "sizes_by_sender_receiver": [
+          [
+            0,
+            40,
+            0,
+            0
+          ],
+          [
+            22,
+            0,
+            0,
+            1
+          ],
+          [
+            122,
+            1,
+            0,
+            27
+          ],
+          [
+            24,
+            123,
+            117,
+            0
+          ]
+        ]
+      },
+      "m2m_0": {
+        "global_remote_rows_per_exchange": 462,
+        "sizes_by_sender_receiver": [
+          [
+            0,
+            32,
+            68,
+            15
+          ],
+          [
+            31,
+            0,
+            0,
+            68
+          ],
+          [
+            69,
+            0,
+            0,
+            48
+          ],
+          [
+            14,
+            68,
+            49,
+            0
+          ]
+        ]
+      },
+      "m2m_1": {
+        "global_remote_rows_per_exchange": 235,
+        "sizes_by_sender_receiver": [
+          [
+            0,
+            17,
+            37,
+            7
+          ],
+          [
+            20,
+            0,
+            0,
+            36
+          ],
+          [
+            32,
+            0,
+            0,
+            20
+          ],
+          [
+            8,
+            37,
+            21,
+            0
+          ]
+        ]
+      },
+      "mesh_down_0": {
+        "global_remote_rows_per_exchange": 95,
+        "sizes_by_sender_receiver": [
+          [
+            0,
+            4,
+            14,
+            4
+          ],
+          [
+            7,
+            0,
+            0,
+            13
+          ],
+          [
+            12,
+            0,
+            0,
+            22
+          ],
+          [
+            1,
+            12,
+            6,
+            0
+          ]
+        ]
+      },
+      "mesh_up_0": {
+        "global_remote_rows_per_exchange": 157,
+        "sizes_by_sender_receiver": [
+          [
+            0,
+            8,
+            19,
+            1
+          ],
+          [
+            6,
+            0,
+            0,
+            16
+          ],
+          [
+            20,
+            0,
+            0,
+            6
+          ],
+          [
+            6,
+            19,
+            56,
+            0
+          ]
+        ]
+      }
+    },
+    "warmup_steps": 0,
+    "workers_per_rank": 0,
+    "world_size": 4
+  },
+  "controls_sha256": "139e8b208287dd293d82c5c798b105cc43a67300e633ab58a4da3dcaa943b5ef",
+  "cpu_affinity_reports": [
+    {
+      "checkpoints": [
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [
+            1109088
+          ],
+          "stage": "before_torch_import",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_imports",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_torch_thread_setup",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_cuda_init",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ],
+            "1109121": [
+              10,
+              11
+            ],
+            "1109122": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_nccl_init",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ],
+            "1109121": [
+              10,
+              11
+            ],
+            "1109122": [
+              10,
+              11
+            ],
+            "1109123": [
+              10,
+              11
+            ],
+            "1109124": [
+              10,
+              11
+            ],
+            "1109132": [
+              10,
+              11
+            ],
+            "1109141": [
+              10,
+              11
+            ],
+            "1109142": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_model_and_cache",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ],
+            "1109121": [
+              10,
+              11
+            ],
+            "1109122": [
+              10,
+              11
+            ],
+            "1109123": [
+              10,
+              11
+            ],
+            "1109124": [
+              10,
+              11
+            ],
+            "1109132": [
+              10,
+              11
+            ],
+            "1109141": [
+              10,
+              11
+            ],
+            "1109142": [
+              10,
+              11
+            ],
+            "1109161": [
+              10,
+              11
+            ],
+            "1109162": [
+              10,
+              11
+            ],
+            "1109163": [
+              10,
+              11
+            ],
+            "1109164": [
+              10,
+              11
+            ],
+            "1109166": [
+              10,
+              11
+            ],
+            "1109173": [
+              10,
+              11
+            ],
+            "1109175": [
+              10,
+              11
+            ],
+            "1109176": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_before_warmup",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ],
+            "1109121": [
+              10,
+              11
+            ],
+            "1109122": [
+              10,
+              11
+            ],
+            "1109123": [
+              10,
+              11
+            ],
+            "1109124": [
+              10,
+              11
+            ],
+            "1109132": [
+              10,
+              11
+            ],
+            "1109141": [
+              10,
+              11
+            ],
+            "1109142": [
+              10,
+              11
+            ],
+            "1109161": [
+              10,
+              11
+            ],
+            "1109162": [
+              10,
+              11
+            ],
+            "1109163": [
+              10,
+              11
+            ],
+            "1109164": [
+              10,
+              11
+            ],
+            "1109166": [
+              10,
+              11
+            ],
+            "1109173": [
+              10,
+              11
+            ],
+            "1109175": [
+              10,
+              11
+            ],
+            "1109176": [
+              10,
+              11
+            ],
+            "1109190": [
+              10,
+              11
+            ],
+            "1109191": [
+              10,
+              11
+            ],
+            "1109192": [
+              10,
+              11
+            ],
+            "1109193": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_after_warmup",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ],
+            "1109121": [
+              10,
+              11
+            ],
+            "1109122": [
+              10,
+              11
+            ],
+            "1109123": [
+              10,
+              11
+            ],
+            "1109124": [
+              10,
+              11
+            ],
+            "1109132": [
+              10,
+              11
+            ],
+            "1109141": [
+              10,
+              11
+            ],
+            "1109142": [
+              10,
+              11
+            ],
+            "1109161": [
+              10,
+              11
+            ],
+            "1109162": [
+              10,
+              11
+            ],
+            "1109163": [
+              10,
+              11
+            ],
+            "1109164": [
+              10,
+              11
+            ],
+            "1109166": [
+              10,
+              11
+            ],
+            "1109173": [
+              10,
+              11
+            ],
+            "1109175": [
+              10,
+              11
+            ],
+            "1109176": [
+              10,
+              11
+            ],
+            "1109190": [
+              10,
+              11
+            ],
+            "1109191": [
+              10,
+              11
+            ],
+            "1109192": [
+              10,
+              11
+            ],
+            "1109193": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_after_measurement",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ],
+            "1109121": [
+              10,
+              11
+            ],
+            "1109122": [
+              10,
+              11
+            ],
+            "1109123": [
+              10,
+              11
+            ],
+            "1109124": [
+              10,
+              11
+            ],
+            "1109132": [
+              10,
+              11
+            ],
+            "1109141": [
+              10,
+              11
+            ],
+            "1109142": [
+              10,
+              11
+            ],
+            "1109161": [
+              10,
+              11
+            ],
+            "1109162": [
+              10,
+              11
+            ],
+            "1109163": [
+              10,
+              11
+            ],
+            "1109164": [
+              10,
+              11
+            ],
+            "1109166": [
+              10,
+              11
+            ],
+            "1109173": [
+              10,
+              11
+            ],
+            "1109175": [
+              10,
+              11
+            ],
+            "1109176": [
+              10,
+              11
+            ],
+            "1109190": [
+              10,
+              11
+            ],
+            "1109191": [
+              10,
+              11
+            ],
+            "1109192": [
+              10,
+              11
+            ],
+            "1109193": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_before_warmup",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ],
+            "1109121": [
+              10,
+              11
+            ],
+            "1109122": [
+              10,
+              11
+            ],
+            "1109123": [
+              10,
+              11
+            ],
+            "1109124": [
+              10,
+              11
+            ],
+            "1109132": [
+              10,
+              11
+            ],
+            "1109141": [
+              10,
+              11
+            ],
+            "1109142": [
+              10,
+              11
+            ],
+            "1109161": [
+              10,
+              11
+            ],
+            "1109162": [
+              10,
+              11
+            ],
+            "1109163": [
+              10,
+              11
+            ],
+            "1109164": [
+              10,
+              11
+            ],
+            "1109166": [
+              10,
+              11
+            ],
+            "1109173": [
+              10,
+              11
+            ],
+            "1109175": [
+              10,
+              11
+            ],
+            "1109176": [
+              10,
+              11
+            ],
+            "1109190": [
+              10,
+              11
+            ],
+            "1109191": [
+              10,
+              11
+            ],
+            "1109192": [
+              10,
+              11
+            ],
+            "1109193": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_after_warmup",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ],
+            "1109121": [
+              10,
+              11
+            ],
+            "1109122": [
+              10,
+              11
+            ],
+            "1109123": [
+              10,
+              11
+            ],
+            "1109124": [
+              10,
+              11
+            ],
+            "1109132": [
+              10,
+              11
+            ],
+            "1109141": [
+              10,
+              11
+            ],
+            "1109142": [
+              10,
+              11
+            ],
+            "1109161": [
+              10,
+              11
+            ],
+            "1109162": [
+              10,
+              11
+            ],
+            "1109163": [
+              10,
+              11
+            ],
+            "1109164": [
+              10,
+              11
+            ],
+            "1109166": [
+              10,
+              11
+            ],
+            "1109173": [
+              10,
+              11
+            ],
+            "1109175": [
+              10,
+              11
+            ],
+            "1109176": [
+              10,
+              11
+            ],
+            "1109190": [
+              10,
+              11
+            ],
+            "1109191": [
+              10,
+              11
+            ],
+            "1109192": [
+              10,
+              11
+            ],
+            "1109193": [
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "main_after": [
+            10,
+            11
+          ],
+          "main_before": [
+            10,
+            11
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_after_measurement",
+          "thread_masks": {
+            "1109088": [
+              10,
+              11
+            ],
+            "1109098": [
+              10,
+              11
+            ],
+            "1109114": [
+              10,
+              11
+            ],
+            "1109121": [
+              10,
+              11
+            ],
+            "1109122": [
+              10,
+              11
+            ],
+            "1109123": [
+              10,
+              11
+            ],
+            "1109124": [
+              10,
+              11
+            ],
+            "1109132": [
+              10,
+              11
+            ],
+            "1109141": [
+              10,
+              11
+            ],
+            "1109142": [
+              10,
+              11
+            ],
+            "1109161": [
+              10,
+              11
+            ],
+            "1109162": [
+              10,
+              11
+            ],
+            "1109163": [
+              10,
+              11
+            ],
+            "1109164": [
+              10,
+              11
+            ],
+            "1109166": [
+              10,
+              11
+            ],
+            "1109173": [
+              10,
+              11
+            ],
+            "1109175": [
+              10,
+              11
+            ],
+            "1109176": [
+              10,
+              11
+            ],
+            "1109190": [
+              10,
+              11
+            ],
+            "1109191": [
+              10,
+              11
+            ],
+            "1109192": [
+              10,
+              11
+            ],
+            "1109193": [
+              10,
+              11
+            ]
+          }
+        }
+      ],
+      "job_cpu_ids": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "policy": "slurm-disjoint-ranks-v1",
+      "rank": 0,
+      "rank_cpu_ids": [
+        10,
+        11
+      ]
+    },
+    {
+      "checkpoints": [
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [
+            1109089
+          ],
+          "stage": "before_torch_import",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_imports",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_torch_thread_setup",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_cuda_init",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ],
+            "1109128": [
+              12,
+              13
+            ],
+            "1109129": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_nccl_init",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ],
+            "1109128": [
+              12,
+              13
+            ],
+            "1109129": [
+              12,
+              13
+            ],
+            "1109130": [
+              12,
+              13
+            ],
+            "1109131": [
+              12,
+              13
+            ],
+            "1109134": [
+              12,
+              13
+            ],
+            "1109136": [
+              12,
+              13
+            ],
+            "1109140": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_model_and_cache",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ],
+            "1109128": [
+              12,
+              13
+            ],
+            "1109129": [
+              12,
+              13
+            ],
+            "1109130": [
+              12,
+              13
+            ],
+            "1109131": [
+              12,
+              13
+            ],
+            "1109134": [
+              12,
+              13
+            ],
+            "1109136": [
+              12,
+              13
+            ],
+            "1109140": [
+              12,
+              13
+            ],
+            "1109143": [
+              12,
+              13
+            ],
+            "1109145": [
+              12,
+              13
+            ],
+            "1109147": [
+              12,
+              13
+            ],
+            "1109148": [
+              12,
+              13
+            ],
+            "1109151": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_before_warmup",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ],
+            "1109128": [
+              12,
+              13
+            ],
+            "1109129": [
+              12,
+              13
+            ],
+            "1109130": [
+              12,
+              13
+            ],
+            "1109131": [
+              12,
+              13
+            ],
+            "1109134": [
+              12,
+              13
+            ],
+            "1109136": [
+              12,
+              13
+            ],
+            "1109140": [
+              12,
+              13
+            ],
+            "1109143": [
+              12,
+              13
+            ],
+            "1109145": [
+              12,
+              13
+            ],
+            "1109147": [
+              12,
+              13
+            ],
+            "1109148": [
+              12,
+              13
+            ],
+            "1109151": [
+              12,
+              13
+            ],
+            "1109180": [
+              12,
+              13
+            ],
+            "1109183": [
+              12,
+              13
+            ],
+            "1109184": [
+              12,
+              13
+            ],
+            "1109188": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_after_warmup",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ],
+            "1109128": [
+              12,
+              13
+            ],
+            "1109129": [
+              12,
+              13
+            ],
+            "1109130": [
+              12,
+              13
+            ],
+            "1109131": [
+              12,
+              13
+            ],
+            "1109134": [
+              12,
+              13
+            ],
+            "1109136": [
+              12,
+              13
+            ],
+            "1109140": [
+              12,
+              13
+            ],
+            "1109143": [
+              12,
+              13
+            ],
+            "1109145": [
+              12,
+              13
+            ],
+            "1109147": [
+              12,
+              13
+            ],
+            "1109148": [
+              12,
+              13
+            ],
+            "1109151": [
+              12,
+              13
+            ],
+            "1109180": [
+              12,
+              13
+            ],
+            "1109183": [
+              12,
+              13
+            ],
+            "1109184": [
+              12,
+              13
+            ],
+            "1109188": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_after_measurement",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ],
+            "1109128": [
+              12,
+              13
+            ],
+            "1109129": [
+              12,
+              13
+            ],
+            "1109130": [
+              12,
+              13
+            ],
+            "1109131": [
+              12,
+              13
+            ],
+            "1109134": [
+              12,
+              13
+            ],
+            "1109136": [
+              12,
+              13
+            ],
+            "1109140": [
+              12,
+              13
+            ],
+            "1109143": [
+              12,
+              13
+            ],
+            "1109145": [
+              12,
+              13
+            ],
+            "1109147": [
+              12,
+              13
+            ],
+            "1109148": [
+              12,
+              13
+            ],
+            "1109151": [
+              12,
+              13
+            ],
+            "1109180": [
+              12,
+              13
+            ],
+            "1109183": [
+              12,
+              13
+            ],
+            "1109184": [
+              12,
+              13
+            ],
+            "1109188": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_before_warmup",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ],
+            "1109128": [
+              12,
+              13
+            ],
+            "1109129": [
+              12,
+              13
+            ],
+            "1109130": [
+              12,
+              13
+            ],
+            "1109131": [
+              12,
+              13
+            ],
+            "1109134": [
+              12,
+              13
+            ],
+            "1109136": [
+              12,
+              13
+            ],
+            "1109140": [
+              12,
+              13
+            ],
+            "1109143": [
+              12,
+              13
+            ],
+            "1109145": [
+              12,
+              13
+            ],
+            "1109147": [
+              12,
+              13
+            ],
+            "1109148": [
+              12,
+              13
+            ],
+            "1109151": [
+              12,
+              13
+            ],
+            "1109180": [
+              12,
+              13
+            ],
+            "1109183": [
+              12,
+              13
+            ],
+            "1109184": [
+              12,
+              13
+            ],
+            "1109188": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_after_warmup",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ],
+            "1109128": [
+              12,
+              13
+            ],
+            "1109129": [
+              12,
+              13
+            ],
+            "1109130": [
+              12,
+              13
+            ],
+            "1109131": [
+              12,
+              13
+            ],
+            "1109134": [
+              12,
+              13
+            ],
+            "1109136": [
+              12,
+              13
+            ],
+            "1109140": [
+              12,
+              13
+            ],
+            "1109143": [
+              12,
+              13
+            ],
+            "1109145": [
+              12,
+              13
+            ],
+            "1109147": [
+              12,
+              13
+            ],
+            "1109148": [
+              12,
+              13
+            ],
+            "1109151": [
+              12,
+              13
+            ],
+            "1109180": [
+              12,
+              13
+            ],
+            "1109183": [
+              12,
+              13
+            ],
+            "1109184": [
+              12,
+              13
+            ],
+            "1109188": [
+              12,
+              13
+            ]
+          }
+        },
+        {
+          "main_after": [
+            12,
+            13
+          ],
+          "main_before": [
+            12,
+            13
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_after_measurement",
+          "thread_masks": {
+            "1109089": [
+              12,
+              13
+            ],
+            "1109105": [
+              12,
+              13
+            ],
+            "1109115": [
+              12,
+              13
+            ],
+            "1109128": [
+              12,
+              13
+            ],
+            "1109129": [
+              12,
+              13
+            ],
+            "1109130": [
+              12,
+              13
+            ],
+            "1109131": [
+              12,
+              13
+            ],
+            "1109134": [
+              12,
+              13
+            ],
+            "1109136": [
+              12,
+              13
+            ],
+            "1109140": [
+              12,
+              13
+            ],
+            "1109143": [
+              12,
+              13
+            ],
+            "1109145": [
+              12,
+              13
+            ],
+            "1109147": [
+              12,
+              13
+            ],
+            "1109148": [
+              12,
+              13
+            ],
+            "1109151": [
+              12,
+              13
+            ],
+            "1109180": [
+              12,
+              13
+            ],
+            "1109183": [
+              12,
+              13
+            ],
+            "1109184": [
+              12,
+              13
+            ],
+            "1109188": [
+              12,
+              13
+            ]
+          }
+        }
+      ],
+      "job_cpu_ids": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "policy": "slurm-disjoint-ranks-v1",
+      "rank": 1,
+      "rank_cpu_ids": [
+        12,
+        13
+      ]
+    },
+    {
+      "checkpoints": [
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [
+            1109090
+          ],
+          "stage": "before_torch_import",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_imports",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_torch_thread_setup",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_cuda_init",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ],
+            "1109116": [
+              14,
+              15
+            ],
+            "1109117": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_nccl_init",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ],
+            "1109116": [
+              14,
+              15
+            ],
+            "1109117": [
+              14,
+              15
+            ],
+            "1109118": [
+              14,
+              15
+            ],
+            "1109119": [
+              14,
+              15
+            ],
+            "1109133": [
+              14,
+              15
+            ],
+            "1109135": [
+              14,
+              15
+            ],
+            "1109139": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_model_and_cache",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ],
+            "1109116": [
+              14,
+              15
+            ],
+            "1109117": [
+              14,
+              15
+            ],
+            "1109118": [
+              14,
+              15
+            ],
+            "1109119": [
+              14,
+              15
+            ],
+            "1109133": [
+              14,
+              15
+            ],
+            "1109135": [
+              14,
+              15
+            ],
+            "1109139": [
+              14,
+              15
+            ],
+            "1109157": [
+              14,
+              15
+            ],
+            "1109158": [
+              14,
+              15
+            ],
+            "1109159": [
+              14,
+              15
+            ],
+            "1109160": [
+              14,
+              15
+            ],
+            "1109165": [
+              14,
+              15
+            ],
+            "1109172": [
+              14,
+              15
+            ],
+            "1109174": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_before_warmup",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ],
+            "1109116": [
+              14,
+              15
+            ],
+            "1109117": [
+              14,
+              15
+            ],
+            "1109118": [
+              14,
+              15
+            ],
+            "1109119": [
+              14,
+              15
+            ],
+            "1109133": [
+              14,
+              15
+            ],
+            "1109135": [
+              14,
+              15
+            ],
+            "1109139": [
+              14,
+              15
+            ],
+            "1109157": [
+              14,
+              15
+            ],
+            "1109158": [
+              14,
+              15
+            ],
+            "1109159": [
+              14,
+              15
+            ],
+            "1109160": [
+              14,
+              15
+            ],
+            "1109165": [
+              14,
+              15
+            ],
+            "1109172": [
+              14,
+              15
+            ],
+            "1109174": [
+              14,
+              15
+            ],
+            "1109178": [
+              14,
+              15
+            ],
+            "1109181": [
+              14,
+              15
+            ],
+            "1109186": [
+              14,
+              15
+            ],
+            "1109187": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_after_warmup",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ],
+            "1109116": [
+              14,
+              15
+            ],
+            "1109117": [
+              14,
+              15
+            ],
+            "1109118": [
+              14,
+              15
+            ],
+            "1109119": [
+              14,
+              15
+            ],
+            "1109133": [
+              14,
+              15
+            ],
+            "1109135": [
+              14,
+              15
+            ],
+            "1109139": [
+              14,
+              15
+            ],
+            "1109157": [
+              14,
+              15
+            ],
+            "1109158": [
+              14,
+              15
+            ],
+            "1109159": [
+              14,
+              15
+            ],
+            "1109160": [
+              14,
+              15
+            ],
+            "1109165": [
+              14,
+              15
+            ],
+            "1109172": [
+              14,
+              15
+            ],
+            "1109174": [
+              14,
+              15
+            ],
+            "1109178": [
+              14,
+              15
+            ],
+            "1109181": [
+              14,
+              15
+            ],
+            "1109186": [
+              14,
+              15
+            ],
+            "1109187": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_after_measurement",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ],
+            "1109116": [
+              14,
+              15
+            ],
+            "1109117": [
+              14,
+              15
+            ],
+            "1109118": [
+              14,
+              15
+            ],
+            "1109119": [
+              14,
+              15
+            ],
+            "1109133": [
+              14,
+              15
+            ],
+            "1109135": [
+              14,
+              15
+            ],
+            "1109139": [
+              14,
+              15
+            ],
+            "1109157": [
+              14,
+              15
+            ],
+            "1109158": [
+              14,
+              15
+            ],
+            "1109159": [
+              14,
+              15
+            ],
+            "1109160": [
+              14,
+              15
+            ],
+            "1109165": [
+              14,
+              15
+            ],
+            "1109172": [
+              14,
+              15
+            ],
+            "1109174": [
+              14,
+              15
+            ],
+            "1109178": [
+              14,
+              15
+            ],
+            "1109181": [
+              14,
+              15
+            ],
+            "1109186": [
+              14,
+              15
+            ],
+            "1109187": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_before_warmup",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ],
+            "1109116": [
+              14,
+              15
+            ],
+            "1109117": [
+              14,
+              15
+            ],
+            "1109118": [
+              14,
+              15
+            ],
+            "1109119": [
+              14,
+              15
+            ],
+            "1109133": [
+              14,
+              15
+            ],
+            "1109135": [
+              14,
+              15
+            ],
+            "1109139": [
+              14,
+              15
+            ],
+            "1109157": [
+              14,
+              15
+            ],
+            "1109158": [
+              14,
+              15
+            ],
+            "1109159": [
+              14,
+              15
+            ],
+            "1109160": [
+              14,
+              15
+            ],
+            "1109165": [
+              14,
+              15
+            ],
+            "1109172": [
+              14,
+              15
+            ],
+            "1109174": [
+              14,
+              15
+            ],
+            "1109178": [
+              14,
+              15
+            ],
+            "1109181": [
+              14,
+              15
+            ],
+            "1109186": [
+              14,
+              15
+            ],
+            "1109187": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_after_warmup",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ],
+            "1109116": [
+              14,
+              15
+            ],
+            "1109117": [
+              14,
+              15
+            ],
+            "1109118": [
+              14,
+              15
+            ],
+            "1109119": [
+              14,
+              15
+            ],
+            "1109133": [
+              14,
+              15
+            ],
+            "1109135": [
+              14,
+              15
+            ],
+            "1109139": [
+              14,
+              15
+            ],
+            "1109157": [
+              14,
+              15
+            ],
+            "1109158": [
+              14,
+              15
+            ],
+            "1109159": [
+              14,
+              15
+            ],
+            "1109160": [
+              14,
+              15
+            ],
+            "1109165": [
+              14,
+              15
+            ],
+            "1109172": [
+              14,
+              15
+            ],
+            "1109174": [
+              14,
+              15
+            ],
+            "1109178": [
+              14,
+              15
+            ],
+            "1109181": [
+              14,
+              15
+            ],
+            "1109186": [
+              14,
+              15
+            ],
+            "1109187": [
+              14,
+              15
+            ]
+          }
+        },
+        {
+          "main_after": [
+            14,
+            15
+          ],
+          "main_before": [
+            14,
+            15
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_after_measurement",
+          "thread_masks": {
+            "1109090": [
+              14,
+              15
+            ],
+            "1109097": [
+              14,
+              15
+            ],
+            "1109106": [
+              14,
+              15
+            ],
+            "1109116": [
+              14,
+              15
+            ],
+            "1109117": [
+              14,
+              15
+            ],
+            "1109118": [
+              14,
+              15
+            ],
+            "1109119": [
+              14,
+              15
+            ],
+            "1109133": [
+              14,
+              15
+            ],
+            "1109135": [
+              14,
+              15
+            ],
+            "1109139": [
+              14,
+              15
+            ],
+            "1109157": [
+              14,
+              15
+            ],
+            "1109158": [
+              14,
+              15
+            ],
+            "1109159": [
+              14,
+              15
+            ],
+            "1109160": [
+              14,
+              15
+            ],
+            "1109165": [
+              14,
+              15
+            ],
+            "1109172": [
+              14,
+              15
+            ],
+            "1109174": [
+              14,
+              15
+            ],
+            "1109178": [
+              14,
+              15
+            ],
+            "1109181": [
+              14,
+              15
+            ],
+            "1109186": [
+              14,
+              15
+            ],
+            "1109187": [
+              14,
+              15
+            ]
+          }
+        }
+      ],
+      "job_cpu_ids": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "policy": "slurm-disjoint-ranks-v1",
+      "rank": 2,
+      "rank_cpu_ids": [
+        14,
+        15
+      ]
+    },
+    {
+      "checkpoints": [
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [
+            1109091
+          ],
+          "stage": "before_torch_import",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_imports",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_torch_thread_setup",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_cuda_init",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ],
+            "1109110": [
+              16,
+              17
+            ],
+            "1109111": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_nccl_init",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ],
+            "1109110": [
+              16,
+              17
+            ],
+            "1109111": [
+              16,
+              17
+            ],
+            "1109112": [
+              16,
+              17
+            ],
+            "1109113": [
+              16,
+              17
+            ],
+            "1109126": [
+              16,
+              17
+            ],
+            "1109137": [
+              16,
+              17
+            ],
+            "1109138": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "after_model_and_cache",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ],
+            "1109110": [
+              16,
+              17
+            ],
+            "1109111": [
+              16,
+              17
+            ],
+            "1109112": [
+              16,
+              17
+            ],
+            "1109113": [
+              16,
+              17
+            ],
+            "1109126": [
+              16,
+              17
+            ],
+            "1109137": [
+              16,
+              17
+            ],
+            "1109138": [
+              16,
+              17
+            ],
+            "1109144": [
+              16,
+              17
+            ],
+            "1109146": [
+              16,
+              17
+            ],
+            "1109149": [
+              16,
+              17
+            ],
+            "1109150": [
+              16,
+              17
+            ],
+            "1109152": [
+              16,
+              17
+            ],
+            "1109155": [
+              16,
+              17
+            ],
+            "1109156": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_before_warmup",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ],
+            "1109110": [
+              16,
+              17
+            ],
+            "1109111": [
+              16,
+              17
+            ],
+            "1109112": [
+              16,
+              17
+            ],
+            "1109113": [
+              16,
+              17
+            ],
+            "1109126": [
+              16,
+              17
+            ],
+            "1109137": [
+              16,
+              17
+            ],
+            "1109138": [
+              16,
+              17
+            ],
+            "1109144": [
+              16,
+              17
+            ],
+            "1109146": [
+              16,
+              17
+            ],
+            "1109149": [
+              16,
+              17
+            ],
+            "1109150": [
+              16,
+              17
+            ],
+            "1109152": [
+              16,
+              17
+            ],
+            "1109155": [
+              16,
+              17
+            ],
+            "1109156": [
+              16,
+              17
+            ],
+            "1109179": [
+              16,
+              17
+            ],
+            "1109182": [
+              16,
+              17
+            ],
+            "1109185": [
+              16,
+              17
+            ],
+            "1109189": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_after_warmup",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ],
+            "1109110": [
+              16,
+              17
+            ],
+            "1109111": [
+              16,
+              17
+            ],
+            "1109112": [
+              16,
+              17
+            ],
+            "1109113": [
+              16,
+              17
+            ],
+            "1109126": [
+              16,
+              17
+            ],
+            "1109137": [
+              16,
+              17
+            ],
+            "1109138": [
+              16,
+              17
+            ],
+            "1109144": [
+              16,
+              17
+            ],
+            "1109146": [
+              16,
+              17
+            ],
+            "1109149": [
+              16,
+              17
+            ],
+            "1109150": [
+              16,
+              17
+            ],
+            "1109152": [
+              16,
+              17
+            ],
+            "1109155": [
+              16,
+              17
+            ],
+            "1109156": [
+              16,
+              17
+            ],
+            "1109179": [
+              16,
+              17
+            ],
+            "1109182": [
+              16,
+              17
+            ],
+            "1109185": [
+              16,
+              17
+            ],
+            "1109189": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "p2p_after_measurement",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ],
+            "1109110": [
+              16,
+              17
+            ],
+            "1109111": [
+              16,
+              17
+            ],
+            "1109112": [
+              16,
+              17
+            ],
+            "1109113": [
+              16,
+              17
+            ],
+            "1109126": [
+              16,
+              17
+            ],
+            "1109137": [
+              16,
+              17
+            ],
+            "1109138": [
+              16,
+              17
+            ],
+            "1109144": [
+              16,
+              17
+            ],
+            "1109146": [
+              16,
+              17
+            ],
+            "1109149": [
+              16,
+              17
+            ],
+            "1109150": [
+              16,
+              17
+            ],
+            "1109152": [
+              16,
+              17
+            ],
+            "1109155": [
+              16,
+              17
+            ],
+            "1109156": [
+              16,
+              17
+            ],
+            "1109179": [
+              16,
+              17
+            ],
+            "1109182": [
+              16,
+              17
+            ],
+            "1109185": [
+              16,
+              17
+            ],
+            "1109189": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_before_warmup",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ],
+            "1109110": [
+              16,
+              17
+            ],
+            "1109111": [
+              16,
+              17
+            ],
+            "1109112": [
+              16,
+              17
+            ],
+            "1109113": [
+              16,
+              17
+            ],
+            "1109126": [
+              16,
+              17
+            ],
+            "1109137": [
+              16,
+              17
+            ],
+            "1109138": [
+              16,
+              17
+            ],
+            "1109144": [
+              16,
+              17
+            ],
+            "1109146": [
+              16,
+              17
+            ],
+            "1109149": [
+              16,
+              17
+            ],
+            "1109150": [
+              16,
+              17
+            ],
+            "1109152": [
+              16,
+              17
+            ],
+            "1109155": [
+              16,
+              17
+            ],
+            "1109156": [
+              16,
+              17
+            ],
+            "1109179": [
+              16,
+              17
+            ],
+            "1109182": [
+              16,
+              17
+            ],
+            "1109185": [
+              16,
+              17
+            ],
+            "1109189": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_after_warmup",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ],
+            "1109110": [
+              16,
+              17
+            ],
+            "1109111": [
+              16,
+              17
+            ],
+            "1109112": [
+              16,
+              17
+            ],
+            "1109113": [
+              16,
+              17
+            ],
+            "1109126": [
+              16,
+              17
+            ],
+            "1109137": [
+              16,
+              17
+            ],
+            "1109138": [
+              16,
+              17
+            ],
+            "1109144": [
+              16,
+              17
+            ],
+            "1109146": [
+              16,
+              17
+            ],
+            "1109149": [
+              16,
+              17
+            ],
+            "1109150": [
+              16,
+              17
+            ],
+            "1109152": [
+              16,
+              17
+            ],
+            "1109155": [
+              16,
+              17
+            ],
+            "1109156": [
+              16,
+              17
+            ],
+            "1109179": [
+              16,
+              17
+            ],
+            "1109182": [
+              16,
+              17
+            ],
+            "1109185": [
+              16,
+              17
+            ],
+            "1109189": [
+              16,
+              17
+            ]
+          }
+        },
+        {
+          "main_after": [
+            16,
+            17
+          ],
+          "main_before": [
+            16,
+            17
+          ],
+          "passed": true,
+          "repaired_thread_ids": [],
+          "stage": "physicsnemo_after_measurement",
+          "thread_masks": {
+            "1109091": [
+              16,
+              17
+            ],
+            "1109096": [
+              16,
+              17
+            ],
+            "1109099": [
+              16,
+              17
+            ],
+            "1109110": [
+              16,
+              17
+            ],
+            "1109111": [
+              16,
+              17
+            ],
+            "1109112": [
+              16,
+              17
+            ],
+            "1109113": [
+              16,
+              17
+            ],
+            "1109126": [
+              16,
+              17
+            ],
+            "1109137": [
+              16,
+              17
+            ],
+            "1109138": [
+              16,
+              17
+            ],
+            "1109144": [
+              16,
+              17
+            ],
+            "1109146": [
+              16,
+              17
+            ],
+            "1109149": [
+              16,
+              17
+            ],
+            "1109150": [
+              16,
+              17
+            ],
+            "1109152": [
+              16,
+              17
+            ],
+            "1109155": [
+              16,
+              17
+            ],
+            "1109156": [
+              16,
+              17
+            ],
+            "1109179": [
+              16,
+              17
+            ],
+            "1109182": [
+              16,
+              17
+            ],
+            "1109185": [
+              16,
+              17
+            ],
+            "1109189": [
+              16,
+              17
+            ]
+          }
+        }
+      ],
+      "job_cpu_ids": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "policy": "slurm-disjoint-ranks-v1",
+      "rank": 3,
+      "rank_cpu_ids": [
+        16,
+        17
+      ]
+    }
+  ],
+  "elapsed_seconds": 19.503151968005113,
+  "git": {
+    "commit": "d6a85c1e6a03f58fd656351075b8186744d17c4b",
+    "tracked_dirty": false,
+    "untracked_file_count": 73
+  },
+  "initialization_ms": {
+    "equivalence_gate_ms": 4661.129201063886,
+    "model_load_ms": 933.4024740383029,
+    "partition_and_model_build_ms": 237.1443590382114,
+    "rank_dataset_and_cache_ms": 6114.379203063436
+  },
+  "interpretation": {
+    "backend_change": "Remote-only halo primitive; common original P2P graph layout and AR4 implementation",
+    "cpu_emulation": false,
+    "native_backend": "nccl",
+    "one_gpu": "Both use same zero-traffic local path; checks baseline stability, not network performance",
+    "timer": "Cached model wall step after H2D and rank barrier; excludes input/setup"
+  },
+  "order": [
+    "p2p",
+    "physicsnemo"
+  ],
+  "rank_metadata": [
+    {
+      "batch_hashes": [
+        [
+          "16479685a88a31253b9a74817db3d20dcc94287aa9fbecdc5e206948751518bf",
+          "87df915e9e2d5cc2b654d3c11344cf5f276d34ca6b3e938ed1b88b49ad0649cc",
+          "e1c3ed40c5ec1b7a4981229b49f40272ff78048d352d75c59898d04e5618a1f4",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "eaaf072fa6e47b91c003f78591d93169bc8659ddf19d52b708140cafece18357",
+          "f0a116153fb11f389e4aaca6a9c2927f17952d8ed10821d7a599c56ada99060b"
+        ],
+        [
+          "0f23a0951ffa982d5698abbc91d3ab7980769519375aac5846735a9f15a49727",
+          "f94ce2db2eeb1be1ee8bb9a2644278c336685223f1eaf7fe6dec24d843c5711e",
+          "c08db500d4ef3fd1951e57e235275a9768fb368581b7897e84f6d9119fe13ed7",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "39de0c1ee598b8bdd589f8992f39290036ecbc824f91674b0c3892c922f268c4",
+          "55132625950815ebaba0ab821746c2d64d2b183fa814d3b9f60eb5545b3f78d1"
+        ],
+        [
+          "6901742cdc29c4e361a30000d5849c89bc243db96ba836df19fca848b2a07e38",
+          "41dc8b7426808e7d558270c650d8b9efa6efc113f3bbc276431b2fee071e68fe",
+          "5d37da7388bdde9e8e72f96e3776f9520922ef21266430cc902f85509d25e576",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "75ef4049e0000760b9ca2a67ec18d14697fd7f9b85aa9a37667c524796a8c85c",
+          "d26b1e3359b03aa7b1aacbb3966c1efdfd53f1ea317989fea7ace3a270835d3f"
+        ],
+        [
+          "22c92532ef771a89d5e4eef425aed11808cb4b3f715e82caf999886a217c833c",
+          "d83ca4263fadf140bace6dd4a08d22ae45e52a40bca1f7883379595f31bcfccd",
+          "18e506121f621bbd4820e50f8dfcdedde7ae046ae84eba10de4d522b4520652c",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "bbdd6abdd766909fc487b8604672c56cf1a859756cc09adea83be71117a40e7f",
+          "7d4bc4a861045482d2b2039c37bc2ed9e52bb8de6882633560cbffa21d751f05"
+        ]
+      ],
+      "cpu_affinity": [
+        10,
+        11
+      ],
+      "cpu_placement": {
+        "checkpoints": [
+          {
+            "main_after": [
+              10,
+              11
+            ],
+            "main_before": [
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "passed": true,
+            "repaired_thread_ids": [
+              1109088
+            ],
+            "stage": "before_torch_import",
+            "thread_masks": {
+              "1109088": [
+                10,
+                11
+              ]
+            }
+          },
+          {
+            "main_after": [
+              10,
+              11
+            ],
+            "main_before": [
+              10,
+              11
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_imports",
+            "thread_masks": {
+              "1109088": [
+                10,
+                11
+              ],
+              "1109098": [
+                10,
+                11
+              ],
+              "1109114": [
+                10,
+                11
+              ]
+            }
+          },
+          {
+            "main_after": [
+              10,
+              11
+            ],
+            "main_before": [
+              10,
+              11
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_torch_thread_setup",
+            "thread_masks": {
+              "1109088": [
+                10,
+                11
+              ],
+              "1109098": [
+                10,
+                11
+              ],
+              "1109114": [
+                10,
+                11
+              ]
+            }
+          },
+          {
+            "main_after": [
+              10,
+              11
+            ],
+            "main_before": [
+              10,
+              11
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_cuda_init",
+            "thread_masks": {
+              "1109088": [
+                10,
+                11
+              ],
+              "1109098": [
+                10,
+                11
+              ],
+              "1109114": [
+                10,
+                11
+              ],
+              "1109121": [
+                10,
+                11
+              ],
+              "1109122": [
+                10,
+                11
+              ]
+            }
+          },
+          {
+            "main_after": [
+              10,
+              11
+            ],
+            "main_before": [
+              10,
+              11
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_nccl_init",
+            "thread_masks": {
+              "1109088": [
+                10,
+                11
+              ],
+              "1109098": [
+                10,
+                11
+              ],
+              "1109114": [
+                10,
+                11
+              ],
+              "1109121": [
+                10,
+                11
+              ],
+              "1109122": [
+                10,
+                11
+              ],
+              "1109123": [
+                10,
+                11
+              ],
+              "1109124": [
+                10,
+                11
+              ],
+              "1109132": [
+                10,
+                11
+              ],
+              "1109141": [
+                10,
+                11
+              ],
+              "1109142": [
+                10,
+                11
+              ]
+            }
+          },
+          {
+            "main_after": [
+              10,
+              11
+            ],
+            "main_before": [
+              10,
+              11
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_model_and_cache",
+            "thread_masks": {
+              "1109088": [
+                10,
+                11
+              ],
+              "1109098": [
+                10,
+                11
+              ],
+              "1109114": [
+                10,
+                11
+              ],
+              "1109121": [
+                10,
+                11
+              ],
+              "1109122": [
+                10,
+                11
+              ],
+              "1109123": [
+                10,
+                11
+              ],
+              "1109124": [
+                10,
+                11
+              ],
+              "1109132": [
+                10,
+                11
+              ],
+              "1109141": [
+                10,
+                11
+              ],
+              "1109142": [
+                10,
+                11
+              ],
+              "1109161": [
+                10,
+                11
+              ],
+              "1109162": [
+                10,
+                11
+              ],
+              "1109163": [
+                10,
+                11
+              ],
+              "1109164": [
+                10,
+                11
+              ],
+              "1109166": [
+                10,
+                11
+              ],
+              "1109173": [
+                10,
+                11
+              ],
+              "1109175": [
+                10,
+                11
+              ],
+              "1109176": [
+                10,
+                11
+              ]
+            }
+          }
+        ],
+        "job_cpu_ids": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "policy": "slurm-disjoint-ranks-v1",
+        "rank": 0,
+        "rank_cpu_ids": [
+          10,
+          11
+        ]
+      },
+      "graph_sha256": "aca12c6fa703a279af5dacdc6019e94e5a71177a0c5d2800454f8f38f04333ba",
+      "hardware": {
+        "cuda_runtime": "12.6",
+        "gpu": {
+          "compute_capability": "6.1",
+          "index": 0,
+          "name": "NVIDIA GeForce GTX 1080 Ti",
+          "total_memory_bytes": 11707809792
+        },
+        "hostname": "studgpu-node02.inf.ethz.ch",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3",
+        "rank": 0,
+        "torch": "2.14.1+cu126"
+      },
+      "initial_state_sha256": "adf73faa502218345b8b872f7d93a4815d40efea15342cc3720644cb0777db51",
+      "owned_grid_ids_sha256": "a8909519372b0f44c50fcf4188d3aae7e8491b38631dae3e311a68a364e7f6f7",
+      "partition": {
+        "owned_full_grid_nodes": 10587,
+        "owned_interior_grid_nodes": 10587,
+        "owned_mesh_nodes_by_level": [
+          2114,
+          525
+        ],
+        "rank": 0,
+        "relations": {
+          "g2m": [
+            {
+              "halo_nodes": 81,
+              "owned_edges": 17448
+            }
+          ],
+          "m2g": [
+            {
+              "halo_nodes": 168,
+              "owned_edges": 31690
+            }
+          ],
+          "m2m": [
+            {
+              "halo_nodes": 114,
+              "owned_edges": 12392
+            },
+            {
+              "halo_nodes": 60,
+              "owned_edges": 3022
+            }
+          ],
+          "mesh_down": [
+            {
+              "halo_nodes": 20,
+              "owned_edges": 2114
+            }
+          ],
+          "mesh_up": [
+            {
+              "halo_nodes": 32,
+              "owned_edges": 2118
+            }
+          ]
+        }
+      },
+      "partition_hashes": {
+        "g2m": {
+          "edges": "6fa9798b7847a236f80574224670fdb592f9302105bbfa8a00b890c94a2c0089",
+          "halos": "444dacff8fb2c41d933b2be3c387a4622326a9cddc8f99cbaf2402ef4708e5ca",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "a6c9b5ddcc4d95c1d723dd730e1a696f3dcfd679b5dac08a6386964eb60b0692",
+            "9781bd5b651b8f4fb311df3d72489e74b004d18e51281ad06066994f00618cbd",
+            "82c903e77361f3f18f2f03e8328659caf49e0f14113c9eb703c23900ac6a599c"
+          ],
+          "receivers": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f",
+          "senders": "a8909519372b0f44c50fcf4188d3aae7e8491b38631dae3e311a68a364e7f6f7"
+        },
+        "m2g": {
+          "edges": "c6f3ac53a2d16b07a2e302660fe26c21d0b4991296eee3d5345d0e6a6f501c27",
+          "halos": "f2a678ace5d3b622db9e1e2b9579c8b02f98deec5ed866a0c377f4f5195f62c1",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "a2aba3363387b776dda6932beb6b04cc6bfef61a8aef6ef56e1632d168bd9674",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "a8909519372b0f44c50fcf4188d3aae7e8491b38631dae3e311a68a364e7f6f7",
+          "senders": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f"
+        },
+        "m2m_0": {
+          "edges": "35d1589c4a14560363f14da3d6922e56f097d3d10dd43aff4a3cbf0b90804343",
+          "halos": "8773d9d731632243a4e04a3daf55966a93f06f862db95259a559f0796b6f33e7",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "1255a57552baf42d01a349f5ca2b82352c9c7684b091416a27fadd0a8342a027",
+            "4922e32a8a8af9ddeecba42f060f884446726a386d58656ae6358752d1ff29ad",
+            "3eb45eb3f86ea51a9b34bd4716273becb69084d5797e39464e397c05db5b3d8a"
+          ],
+          "receivers": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f",
+          "senders": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f"
+        },
+        "m2m_1": {
+          "edges": "0039246063e66976592237890815cb473046382b30cfbd4aec4e70f88113b02f",
+          "halos": "a22907d3aea5b1b64a3a0a95d9b2d61c184b1d82d6e628a5f85703deda696ada",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "f75b7ff6effe24cc1fdbfecdb4aa9f9856587fca1f349da1243e34952d51aa42",
+            "a87ef2174334574132e706b050ecd2951450d7f09fac9bc29d763e90908ab000",
+            "821931cde59ac99c6aeb0e94e0d2e7b261aa7dda24c12e14f51f6e7f5a2b029d"
+          ],
+          "receivers": "c115c085a787342f49ae17254724db732944e53f898ce1ccd7df262b6ff2a615",
+          "senders": "c115c085a787342f49ae17254724db732944e53f898ce1ccd7df262b6ff2a615"
+        },
+        "mesh_down_0": {
+          "edges": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f",
+          "halos": "a3510fd9d9c66909e11dc3a922d801f3bf60a22f63370d340c5a9fd77d1b5743",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "4e57da10c4ef14c5b004ddf1e8a22c6293d457bb0f6b0f8eacc249609fe31ba9",
+            "0d78fae56a0f32950061525edb365f0a6b7cb6d9a24149a6287e0fe80e5df7f4",
+            "82bb33719cd9153214a0fad0fc4100fa2050b0c2643dfdf623edf3b491d7704d"
+          ],
+          "receivers": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f",
+          "senders": "c115c085a787342f49ae17254724db732944e53f898ce1ccd7df262b6ff2a615"
+        },
+        "mesh_up_0": {
+          "edges": "9f654fcf245a5d9e2950e6825332e14dd3a8a330c1b64f1e8e6416a10a263cf9",
+          "halos": "efc507e5dcf4c72dccfd2430e8050ac0edaf538effddc66b3a8615161e87a234",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "c3bbd181cbbbf36b814fb2696d29054116b68e34c0ddc8365aa4bb2ad36ef929",
+            "9bc7693b448b5a50f720e2f54a627cd9f31de879236d073a6ded2cea64a57910",
+            "fefb2dfa05a984a4e70e1444c65bbeb6c78e431987377c93491520b44da876be"
+          ],
+          "receivers": "c115c085a787342f49ae17254724db732944e53f898ce1ccd7df262b6ff2a615",
+          "senders": "2b2a04ba639acce6f5d2fed0e0d58073daf2ba82e27ede1934b79aa2a732ee5f"
+        }
+      },
+      "rank": 0,
+      "rank_data_root": "/tmp/njord-halo-ab-6130/geographic_rcb_ws4/rank_0",
+      "transport_plan_sha256": "fc9ddaf60acee45db03692395804008a31e2425d6f0eb10664c61368d15650f9"
+    },
+    {
+      "batch_hashes": [
+        [
+          "2e3553dc44c2cbf0f7ad86c21f15bf3cc3088e368dfd9c9ce552832b62c5ff31",
+          "a6260c7570585e80a23df8ccc90ce79ab567b514a482fedd1655e98ddba8d028",
+          "e1c3ed40c5ec1b7a4981229b49f40272ff78048d352d75c59898d04e5618a1f4",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "889d4f7cf37b66605ade32953f0e260a0b26cb79b1cdf9757a220a825543890d",
+          "f0a116153fb11f389e4aaca6a9c2927f17952d8ed10821d7a599c56ada99060b"
+        ],
+        [
+          "7ffa33498f5f29f199ea0fae21ccf71d811c6e48007f8bcf5432e3cafc7ddd9a",
+          "041dedd8e71fa39ff170f76aff13db22f24f82e5f80cfa47bceb98db3f3e4174",
+          "c08db500d4ef3fd1951e57e235275a9768fb368581b7897e84f6d9119fe13ed7",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "3d097b1ba5a75060aebb12c438a8e2f42384611996bda75333977e48189397df",
+          "55132625950815ebaba0ab821746c2d64d2b183fa814d3b9f60eb5545b3f78d1"
+        ],
+        [
+          "b0f4808f2533a636aec2638c8fa0426e083b458c4aa82039b5fa3356610f8f93",
+          "c8ca3982f4d007dd736ce2f13cc27861db00c9f9c8726686f54b4d36d906b989",
+          "5d37da7388bdde9e8e72f96e3776f9520922ef21266430cc902f85509d25e576",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "b736d8aa29229869326b6319518948e9be10ff4837ee7d5d77de75cc7eeca7b3",
+          "d26b1e3359b03aa7b1aacbb3966c1efdfd53f1ea317989fea7ace3a270835d3f"
+        ],
+        [
+          "2c498d141c98d01530ce3b62fe6fddb835e571ba46a656769c846383a63c5c38",
+          "a2600e6ecf09299c1a52bfd005d59919ebb31b5c90f2f76e5c758231c117bb3d",
+          "18e506121f621bbd4820e50f8dfcdedde7ae046ae84eba10de4d522b4520652c",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "5153f88892efd75203784a411455d10e8848414f0d9348f98abd494a8b986faa",
+          "7d4bc4a861045482d2b2039c37bc2ed9e52bb8de6882633560cbffa21d751f05"
+        ]
+      ],
+      "cpu_affinity": [
+        12,
+        13
+      ],
+      "cpu_placement": {
+        "checkpoints": [
+          {
+            "main_after": [
+              12,
+              13
+            ],
+            "main_before": [
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "passed": true,
+            "repaired_thread_ids": [
+              1109089
+            ],
+            "stage": "before_torch_import",
+            "thread_masks": {
+              "1109089": [
+                12,
+                13
+              ]
+            }
+          },
+          {
+            "main_after": [
+              12,
+              13
+            ],
+            "main_before": [
+              12,
+              13
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_imports",
+            "thread_masks": {
+              "1109089": [
+                12,
+                13
+              ],
+              "1109105": [
+                12,
+                13
+              ],
+              "1109115": [
+                12,
+                13
+              ]
+            }
+          },
+          {
+            "main_after": [
+              12,
+              13
+            ],
+            "main_before": [
+              12,
+              13
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_torch_thread_setup",
+            "thread_masks": {
+              "1109089": [
+                12,
+                13
+              ],
+              "1109105": [
+                12,
+                13
+              ],
+              "1109115": [
+                12,
+                13
+              ]
+            }
+          },
+          {
+            "main_after": [
+              12,
+              13
+            ],
+            "main_before": [
+              12,
+              13
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_cuda_init",
+            "thread_masks": {
+              "1109089": [
+                12,
+                13
+              ],
+              "1109105": [
+                12,
+                13
+              ],
+              "1109115": [
+                12,
+                13
+              ],
+              "1109128": [
+                12,
+                13
+              ],
+              "1109129": [
+                12,
+                13
+              ]
+            }
+          },
+          {
+            "main_after": [
+              12,
+              13
+            ],
+            "main_before": [
+              12,
+              13
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_nccl_init",
+            "thread_masks": {
+              "1109089": [
+                12,
+                13
+              ],
+              "1109105": [
+                12,
+                13
+              ],
+              "1109115": [
+                12,
+                13
+              ],
+              "1109128": [
+                12,
+                13
+              ],
+              "1109129": [
+                12,
+                13
+              ],
+              "1109130": [
+                12,
+                13
+              ],
+              "1109131": [
+                12,
+                13
+              ],
+              "1109134": [
+                12,
+                13
+              ],
+              "1109136": [
+                12,
+                13
+              ],
+              "1109140": [
+                12,
+                13
+              ]
+            }
+          },
+          {
+            "main_after": [
+              12,
+              13
+            ],
+            "main_before": [
+              12,
+              13
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_model_and_cache",
+            "thread_masks": {
+              "1109089": [
+                12,
+                13
+              ],
+              "1109105": [
+                12,
+                13
+              ],
+              "1109115": [
+                12,
+                13
+              ],
+              "1109128": [
+                12,
+                13
+              ],
+              "1109129": [
+                12,
+                13
+              ],
+              "1109130": [
+                12,
+                13
+              ],
+              "1109131": [
+                12,
+                13
+              ],
+              "1109134": [
+                12,
+                13
+              ],
+              "1109136": [
+                12,
+                13
+              ],
+              "1109140": [
+                12,
+                13
+              ],
+              "1109143": [
+                12,
+                13
+              ],
+              "1109145": [
+                12,
+                13
+              ],
+              "1109147": [
+                12,
+                13
+              ],
+              "1109148": [
+                12,
+                13
+              ],
+              "1109151": [
+                12,
+                13
+              ]
+            }
+          }
+        ],
+        "job_cpu_ids": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "policy": "slurm-disjoint-ranks-v1",
+        "rank": 1,
+        "rank_cpu_ids": [
+          12,
+          13
+        ]
+      },
+      "graph_sha256": "aca12c6fa703a279af5dacdc6019e94e5a71177a0c5d2800454f8f38f04333ba",
+      "hardware": {
+        "cuda_runtime": "12.6",
+        "gpu": {
+          "compute_capability": "6.1",
+          "index": 1,
+          "name": "NVIDIA GeForce GTX 1080 Ti",
+          "total_memory_bytes": 11707809792
+        },
+        "hostname": "studgpu-node02.inf.ethz.ch",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3",
+        "rank": 1,
+        "torch": "2.14.1+cu126"
+      },
+      "initial_state_sha256": "adf73faa502218345b8b872f7d93a4815d40efea15342cc3720644cb0777db51",
+      "owned_grid_ids_sha256": "75d8b7c115c3c08abf678f4a9525acd5089783c93f1afac569b279449cfc3926",
+      "partition": {
+        "owned_full_grid_nodes": 10587,
+        "owned_interior_grid_nodes": 10587,
+        "owned_mesh_nodes_by_level": [
+          2114,
+          524
+        ],
+        "rank": 1,
+        "relations": {
+          "g2m": [
+            {
+              "halo_nodes": 43,
+              "owned_edges": 17359
+            }
+          ],
+          "m2g": [
+            {
+              "halo_nodes": 164,
+              "owned_edges": 31702
+            }
+          ],
+          "m2m": [
+            {
+              "halo_nodes": 100,
+              "owned_edges": 12441
+            },
+            {
+              "halo_nodes": 54,
+              "owned_edges": 3017
+            }
+          ],
+          "mesh_down": [
+            {
+              "halo_nodes": 16,
+              "owned_edges": 2114
+            }
+          ],
+          "mesh_up": [
+            {
+              "halo_nodes": 27,
+              "owned_edges": 2119
+            }
+          ]
+        }
+      },
+      "partition_hashes": {
+        "g2m": {
+          "edges": "0dff854e9cc338e42d000c6c31cbf67a8844440367d5cbb59485859c4b964e14",
+          "halos": "54f1508db41d7805ad23f52f1d22bc4bf534c831b939125881014bc79b65d0b0",
+          "pack_indices": [
+            "1d1bd41e5870795c3e3d9aad6435bb59768b5da54d3c5e72f7bdfda6a04fd306",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "250c77b46be989f10998b6675414223e8169ff6f951473975c0b5b346bf43bf0"
+          ],
+          "receivers": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09",
+          "senders": "75d8b7c115c3c08abf678f4a9525acd5089783c93f1afac569b279449cfc3926"
+        },
+        "m2g": {
+          "edges": "9697ff6bf550720767a432409b7abab204c31bee0fef4bcaed8cb0bddadb1718",
+          "halos": "4441a04baec0a7d25c0b509cb4d639ac7eafac90c6e04b9074e31383a09380ed",
+          "pack_indices": [
+            "18dc0faf82ef4fd5a02ae9912f3c68d858156f0efedd89bb917a847bc47094a5",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "f459e377ff7f2707cd9109dc16b4f9a5ddce4369568a93727d7223887c2d4a18"
+          ],
+          "receivers": "75d8b7c115c3c08abf678f4a9525acd5089783c93f1afac569b279449cfc3926",
+          "senders": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09"
+        },
+        "m2m_0": {
+          "edges": "fd41dbc49e6e82bba495f9af16d12b251563d7d26577d00ef5aa01087f032ccc",
+          "halos": "1bdac448bf0fac2fd3f5d6f558007e6d73f6d696c66a10343458e33172be653f",
+          "pack_indices": [
+            "0ae1d091856c5ba04c165cedbd11f695ce808c1c3c6924706555adccc31f1990",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "5ffd874226ad3ebbaab3beef7f8b0b393564984d45712fe8f21e66360f7034f6"
+          ],
+          "receivers": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09",
+          "senders": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09"
+        },
+        "m2m_1": {
+          "edges": "602228f88e1bf92ee850b941b73c6c7b1f88120ffd35de1e536744a57c6b54ad",
+          "halos": "0bf15199fd023897a5e88ed82ce333b6421eff2dc1b81898a1b09710c2b2c091",
+          "pack_indices": [
+            "a0f7f95f2d4783e3839f614fa6bedf399e3fe3da2d2f9fe6aa315cb24737b50a",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "3b67c07d67516936cbf2a04810714fd72c8dae8f39d043ef81f79cee41fc4a80"
+          ],
+          "receivers": "67263cf4a124e048a53fe8f22efaadc4445f9de679fe1834c482b9e7430159dd",
+          "senders": "67263cf4a124e048a53fe8f22efaadc4445f9de679fe1834c482b9e7430159dd"
+        },
+        "mesh_down_0": {
+          "edges": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09",
+          "halos": "de7866baa59f927ca7ff1d110ef228cc07501bee9afc47f69b2347dac9485287",
+          "pack_indices": [
+            "b48a4b65e43b33478d8caa50c51a77a87b47681ad6ae83847ee681a8cdc82879",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "e6a5b6c67d5808f4d4bf8a85accb3b32a9d1920f7803b8fd9a5af05611c968eb"
+          ],
+          "receivers": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09",
+          "senders": "67263cf4a124e048a53fe8f22efaadc4445f9de679fe1834c482b9e7430159dd"
+        },
+        "mesh_up_0": {
+          "edges": "a454f3c98cc982e0e8655ee1f40ecca7bad38634a782d4fe53c98969ec645fa8",
+          "halos": "0758d96a8c4117b400ec3630330adf521901aca090cef46ea4b1cdde141a1fc3",
+          "pack_indices": [
+            "381b9627b5d72ca610c489879aa043817633d53e465643c125b17695a88fd614",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "b24f0684c8924b615d27535f9ea61bcd266504d511b4aaa5d24100ca4cf8e25b"
+          ],
+          "receivers": "67263cf4a124e048a53fe8f22efaadc4445f9de679fe1834c482b9e7430159dd",
+          "senders": "c9a6c70552274f33abbdb742667741f551ff045237d90f2ee6d894281321eb09"
+        }
+      },
+      "rank": 1,
+      "rank_data_root": "/tmp/njord-halo-ab-6130/geographic_rcb_ws4/rank_1",
+      "transport_plan_sha256": "fc9ddaf60acee45db03692395804008a31e2425d6f0eb10664c61368d15650f9"
+    },
+    {
+      "batch_hashes": [
+        [
+          "2d8976d094061dd98b4f6d801d13c81ce6f601bbbfbde48df6082bc728c22a4d",
+          "638da69325ce5ec99dad2d0be27a934af779bdba6a80aedee6cc5556112b5669",
+          "e1c3ed40c5ec1b7a4981229b49f40272ff78048d352d75c59898d04e5618a1f4",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "4fc780dd60c5441a474e625e7678e85510e2f4b29efaf2abc15d8df2e4a472db",
+          "f0a116153fb11f389e4aaca6a9c2927f17952d8ed10821d7a599c56ada99060b"
+        ],
+        [
+          "61e0274ba0ad8ce96a415bfe2a4dbc39e0972964f38914498d3e5eadf6241f63",
+          "1cb7ea1df2b8f4ca26a8e7221a11ad005b5a9aacd2a785e126b88669b746737f",
+          "c08db500d4ef3fd1951e57e235275a9768fb368581b7897e84f6d9119fe13ed7",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "bcf9bd06a1ae4b4e6fb6a159a3a24c983eee2251b10eaacb17e1734d24e0883a",
+          "55132625950815ebaba0ab821746c2d64d2b183fa814d3b9f60eb5545b3f78d1"
+        ],
+        [
+          "cb21dbe8ffe72ce1484055bc80d2bba40d0645aa982a35d39c55ef835bfc9be4",
+          "6b46f16e156297d72cbd2a3b8961b7d4cc3bb2a21d878ed0e443a3945f023bbb",
+          "5d37da7388bdde9e8e72f96e3776f9520922ef21266430cc902f85509d25e576",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "e3992fa1d221ce1f6e8179e204e666267fa075a2dcc18b59b9570480a84b071e",
+          "d26b1e3359b03aa7b1aacbb3966c1efdfd53f1ea317989fea7ace3a270835d3f"
+        ],
+        [
+          "9b70392f6c62bf27512d245d03a83cf853d83f9d61262460e637c26b18b7c1bc",
+          "cf7122c112c8d7a679a9e2f83a821df3e4c2adcde34ab02fbe01d7830aa8fafc",
+          "18e506121f621bbd4820e50f8dfcdedde7ae046ae84eba10de4d522b4520652c",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "e83d1841f53335495683e5e02f29c819b7d665b8b1b07ec76a252e0ce43c1554",
+          "7d4bc4a861045482d2b2039c37bc2ed9e52bb8de6882633560cbffa21d751f05"
+        ]
+      ],
+      "cpu_affinity": [
+        14,
+        15
+      ],
+      "cpu_placement": {
+        "checkpoints": [
+          {
+            "main_after": [
+              14,
+              15
+            ],
+            "main_before": [
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "passed": true,
+            "repaired_thread_ids": [
+              1109090
+            ],
+            "stage": "before_torch_import",
+            "thread_masks": {
+              "1109090": [
+                14,
+                15
+              ]
+            }
+          },
+          {
+            "main_after": [
+              14,
+              15
+            ],
+            "main_before": [
+              14,
+              15
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_imports",
+            "thread_masks": {
+              "1109090": [
+                14,
+                15
+              ],
+              "1109097": [
+                14,
+                15
+              ],
+              "1109106": [
+                14,
+                15
+              ]
+            }
+          },
+          {
+            "main_after": [
+              14,
+              15
+            ],
+            "main_before": [
+              14,
+              15
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_torch_thread_setup",
+            "thread_masks": {
+              "1109090": [
+                14,
+                15
+              ],
+              "1109097": [
+                14,
+                15
+              ],
+              "1109106": [
+                14,
+                15
+              ]
+            }
+          },
+          {
+            "main_after": [
+              14,
+              15
+            ],
+            "main_before": [
+              14,
+              15
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_cuda_init",
+            "thread_masks": {
+              "1109090": [
+                14,
+                15
+              ],
+              "1109097": [
+                14,
+                15
+              ],
+              "1109106": [
+                14,
+                15
+              ],
+              "1109116": [
+                14,
+                15
+              ],
+              "1109117": [
+                14,
+                15
+              ]
+            }
+          },
+          {
+            "main_after": [
+              14,
+              15
+            ],
+            "main_before": [
+              14,
+              15
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_nccl_init",
+            "thread_masks": {
+              "1109090": [
+                14,
+                15
+              ],
+              "1109097": [
+                14,
+                15
+              ],
+              "1109106": [
+                14,
+                15
+              ],
+              "1109116": [
+                14,
+                15
+              ],
+              "1109117": [
+                14,
+                15
+              ],
+              "1109118": [
+                14,
+                15
+              ],
+              "1109119": [
+                14,
+                15
+              ],
+              "1109133": [
+                14,
+                15
+              ],
+              "1109135": [
+                14,
+                15
+              ],
+              "1109139": [
+                14,
+                15
+              ]
+            }
+          },
+          {
+            "main_after": [
+              14,
+              15
+            ],
+            "main_before": [
+              14,
+              15
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_model_and_cache",
+            "thread_masks": {
+              "1109090": [
+                14,
+                15
+              ],
+              "1109097": [
+                14,
+                15
+              ],
+              "1109106": [
+                14,
+                15
+              ],
+              "1109116": [
+                14,
+                15
+              ],
+              "1109117": [
+                14,
+                15
+              ],
+              "1109118": [
+                14,
+                15
+              ],
+              "1109119": [
+                14,
+                15
+              ],
+              "1109133": [
+                14,
+                15
+              ],
+              "1109135": [
+                14,
+                15
+              ],
+              "1109139": [
+                14,
+                15
+              ],
+              "1109157": [
+                14,
+                15
+              ],
+              "1109158": [
+                14,
+                15
+              ],
+              "1109159": [
+                14,
+                15
+              ],
+              "1109160": [
+                14,
+                15
+              ],
+              "1109165": [
+                14,
+                15
+              ],
+              "1109172": [
+                14,
+                15
+              ],
+              "1109174": [
+                14,
+                15
+              ]
+            }
+          }
+        ],
+        "job_cpu_ids": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "policy": "slurm-disjoint-ranks-v1",
+        "rank": 2,
+        "rank_cpu_ids": [
+          14,
+          15
+        ]
+      },
+      "graph_sha256": "aca12c6fa703a279af5dacdc6019e94e5a71177a0c5d2800454f8f38f04333ba",
+      "hardware": {
+        "cuda_runtime": "12.6",
+        "gpu": {
+          "compute_capability": "6.1",
+          "index": 2,
+          "name": "NVIDIA GeForce GTX 1080 Ti",
+          "total_memory_bytes": 11707809792
+        },
+        "hostname": "studgpu-node02.inf.ethz.ch",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3",
+        "rank": 2,
+        "torch": "2.14.1+cu126"
+      },
+      "initial_state_sha256": "adf73faa502218345b8b872f7d93a4815d40efea15342cc3720644cb0777db51",
+      "owned_grid_ids_sha256": "abd35e53d2aad23d4910aa36ea7d019d640c33f0c56d2ab56208e9a2fb1e1771",
+      "partition": {
+        "owned_full_grid_nodes": 10587,
+        "owned_interior_grid_nodes": 10587,
+        "owned_mesh_nodes_by_level": [
+          2114,
+          524
+        ],
+        "rank": 2,
+        "relations": {
+          "g2m": [
+            {
+              "halo_nodes": 546,
+              "owned_edges": 17401
+            }
+          ],
+          "m2g": [
+            {
+              "halo_nodes": 117,
+              "owned_edges": 31481
+            }
+          ],
+          "m2m": [
+            {
+              "halo_nodes": 117,
+              "owned_edges": 12211
+            },
+            {
+              "halo_nodes": 58,
+              "owned_edges": 2948
+            }
+          ],
+          "mesh_down": [
+            {
+              "halo_nodes": 20,
+              "owned_edges": 2114
+            }
+          ],
+          "mesh_up": [
+            {
+              "halo_nodes": 75,
+              "owned_edges": 2163
+            }
+          ]
+        }
+      },
+      "partition_hashes": {
+        "g2m": {
+          "edges": "7fedc766211401cc7b9fcdfeeb29d3181c173b8c974a845f7920954ad5ce19a4",
+          "halos": "a8f3a93e6b57d61af906ad0d06f28dcf50e4d0dafde5c4e5c195313c453ffaca",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "adb1f5568915ba79df1cdb23efaff5ae3e968af31963bc7b7c040ff1112e29a5"
+          ],
+          "receivers": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634",
+          "senders": "abd35e53d2aad23d4910aa36ea7d019d640c33f0c56d2ab56208e9a2fb1e1771"
+        },
+        "m2g": {
+          "edges": "cf44bdc12bcfcdee13d46bb5792dc67d2496db2f6f1aaafbafd01a1b8f2999e6",
+          "halos": "3b3bd5496662a93cff55543ab993a0bb86a234be2b6ba9dd30a84cd613dc2275",
+          "pack_indices": [
+            "90146c773987d9bd547f59d59b6be7f9d91b69bfab6ade9cf9756ab9dc798e2c",
+            "de1d06a6ebae2222de058ab830a32cf715bed52b380292bb773dd51f1b20ee8b",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "6153c2a3217e782166e05084a332efd2dbe5c698f040f44c447f79ab003c560d"
+          ],
+          "receivers": "abd35e53d2aad23d4910aa36ea7d019d640c33f0c56d2ab56208e9a2fb1e1771",
+          "senders": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634"
+        },
+        "m2m_0": {
+          "edges": "8454d9b60f2103523251d5b01a86583bf6b061e00d019c7e1e84df58c7e21ef9",
+          "halos": "28a0d203a7ac626059fd24650090f67a5b19cf226214113a71bbb69322515a3a",
+          "pack_indices": [
+            "3afd18aa3efef020ea2c33fa6f027e6e29a6b5e273e3620fd6d0aff50e29f0be",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "c3907c3ee00e0e0b00842bd07c35cd9cd71ddc0532f1fa84a748f59cc14edf7f"
+          ],
+          "receivers": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634",
+          "senders": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634"
+        },
+        "m2m_1": {
+          "edges": "2799b402e7b970074d9ff9f53e1e9bdc63446297a5c70da0096f08e511e014d3",
+          "halos": "ef06b986d0e802ab3b9e7bdd633ac92821fc385cd5f70f6607d049fd63fc180a",
+          "pack_indices": [
+            "717b7c2840eb73847f63c4bef91e0e6bb61f9d6efcc9db665482c7ae5f8bfe4c",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "d5453f20273ac6e9584e6eebc88bf7a05bd331f0699a30b13e6ed3dfe9d1fb46"
+          ],
+          "receivers": "6ac1760cc66cf37df1dd826cf6617d75d6d0cc6821eebe0b045d003f6c709afd",
+          "senders": "6ac1760cc66cf37df1dd826cf6617d75d6d0cc6821eebe0b045d003f6c709afd"
+        },
+        "mesh_down_0": {
+          "edges": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634",
+          "halos": "3e6727ce171237b58f735a094282281c9fa980b3c1a514ba3938c462f9370bdb",
+          "pack_indices": [
+            "9cef83f62c9783a3b952c07d29868e257cf02faca7dc6b46e69f5b43f692577b",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "073cbd4f8ad1b2e788b18d38c7dfa40264defd50fc9d6585b54d08e79c720344"
+          ],
+          "receivers": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634",
+          "senders": "6ac1760cc66cf37df1dd826cf6617d75d6d0cc6821eebe0b045d003f6c709afd"
+        },
+        "mesh_up_0": {
+          "edges": "6d21dccd99c4036f051cd36e79fc0c04cf5ff2750a97ef46334274139936ddf0",
+          "halos": "4ca13c618ac70dafb19c016f1d1a7f05dfa93bacdd9db322cee1afd1ba72d00f",
+          "pack_indices": [
+            "9e3824411768492fc1d22739d3111b46f67b927724929c6cf3fddcb157d4ee00",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "8bf8ad9b1c1b0ed63186e10e4e069f3bd45fb823c1234d22e4598d2b237358ea"
+          ],
+          "receivers": "6ac1760cc66cf37df1dd826cf6617d75d6d0cc6821eebe0b045d003f6c709afd",
+          "senders": "cb30c7f44ff2e4f25c5699b6691d7ca8e124ed72b1e1f57fce0bacaf133eb634"
+        }
+      },
+      "rank": 2,
+      "rank_data_root": "/tmp/njord-halo-ab-6130/geographic_rcb_ws4/rank_2",
+      "transport_plan_sha256": "fc9ddaf60acee45db03692395804008a31e2425d6f0eb10664c61368d15650f9"
+    },
+    {
+      "batch_hashes": [
+        [
+          "1d195e0a158d618ab8ded462af20cc60b1ed5f91056a0d148fb3055c96c8f650",
+          "af555d5742b6c7785112c401fa978813f1b15c4a8395132de5f96abaf011f0cb",
+          "e1c3ed40c5ec1b7a4981229b49f40272ff78048d352d75c59898d04e5618a1f4",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "cf483ddb87d52d5cc35663a0bedea00dbaf1e72d86214733ecba930aed3737d0",
+          "f0a116153fb11f389e4aaca6a9c2927f17952d8ed10821d7a599c56ada99060b"
+        ],
+        [
+          "0a0c4f9683a5ced4068a560185a1c428c6e57f8eb3dd8f53616f66709d61f387",
+          "95d86ff22bae8bdeec9099d4aad0d42c690e5766a67ade808b1b3fb43af26870",
+          "c08db500d4ef3fd1951e57e235275a9768fb368581b7897e84f6d9119fe13ed7",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "c49e7e96f8597470b4bab6717d5fe814b2af558d10aa81f39e5b305cc0c58f91",
+          "55132625950815ebaba0ab821746c2d64d2b183fa814d3b9f60eb5545b3f78d1"
+        ],
+        [
+          "5f7702118a45b04175af444ac1a221007122cdfbee95528d72d369411f80bc0a",
+          "46f5cffb96b04d1a5b991210ea2c11f28a8064676af3a75ce0708c575c31355b",
+          "5d37da7388bdde9e8e72f96e3776f9520922ef21266430cc902f85509d25e576",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "fa4c9c564fcb6d79be4773b58f2d487da40bd852dbeaad75b12b16e95817bd0c",
+          "d26b1e3359b03aa7b1aacbb3966c1efdfd53f1ea317989fea7ace3a270835d3f"
+        ],
+        [
+          "bd349ba0dadd5791782ccd5eabcccb1770fea7d23723527aa8e27186c4cbd31a",
+          "79b2e1bdcfb019dc59a243252aaa8c91dd9fa11012fb3d66d5104d8bbf0b3559",
+          "18e506121f621bbd4820e50f8dfcdedde7ae046ae84eba10de4d522b4520652c",
+          "bbf29be21f6752605727716ae0ed9dad8b7751544e8bed490a2f218b95fa1a90",
+          "9a5cadd337ddf3eaeadb411664dee578230b8e5bcfb130aaf531330edf49c1d8",
+          "7d4bc4a861045482d2b2039c37bc2ed9e52bb8de6882633560cbffa21d751f05"
+        ]
+      ],
+      "cpu_affinity": [
+        16,
+        17
+      ],
+      "cpu_placement": {
+        "checkpoints": [
+          {
+            "main_after": [
+              16,
+              17
+            ],
+            "main_before": [
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "passed": true,
+            "repaired_thread_ids": [
+              1109091
+            ],
+            "stage": "before_torch_import",
+            "thread_masks": {
+              "1109091": [
+                16,
+                17
+              ]
+            }
+          },
+          {
+            "main_after": [
+              16,
+              17
+            ],
+            "main_before": [
+              16,
+              17
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_imports",
+            "thread_masks": {
+              "1109091": [
+                16,
+                17
+              ],
+              "1109096": [
+                16,
+                17
+              ],
+              "1109099": [
+                16,
+                17
+              ]
+            }
+          },
+          {
+            "main_after": [
+              16,
+              17
+            ],
+            "main_before": [
+              16,
+              17
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_torch_thread_setup",
+            "thread_masks": {
+              "1109091": [
+                16,
+                17
+              ],
+              "1109096": [
+                16,
+                17
+              ],
+              "1109099": [
+                16,
+                17
+              ]
+            }
+          },
+          {
+            "main_after": [
+              16,
+              17
+            ],
+            "main_before": [
+              16,
+              17
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_cuda_init",
+            "thread_masks": {
+              "1109091": [
+                16,
+                17
+              ],
+              "1109096": [
+                16,
+                17
+              ],
+              "1109099": [
+                16,
+                17
+              ],
+              "1109110": [
+                16,
+                17
+              ],
+              "1109111": [
+                16,
+                17
+              ]
+            }
+          },
+          {
+            "main_after": [
+              16,
+              17
+            ],
+            "main_before": [
+              16,
+              17
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_nccl_init",
+            "thread_masks": {
+              "1109091": [
+                16,
+                17
+              ],
+              "1109096": [
+                16,
+                17
+              ],
+              "1109099": [
+                16,
+                17
+              ],
+              "1109110": [
+                16,
+                17
+              ],
+              "1109111": [
+                16,
+                17
+              ],
+              "1109112": [
+                16,
+                17
+              ],
+              "1109113": [
+                16,
+                17
+              ],
+              "1109126": [
+                16,
+                17
+              ],
+              "1109137": [
+                16,
+                17
+              ],
+              "1109138": [
+                16,
+                17
+              ]
+            }
+          },
+          {
+            "main_after": [
+              16,
+              17
+            ],
+            "main_before": [
+              16,
+              17
+            ],
+            "passed": true,
+            "repaired_thread_ids": [],
+            "stage": "after_model_and_cache",
+            "thread_masks": {
+              "1109091": [
+                16,
+                17
+              ],
+              "1109096": [
+                16,
+                17
+              ],
+              "1109099": [
+                16,
+                17
+              ],
+              "1109110": [
+                16,
+                17
+              ],
+              "1109111": [
+                16,
+                17
+              ],
+              "1109112": [
+                16,
+                17
+              ],
+              "1109113": [
+                16,
+                17
+              ],
+              "1109126": [
+                16,
+                17
+              ],
+              "1109137": [
+                16,
+                17
+              ],
+              "1109138": [
+                16,
+                17
+              ],
+              "1109144": [
+                16,
+                17
+              ],
+              "1109146": [
+                16,
+                17
+              ],
+              "1109149": [
+                16,
+                17
+              ],
+              "1109150": [
+                16,
+                17
+              ],
+              "1109152": [
+                16,
+                17
+              ],
+              "1109155": [
+                16,
+                17
+              ],
+              "1109156": [
+                16,
+                17
+              ]
+            }
+          }
+        ],
+        "job_cpu_ids": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "policy": "slurm-disjoint-ranks-v1",
+        "rank": 3,
+        "rank_cpu_ids": [
+          16,
+          17
+        ]
+      },
+      "graph_sha256": "aca12c6fa703a279af5dacdc6019e94e5a71177a0c5d2800454f8f38f04333ba",
+      "hardware": {
+        "cuda_runtime": "12.6",
+        "gpu": {
+          "compute_capability": "6.1",
+          "index": 3,
+          "name": "NVIDIA GeForce GTX 1080 Ti",
+          "total_memory_bytes": 11707809792
+        },
+        "hostname": "studgpu-node02.inf.ethz.ch",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "python": "3.12.3",
+        "rank": 3,
+        "torch": "2.14.1+cu126"
+      },
+      "initial_state_sha256": "adf73faa502218345b8b872f7d93a4815d40efea15342cc3720644cb0777db51",
+      "owned_grid_ids_sha256": "ec09214c50e3408dfe895179cbc976bf2cc808510c7e79bb3a71f393e23d921c",
+      "partition": {
+        "owned_full_grid_nodes": 10587,
+        "owned_interior_grid_nodes": 10587,
+        "owned_mesh_nodes_by_level": [
+          2114,
+          524
+        ],
+        "rank": 3,
+        "relations": {
+          "g2m": [
+            {
+              "halo_nodes": 978,
+              "owned_edges": 18432
+            }
+          ],
+          "m2g": [
+            {
+              "halo_nodes": 28,
+              "owned_edges": 31234
+            }
+          ],
+          "m2m": [
+            {
+              "halo_nodes": 131,
+              "owned_edges": 11502
+            },
+            {
+              "halo_nodes": 63,
+              "owned_edges": 2653
+            }
+          ],
+          "mesh_down": [
+            {
+              "halo_nodes": 39,
+              "owned_edges": 2114
+            }
+          ],
+          "mesh_up": [
+            {
+              "halo_nodes": 23,
+              "owned_edges": 2056
+            }
+          ]
+        }
+      },
+      "partition_hashes": {
+        "g2m": {
+          "edges": "ae2b841eeb2bfaf372ca94086f4db36c34efed98a39000d39bc80f3a3af78818",
+          "halos": "a168ad6b555271865e47a58aedf73980836831bfc4f6b998df4df86054aaf21a",
+          "pack_indices": [
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58",
+            "ad40a44f6a1494f36ccd6423c67a05aeccdea2705b39aaff0a242d48f457b5c4",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7",
+          "senders": "ec09214c50e3408dfe895179cbc976bf2cc808510c7e79bb3a71f393e23d921c"
+        },
+        "m2g": {
+          "edges": "3a1d41f6d42dd0d7bd5718085d13d2c78f662f494bf1f6aaa1b4ec1d3b659ef4",
+          "halos": "a6a72d683457f02a8b4aeb673737dc236fb0f47592b6c76f3264c2b32f123a3d",
+          "pack_indices": [
+            "1dadd77e02e935cde6db4e0831e4cb443a913489a97f7e6ec97986e29d7101d6",
+            "85876c95951b5a5edc62b0e0d4359f1059e0ae2c95c7f70be83dffca7638dd15",
+            "3a9e174eb116c8b70f29152047915cec1dac805a56c0b98b1c5b996c560d0a72",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "ec09214c50e3408dfe895179cbc976bf2cc808510c7e79bb3a71f393e23d921c",
+          "senders": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7"
+        },
+        "m2m_0": {
+          "edges": "ff79ed1ba3b68c2f747961b8c69fb3f202be43fda6374bfa3c036cdda356eb92",
+          "halos": "56510098ae83a537d307d6184765ecd9bd2318e923e2da744f796d52864ed25c",
+          "pack_indices": [
+            "1b67e65ffecd030db670f34178172b6dd5ed5727457d13068b0aeebaa3dc7534",
+            "624b59bfd72246d125895191b0fa3134fd1201a963317f1a0e8f6fcb7a979cf2",
+            "8ed91d0277862efea8c8a4649464b20303e00d6e7577b270601005eed0b48146",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7",
+          "senders": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7"
+        },
+        "m2m_1": {
+          "edges": "da1bc1a961050dffe7815f15c9fc039d1873cfe774f0a280df479523f3f33e8b",
+          "halos": "3bb35e4c8692061692208a193731d8bc185c2ddb220a8915d6b77fd30a08f53e",
+          "pack_indices": [
+            "08eba980f4b3d88008de09c59b27e6880e616fd703e94ce85ed072645d6645fc",
+            "21282b3b071eeda52bec70e05cbd9200e619fa37919b4593e179c3676e6beeea",
+            "04b0facde52a2674a464760253a9070d7934afca7b78dc8502c245089586b2dc",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "b3e803dabfde41fb02fc6b447037348273bbe260b02edaabef82a215d76b113a",
+          "senders": "b3e803dabfde41fb02fc6b447037348273bbe260b02edaabef82a215d76b113a"
+        },
+        "mesh_down_0": {
+          "edges": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7",
+          "halos": "f585818db8e73a1b188ecfe0d9581059e3d9aa60a78833a997d598e0fa4b51d3",
+          "pack_indices": [
+            "1ef4b709e01908ceed17b6c9f13549240371cadd49e9fb7b2b3b478a1aa496e7",
+            "cc717f05ba019f244e95e900873e6e2e75f77ef6182f397b26ccf7c591ec9552",
+            "2cb0ced86cabdeb7391fac9bde22d5fda146014dc601f0a8e5427d9521eb2a25",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7",
+          "senders": "b3e803dabfde41fb02fc6b447037348273bbe260b02edaabef82a215d76b113a"
+        },
+        "mesh_up_0": {
+          "edges": "c2b7a4df7eedad1c5fd1ef4056f3b134817f926b23f67efa126d8d3d9afc9540",
+          "halos": "9528af3bf0d4d694af3e7052e65fd9219d8c1142bb0b43de5c4188fccf820480",
+          "pack_indices": [
+            "605882e01bf244cba1a247837fdf899230cec4079dc7f2a97544786185b5b16d",
+            "967beba5618c7a835e1a7091a08b62783605b8f8fd91108bb6bab830ceb270d0",
+            "9516ecd0b9c3197b734a7775dd4340dcb8acb8a74c36dcde2b5880b5a71e4166",
+            "38dfbff20ccccbf033640a96cf293d8d4caf91deb965a5e76214b22912310c58"
+          ],
+          "receivers": "b3e803dabfde41fb02fc6b447037348273bbe260b02edaabef82a215d76b113a",
+          "senders": "2698cb26dff40621a5ca30ba65a6f670a66aacbc6772148233d85367d32afbc7"
+        }
+      },
+      "rank": 3,
+      "rank_data_root": "/tmp/njord-halo-ab-6130/geographic_rcb_ws4/rank_3",
+      "transport_plan_sha256": "fc9ddaf60acee45db03692395804008a31e2425d6f0eb10664c61368d15650f9"
+    }
+  ],
+  "repeat": 0,
+  "schema": "halo-transport-paired-v1",
+  "status": "completed",
+  "validation": [
+    {
+      "adamw_masked_elements": 0,
+      "max_parameter_absolute_error": 0.0,
+      "max_prediction_absolute_error": 0.0,
+      "max_scaled_gradient_error": 0.0,
+      "optimizer_updates": 2,
+      "passed": true
+    },
+    {
+      "adamw_masked_elements": 0,
+      "max_parameter_absolute_error": 0.0,
+      "max_prediction_absolute_error": 0.0,
+      "max_scaled_gradient_error": 0.0,
+      "optimizer_updates": 2,
+      "passed": true
+    },
+    {
+      "adamw_masked_elements": 0,
+      "max_parameter_absolute_error": 0.0,
+      "max_prediction_absolute_error": 0.0,
+      "max_scaled_gradient_error": 0.0,
+      "optimizer_updates": 2,
+      "passed": true
+    },
+    {
+      "adamw_masked_elements": 0,
+      "max_parameter_absolute_error": 0.0,
+      "max_prediction_absolute_error": 0.0,
+      "max_scaled_gradient_error": 0.0,
+      "optimizer_updates": 2,
+      "passed": true
+    }
+  ]
+}

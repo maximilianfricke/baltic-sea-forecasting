@@ -1,0 +1,24 @@
+{
+  "policy": "slurm-disjoint-ranks-v1",
+  "job_cpu_ids": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "expected_logical_cpus": 8,
+  "slurm_job_id": "6131",
+  "slurm_step_id": "1",
+  "inherited_affinity_environment": {
+    "SLURM_CPU_BIND": "verbose,mask_cpu:0x3FC00",
+    "OMP_PROC_BIND": null,
+    "OMP_PLACES": null,
+    "GOMP_CPU_AFFINITY": null,
+    "KMP_AFFINITY": null,
+    "NCCL_IGNORE_CPU_AFFINITY": null
+  }
+}

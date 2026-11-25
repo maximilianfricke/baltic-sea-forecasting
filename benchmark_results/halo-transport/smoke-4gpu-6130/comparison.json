@@ -1,0 +1,56 @@
+{
+  "all_cpu_affinity_checks_passed": true,
+  "all_equivalence_checks_passed": true,
+  "ci_scope": "Paired independent launches only; three repeats provide limited uncertainty resolution",
+  "controls_sha256": "139e8b208287dd293d82c5c798b105cc43a67300e633ab58a4da3dcaa943b5ef",
+  "cpu_placement": {
+    "job_cpu_ids": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "policy": "slurm-disjoint-ranks-v1",
+    "rank_cpu_ids": [
+      [
+        10,
+        11
+      ],
+      [
+        12,
+        13
+      ],
+      [
+        14,
+        15
+      ],
+      [
+        16,
+        17
+      ]
+    ]
+  },
+  "independent_paired_launches": 1,
+  "paired_launch_bootstrap_ci95": null,
+  "per_launch_model_wall_medians_ms": {
+    "p2p": [
+      853.2982859760523
+    ],
+    "physicsnemo": [
+      745.626736083068
+    ]
+  },
+  "physicsnemo_speedup_over_p2p": 1.144404089449106,
+  "prefetch_factor": null,
+  "source_files": [
+    "benchmark_results/halo-transport/smoke-4gpu-6130/repeat-0.json"
+  ],
+  "status": "completed",
+  "timer": "Cached model wall step after H2D and rank barrier; excludes input/setup",
+  "workers_per_rank": 0,
+  "world_size": 4
+}
