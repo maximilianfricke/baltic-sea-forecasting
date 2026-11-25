@@ -208,11 +208,339 @@ class PerLayerGeographicRCB(PerLayerPartitioner):
         return owners
 
 
+class GraphPartitioner(Partitioner):
+    """Base class for strategies that need the graph, not only positions.
+
+    ``partition_graph(graph)`` returns one owner array per layer of a
+    ``graph.ViewerGraph``.
+    """
+
+    def partition_graph(self, graph) -> List[np.ndarray]:
+        raise NotImplementedError
+
+
+class Chunks(GraphPartitioner):
+    """Contiguous node-ID ranges per layer: ``owner = id * k // size``.
+
+    PhysicsNeMo's default distributed-graph split, as used on the
+    ``nils-pnemo`` branch. Ignores geometry, so halos are large.
+    """
+
+    name = "chunks"
+
+    def partition_graph(self, graph):
+        return [
+            np.arange(len(layer), dtype=np.int64) * self.k // len(layer)
+            for layer in graph.layers
+        ]
+
+
+def nearest_mesh0(graph) -> List[Optional[np.ndarray]]:
+    """For every layer except mesh 0, the nearest mesh-0 node of each node.
+
+    Entry 1 (mesh 0 itself) is None. Uses the positions as stored in the
+    graph files (``Layer.exact_xyz``), queried in float64.
+    """
+    # Third-party
+    from scipy.spatial import cKDTree
+
+    tree = cKDTree(graph.layers[1].exact_xyz.astype(np.float64))
+    return [
+        None
+        if i == 1
+        else tree.query(layer.exact_xyz.astype(np.float64))[1].astype(np.int64)
+        for i, layer in enumerate(graph.layers)
+    ]
+
+
+class Mesh0Attach(GraphPartitioner):
+    """Split mesh 0 only; every other node joins its nearest mesh-0 node.
+
+    The scheme of the ``nils-pnemo`` branch (``dphpc/pnemo/reweight.py``):
+    each mesh-0 node is weighted by the number of grid nodes attached to it
+    (``weighted``) or by 1, the mesh-0 split is computed by ``split_mesh0``,
+    and the grid and coarser mesh levels inherit the owner of their nearest
+    mesh-0 node. Because whole groups move together, cut edges stay rare
+    across layers; per-layer balance follows from the weights.
+    """
+
+    weighted = True
+
+    def split_mesh0(self, xyz, weights, m2m_edge_index) -> np.ndarray:
+        raise NotImplementedError
+
+    def partition_graph(self, graph):
+        attach = nearest_mesh0(graph)
+        n0 = len(graph.layers[1])
+        weights = (
+            np.bincount(attach[0], minlength=n0).astype(np.int64)
+            if self.weighted
+            else np.ones(n0, dtype=np.int64)
+        )
+        m2m0 = next(es for es in graph.edge_sets if es.name == "m2m 0")
+        owners0 = self.split_mesh0(
+            graph.layers[1].exact_xyz, weights, m2m0.edge_index
+        )
+        return [
+            owners0 if a is None else owners0[a] for a in attach
+        ]
+
+
+def _nils_rcb(points, weights, k) -> np.ndarray:
+    """Weighted RCB, port of ``rcb`` in ``dphpc/pnemo/reweight.py``.
+
+    Splits along the axis of largest extent at the legal position (every
+    side keeps at least one node per rank) whose cumulative weight is closest
+    to the target share.
+    """
+    owners = np.empty(len(points), dtype=np.int64)
+
+    def split(ids, start, ranks):
+        if ranks == 1:
+            owners[ids] = start
+            return
+        sub = points[ids]
+        axis = int(np.argmax(sub.max(axis=0) - sub.min(axis=0)))
+        ids = ids[np.argsort(points[ids, axis], kind="stable")]
+        cumulative = np.cumsum(weights[ids]).astype(np.float64)
+        left = ranks // 2
+        legal = np.arange(left, len(ids) - (ranks - left) + 1)
+        target = cumulative[-1] * left / ranks
+        cut = int(legal[np.argmin(np.abs(cumulative[legal - 1] - target))])
+        split(ids[:cut], start, left)
+        split(ids[cut:], start + left, ranks - left)
+
+    split(np.arange(len(points)), 0, k)
+    return owners
+
+
+class Mesh0RCB(Mesh0Attach):
+    """Mesh-0 split by weighted RCB, other layers attached (nils-pnemo)."""
+
+    name = "mesh0_rcb"
+
+    def split_mesh0(self, xyz, weights, m2m_edge_index):
+        return _nils_rcb(xyz, weights, self.k)
+
+
+class Mesh0RCBUnweighted(Mesh0RCB):
+    name = "mesh0_rcb_unweighted"
+    weighted = False
+
+
+def _csr(edge_index, n):
+    """Symmetric adjacency without self-loops or duplicates, as CSR."""
+    both = np.concatenate([edge_index, edge_index[::-1]], axis=1)
+    keys = np.unique(both[0] * n + both[1])
+    keys = keys[keys // n != keys % n]
+    degrees = np.bincount(keys // n, minlength=n)
+    offsets = np.concatenate([[0], np.cumsum(degrees)])
+    return offsets.astype(np.int64), (keys % n).astype(np.int64)
+
+
+class Mesh0Metis(Mesh0Attach):
+    """Mesh-0 split by METIS k-way (seed 42, ufactor 30, edge cut), other
+    layers attached (nils-pnemo). Needs ``pymetis``.
+
+    nils-pnemo falls back to a direct ``METIS_PartGraphKway`` call with two
+    constraints (count and weight) when the weighted result is too
+    unbalanced; that call needs a pymetis build exporting the METIS symbols
+    (Linux), so here the fallback raises instead.
+    """
+
+    name = "mesh0_metis"
+
+    def __init__(self, k):
+        super().__init__(k)
+        try:
+            import pymetis  # noqa: F401
+        except ImportError as e:
+            raise ValueError(f"{self.name} needs pymetis ({e})") from e
+
+    def split_mesh0(self, xyz, weights, m2m_edge_index):
+        # Third-party
+        import pymetis
+
+        offsets, neighbors = _csr(m2m_edge_index, len(xyz))
+        result = pymetis.part_graph(
+            self.k,
+            adjacency=pymetis.CSRAdjacency(
+                offsets.tolist(), neighbors.tolist()
+            ),
+            vweights=weights.tolist(),
+            recursive=False,
+            options=pymetis.Options(
+                seed=42, ufactor=30, objtype=pymetis.ObjType.CUT
+            ),
+        )
+        return np.asarray(result.vertex_part, dtype=np.int64)
+
+    def partition_graph(self, graph):
+        owners = super().partition_graph(graph)
+        if self.weighted and not _nils_acceptable(owners, self.k):
+            attach = nearest_mesh0(graph)
+            n0 = len(graph.layers[1])
+            weights = np.bincount(attach[0], minlength=n0).astype(np.int64)
+            m2m0 = next(es for es in graph.edge_sets if es.name == "m2m 0")
+            owners0 = _metis_two_constraints(
+                *_csr(m2m0.edge_index, n0), weights, self.k
+            )
+            owners = [owners0 if a is None else owners0[a] for a in attach]
+        return owners
+
+
+def _nils_acceptable(owners, k) -> bool:
+    """nils-pnemo's balance check: grid ≤ 1.05, other layers ≤ 1.25 of the
+    mean node count."""
+    ratios = [np.bincount(o, minlength=k).max() / (len(o) / k) for o in owners]
+    return ratios[0] <= 1.05 and all(r <= 1.25 for r in ratios[1:])
+
+
+def _metis_two_constraints(offsets, neighbors, weights, k) -> np.ndarray:
+    """METIS k-way with two constraints per node (count, weight), seed 42,
+    ufactor 30: nils-pnemo's fallback, via the METIS library inside pymetis.
+    Raises ValueError where that build does not export the METIS API
+    (Windows)."""
+    # Standard library
+    import ctypes
+
+    # Third-party
+    import pymetis
+    import pymetis._internal as internal
+
+    dtype = np.dtype(pymetis.zero_copy_dtype())
+    integer = ctypes.c_int64 if dtype.itemsize == 8 else ctypes.c_int32
+    pointer = ctypes.POINTER(integer)
+    library = ctypes.CDLL(internal.__file__)
+    try:
+        set_defaults = library.METIS_SetDefaultOptions
+        part = library.METIS_PartGraphKway
+    except AttributeError as e:
+        raise ValueError(
+            "two-constraint METIS needs a pymetis build that exports the "
+            f"METIS API (Linux); this one does not ({e})"
+        ) from e
+    set_defaults.argtypes = [pointer]
+    part.argtypes = [pointer] * 8 + [ctypes.c_void_p] * 2 + [pointer] * 3
+
+    def array(value):
+        return np.ascontiguousarray(value, dtype=dtype)
+
+    def ptr(value):
+        return value.ctypes.data_as(pointer)
+
+    n = array([len(weights)])
+    vertex_weights = array(
+        np.column_stack((np.ones(len(weights), dtype=dtype), weights)).ravel()
+    )
+    offsets, neighbors = array(offsets), array(neighbors)
+    options = np.empty(40, dtype=dtype)
+    set_defaults(ptr(options))
+    options[internal.options_indices.SEED] = 42
+    options[internal.options_indices.UFACTOR] = 30
+    options[internal.options_indices.OBJTYPE] = int(pymetis.ObjType.CUT)
+    objective, result = array([0]), np.empty(len(weights), dtype=dtype)
+    status = part(
+        ptr(n), ptr(array([2])), ptr(offsets), ptr(neighbors),
+        ptr(vertex_weights), None, None, ptr(array([k])), None, None,
+        ptr(options), ptr(objective), ptr(result),
+    )
+    if status != 1:
+        raise RuntimeError(f"METIS with two constraints returned {status}")
+    return result.astype(np.int64)
+
+
+class Mesh0MetisUnweighted(Mesh0Metis):
+    name = "mesh0_metis_unweighted"
+    weighted = False
+
+
+class Mesh0MtKaHyPar(Mesh0Attach):
+    """Mesh-0 split by Mt-KaHyPar (default preset, km1, ε 0.03, seed 42) on
+    the hypergraph of closed m2m-0 neighbourhoods, other layers attached
+    (nils-pnemo). Needs ``mtkahypar``."""
+
+    name = "mesh0_mtkahypar"
+
+    def __init__(self, k):
+        super().__init__(k)
+        try:
+            import mtkahypar  # noqa: F401
+        except ImportError as e:
+            raise ValueError(f"{self.name} needs mtkahypar ({e})") from e
+
+    def split_mesh0(self, xyz, weights, m2m_edge_index):
+        # Third-party
+        import mtkahypar
+
+        n = len(xyz)
+        ids = np.arange(n)
+        keys = np.unique(
+            np.concatenate(
+                [m2m_edge_index[0] * n + m2m_edge_index[1], ids * n + ids]
+            )
+        )
+        counts = np.bincount(keys // n, minlength=n)
+        nets = [v.tolist() for v in np.split(keys % n, np.cumsum(counts)[:-1])]
+        runtime = mtkahypar.initialize(1)
+        context = runtime.context_from_preset(mtkahypar.PresetType.DEFAULT)
+        context.set_partitioning_parameters(
+            self.k, 0.03, mtkahypar.Objective.KM1
+        )
+        context.logging = False
+        mtkahypar.set_seed(42)
+        hypergraph = runtime.create_hypergraph(
+            context, n, n, nets, weights.tolist(), [1] * n
+        )
+        return np.asarray(
+            hypergraph.partition(context).get_partition(), dtype=np.int64
+        )
+
+
+class Mesh0MtKaHyParUnweighted(Mesh0MtKaHyPar):
+    name = "mesh0_mtkahypar_unweighted"
+    weighted = False
+
+
 STRATEGIES: Dict[str, Callable[[int], Partitioner]] = {
     LongitudeBands.name: LongitudeBands,
     RecursiveCoordinateBisection.name: RecursiveCoordinateBisection,
     PerLayerGeographicRCB.name: PerLayerGeographicRCB,
+    Chunks.name: Chunks,
+    Mesh0RCB.name: Mesh0RCB,
+    Mesh0RCBUnweighted.name: Mesh0RCBUnweighted,
+    Mesh0Metis.name: Mesh0Metis,
+    Mesh0MetisUnweighted.name: Mesh0MetisUnweighted,
+    Mesh0MtKaHyPar.name: Mesh0MtKaHyPar,
+    Mesh0MtKaHyParUnweighted.name: Mesh0MtKaHyParUnweighted,
 }
+
+
+def load_owner_file(path, graph) -> tuple:
+    """Owners per layer from a saved ``.npz``; returns (owners, k).
+
+    Accepts the format of ``load_partition_file`` (``world_size``, ``grid``,
+    ``mesh_0``, …) and the nils-pnemo format (``K``, ``grid``, ``mesh_0``,
+    …). Checks that each array has one owner per node of its layer.
+    """
+    with np.load(path) as data:
+        key = "world_size" if "world_size" in data.files else "K"
+        k = int(data[key])
+        names = ["grid"] + [f"mesh_{i}" for i in range(len(graph.layers) - 1)]
+        owners = []
+        for name, layer in zip(names, graph.layers):
+            if name not in data.files:
+                raise ValueError(f"{path} has no {name!r}")
+            owner = data[name].astype(np.int64)
+            if owner.shape != (len(layer),):
+                raise ValueError(
+                    f"{name} in {path} has {owner.shape[0]} owners, "
+                    f"but {layer.name} has {len(layer)} nodes"
+                )
+            if owner.min() < 0 or owner.max() >= k:
+                raise ValueError(f"{name} in {path} has ranks outside [0, {k})")
+            owners.append(owner)
+    return owners, k
 
 
 def _xyz_to_lon_lat(xyz):
@@ -234,6 +562,7 @@ def partition_layers(
     layer_weights: Optional[List[np.ndarray]] = None,
     reference_layer: int = 0,
     layer_lon_lat: Optional[List[np.ndarray]] = None,
+    graph=None,
 ) -> List[np.ndarray]:
     """Partition every layer with one geometric rule.
 
@@ -256,12 +585,18 @@ def partition_layers(
         Longitude and latitude in degrees, used by per-layer strategies
         (derived from ``layer_xyz`` if not given; passing the original
         coordinates reproduces tie-breaking exactly).
+    graph : graph.ViewerGraph, optional
+        Required by graph-based strategies (``GraphPartitioner``).
 
     Returns
     -------
     list of (N_l,) int arrays with partition ids in [0, k).
     """
     partitioner = STRATEGIES[strategy](k)
+    if isinstance(partitioner, GraphPartitioner):
+        if graph is None:
+            raise ValueError(f"{strategy} needs the graph (graph=...)")
+        return partitioner.partition_graph(graph)
     if isinstance(partitioner, PerLayerPartitioner):
         if layer_lon_lat is None:
             layer_lon_lat = [_xyz_to_lon_lat(xyz) for xyz in layer_xyz]

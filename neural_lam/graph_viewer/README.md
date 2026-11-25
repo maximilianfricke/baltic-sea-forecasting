@@ -25,7 +25,8 @@ python -m neural_lam.graph_viewer --config_path sample_data/global_ocean_1.yaml 
 ```
 
 Useful options: `--graph_name` (default `global_cluster_graph`), `--strategy`
-(`none`, `lon_bands`, `rcb`, `per_layer_geo_rcb`), `--k`, `--cost_model` (a JSON file or
+(`none`, `lon_bands`, `rcb`, `per_layer_geo_rcb`, `chunks`, `mesh0_*`, `file`),
+`--partition_file` (owners saved by another tool), `--k`, `--cost_model` (a JSON file or
 `uniform`), `--show`/`--hide` (structures to toggle at start, e.g.
 `"g2m edges"`), `--screenshot out.png` (render one frame and exit).
 
@@ -217,6 +218,34 @@ recorded in its benchmark runs (jobs 4311 and 4312), at k = 2 and 4. This
 also validates the halo counting of the cost model against a working
 implementation.
 
+### The `nils-pnemo` strategies: `mesh0_*` and `chunks`
+
+Ports of the partitions on `nils-pnemo` (`dphpc/pnemo/reweight.py`):
+
+- `mesh0_rcb`, `mesh0_metis`, `mesh0_mtkahypar`: split **mesh 0 only**, with
+  each mesh-0 node weighted by the number of grid nodes whose nearest mesh-0
+  node it is; every grid node and coarser mesh node then joins its nearest
+  mesh-0 node. Whole groups move together, so few edges cross layers, and
+  the weights balance the grid. The `_unweighted` variants weigh every
+  mesh-0 node 1.
+- `chunks`: contiguous node-ID ranges per layer, PhysicsNeMo's default.
+  It ignores geometry and has 30–170× the halo traffic of the others.
+
+`mesh0_rcb`, `mesh0_rcb_unweighted` and `chunks` reproduce Nils's saved owner
+files node for node. The METIS and Mt-KaHyPar variants need `pymetis` /
+`mtkahypar` and use his settings, but their results depend on platform, threads
+and library state, so they differ from his files (0.5–25% of nodes after
+matching labels). To evaluate his exact partitions, load the files:
+
+```bash
+python -m neural_lam.graph_viewer --config_path sample_data/global_ocean_1.yaml     --graph_name global_hierarchical_graph --cost_model <cost model of that graph>     --strategy file --partition_file metis-k4.npz
+```
+
+`--partition_file` accepts both formats: `world_size`, `grid`, `mesh_0`, …
+(the model-parallel benchmark) and `K`, `grid`, `mesh_0`, … (`nils-pnemo`).
+The cost model must name the graph's layers and edge sets; measure one with
+`measure_weights.py --graph <name>`.
+
 ## Adding your own partitioning strategy
 
 Strategies live in `partition.py`. A geometric strategy needs two methods:
@@ -247,10 +276,9 @@ and implements `partition_layer(lon_lat)` instead (see
 The Partitions slider goes up to 4, the number of GPUs the project can use;
 `--k` accepts more.
 
-Strategies that are not purely geometric (e.g. METIS on the graph
-structure, or assignments computed elsewhere) do not fit this interface yet:
-the viewer would need an option to load a fixed node-to-GPU assignment per
-layer.
+Strategies that need the graph structure subclass `GraphPartitioner` and
+implement `partition_graph(graph)` (see `Chunks` and `Mesh0Attach`).
+Assignments computed elsewhere can be loaded with `--partition_file`.
 
 ## Questions you are likely to have
 

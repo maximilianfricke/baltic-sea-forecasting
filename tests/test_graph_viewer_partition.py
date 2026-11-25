@@ -3,11 +3,15 @@ import numpy as np
 import pytest
 
 # First-party
+from neural_lam.graph_viewer.graph import EdgeSet, Layer, ViewerGraph
 from neural_lam.graph_viewer.partition import (
     STRATEGIES,
+    GraphPartitioner,
     PerLayerGeographicRCB,
     PerLayerPartitioner,
+    _nils_rcb,
     cut_stats,
+    load_owner_file,
     partition_layers,
 )
 
@@ -15,7 +19,7 @@ from neural_lam.graph_viewer.partition import (
 SHARED_BORDER = [
     name
     for name, cls in STRATEGIES.items()
-    if not issubclass(cls, PerLayerPartitioner)
+    if not issubclass(cls, (PerLayerPartitioner, GraphPartitioner))
 ]
 
 
@@ -94,3 +98,86 @@ def test_per_layer_geo_rcb_by_hand():
 def test_per_layer_geo_rcb_rejects_unsupported_k(k):
     with pytest.raises(ValueError, match="k = 2 or 4"):
         PerLayerGeographicRCB(k)
+
+
+def _two_level_graph():
+    """6 grid nodes along the equator, 3 mesh-0 nodes, 1 mesh-1 node.
+
+    Grid at lon 0, 10, 20, 100, 110, 200; mesh 0 at lon 5, 105, 200, so
+    mesh-0 node 0 has two grid nodes attached, node 1 has three (110 is
+    nearer 105 than 200), node 2 has one.
+    """
+    lon = lambda *v: np.array([[x, 0.0] for x in v])  # noqa: E731
+    layers = [
+        Layer("Grid", lon(0, 10, 20, 100, 110, 200), -1),
+        Layer("Mesh 0", lon(5, 105, 200), 0),
+        Layer("Mesh 1", lon(100), 1),
+    ]
+    edge_sets = [
+        EdgeSet("m2m 0", "m2m", 1, 1, np.array([[0, 1, 1, 2], [1, 0, 2, 1]])),
+    ]
+    return ViewerGraph("tiny", True, layers, edge_sets)
+
+
+def test_chunks_are_id_ranges():
+    parts = partition_layers([], "chunks", 2, graph=_two_level_graph())
+    np.testing.assert_array_equal(parts[0], [0, 0, 0, 1, 1, 1])
+    np.testing.assert_array_equal(parts[1], [0, 0, 1])
+    np.testing.assert_array_equal(parts[2], [0])
+
+
+def test_graph_strategies_need_the_graph():
+    with pytest.raises(ValueError, match="needs the graph"):
+        partition_layers([np.zeros((3, 3))], "mesh0_rcb", 2)
+
+
+def test_nils_rcb_cuts_at_the_weighted_target():
+    points = np.array([[0.0, 0, 0], [1, 0, 0], [2, 0, 0], [3, 0, 0]])
+    # Total 8: the cut after the second node (cumulative 4) hits half
+    np.testing.assert_array_equal(
+        _nils_rcb(points, np.array([1, 3, 2, 2]), 2), [0, 0, 1, 1]
+    )
+    # Every side keeps at least one node, even if the weight says otherwise
+    np.testing.assert_array_equal(
+        _nils_rcb(points, np.array([100, 1, 1, 1]), 2), [0, 1, 1, 1]
+    )
+
+
+@pytest.mark.parametrize("weighted", [True, False])
+def test_mesh0_rcb_attaches_other_layers(weighted):
+    graph = _two_level_graph()
+    name = "mesh0_rcb" if weighted else "mesh0_rcb_unweighted"
+    grid, mesh0, mesh1 = partition_layers([], name, 2, graph=graph)
+    # Mesh 0 lies along x = cos(lon): nodes at lon 5, 105, 200. Weighted
+    # (2, 3, 1 grid nodes) the best cut leaves node 0 alone (2 vs 4);
+    # unweighted it splits 1 vs 2 by count as well.
+    assert mesh0[0] != mesh0[1] or mesh0[1] != mesh0[2]
+    nearest = [0, 0, 0, 1, 1, 2]  # nearest mesh-0 node of each grid node
+    np.testing.assert_array_equal(grid, mesh0[nearest])
+    assert mesh1[0] == mesh0[1]  # mesh-1 node at lon 100 joins node 1
+
+
+def test_load_owner_file_formats(tmp_path):
+    graph = _two_level_graph()
+    owners = {
+        "grid": np.array([0, 0, 0, 1, 1, 1]),
+        "mesh_0": np.array([0, 1, 1]),
+        "mesh_1": np.array([1]),
+    }
+    ours = tmp_path / "ours.npz"
+    np.savez(ours, world_size=np.array(2), **owners)
+    nils = tmp_path / "nils.npz"
+    np.savez(
+        nils,
+        K=np.array(2, dtype=np.int16),
+        partitioner=np.array("rcb"),
+        **{key: v.astype(np.uint8) for key, v in owners.items()},
+    )
+    for path in (ours, nils):
+        parts, k = load_owner_file(path, graph)
+        assert k == 2
+        for got, want in zip(parts, owners.values()):
+            np.testing.assert_array_equal(got, want)
+    np.savez(ours, world_size=np.array(2), **{**owners, "mesh_0": np.zeros(4)})
+    with pytest.raises(ValueError, match="has 4 owners"):
+        load_owner_file(ours, graph)

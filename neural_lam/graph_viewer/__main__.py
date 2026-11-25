@@ -14,7 +14,7 @@ from argparse import ArgumentParser
 from .costs import CostModel
 from .graph import load_viewer_graph
 from .partition import STRATEGIES
-from .viewer import NO_PARTITION, run
+from .viewer import FILE_STRATEGY, NO_PARTITION, run
 
 
 def main(input_args=None):
@@ -30,8 +30,16 @@ def main(input_args=None):
         "--strategy",
         type=str,
         default=NO_PARTITION,
-        choices=[NO_PARTITION] + list(STRATEGIES),
-        help="Initial partitioning strategy (can be changed in the viewer)",
+        choices=[NO_PARTITION, FILE_STRATEGY] + list(STRATEGIES),
+        help="Initial partitioning strategy (can be changed in the viewer); "
+        "'file' needs --partition_file",
+    )
+    parser.add_argument(
+        "--partition_file",
+        type=str,
+        help="Owners per layer (.npz: world_size or K, grid, mesh_0, ...), "
+        "e.g. from the model-parallel benchmark or nils-pnemo; adds the "
+        "'file' strategy",
     )
     parser.add_argument(
         "--k", type=int, default=4, help="Initial number of partitions"
@@ -69,6 +77,8 @@ def main(input_args=None):
         help="Render one frame to this image file and exit",
     )
     args = parser.parse_args(input_args)
+    if args.strategy == FILE_STRATEGY and not args.partition_file:
+        parser.error("--strategy file needs --partition_file")
 
     graph = load_viewer_graph(args.config_path, args.graph_name)
     cost_model = (
@@ -86,6 +96,7 @@ def main(input_args=None):
         screenshot=args.screenshot,
         enable=enable,
         cost_model=cost_model,
+        partition_file=args.partition_file,
     )
 
 

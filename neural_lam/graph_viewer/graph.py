@@ -2,8 +2,8 @@
 
 # Standard library
 import os
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
+from typing import List, Optional
 
 # Third-party
 import numpy as np
@@ -21,11 +21,20 @@ class Layer:
     name: str
     lon_lat: np.ndarray  # (N, 2) degrees
     level: int  # -1 for the grid, mesh level otherwise
+    # Unit-sphere positions computed the way the graph files store them
+    # (float32 for mesh levels), for strategies that must reproduce another
+    # tool's partition exactly; None means use ``xyz``
+    source_xyz: Optional[np.ndarray] = field(default=None, repr=False)
 
     @property
     def xyz(self) -> np.ndarray:
         """(N, 3) positions on the unit sphere."""
         return lon_lat_to_xyz(self.lon_lat)
+
+    @property
+    def exact_xyz(self) -> np.ndarray:
+        """``source_xyz`` when available, else ``xyz``."""
+        return self.xyz if self.source_xyz is None else self.source_xyz
 
     def __len__(self):
         return len(self.lon_lat)
@@ -66,6 +75,13 @@ def lon_lat_to_xyz(lon_lat: np.ndarray) -> np.ndarray:
     )
 
 
+def _mesh_features_to_xyz(features: torch.Tensor) -> np.ndarray:
+    """Unit vectors from (sin_lon, cos_lon, sin_lat, cos_lat, ...) in the
+    features' own precision (float32 in saved graphs)."""
+    slon, clon, slat, clat = features[:, :4].unbind(1)
+    return torch.stack((clat * clon, clat * slon, slat), 1).numpy()
+
+
 def _mesh_features_to_lon_lat(features: np.ndarray) -> np.ndarray:
     """Invert (sin_lon, cos_lon, sin_lat, cos_lat, ...) to degrees."""
     lon = np.arctan2(features[:, 0], features[:, 1])
@@ -101,6 +117,7 @@ def load_viewer_graph(config_path: str, graph_name: str) -> ViewerGraph:
                 f"Mesh {level}",
                 _mesh_features_to_lon_lat(features.numpy().astype(np.float64)),
                 level,
+                source_xyz=_mesh_features_to_xyz(features),
             )
         )
 

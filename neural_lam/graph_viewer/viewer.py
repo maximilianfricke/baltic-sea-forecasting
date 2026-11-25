@@ -29,7 +29,9 @@ from .costs import CostModel, node_weights, partition_costs
 from .graph import EdgeSet, ViewerGraph
 from .partition import (
     STRATEGIES,
+    Mesh0Attach,
     PerLayerPartitioner,
+    load_owner_file,
     cut_mask,
     cut_stats,
     partition_layers,
@@ -67,6 +69,8 @@ BOLD_FONT_PATHS = [
     "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
 ]
 NO_PARTITION = "none"
+# Strategy entry for owners loaded from --partition_file
+FILE_STRATEGY = "file"
 # The project can use at most 4 GPUs (larger k: --k on the command line)
 MAX_PARTITIONS = 4
 
@@ -149,8 +153,16 @@ class GraphViewer:
         strategy: str = NO_PARTITION,
         k: int = 4,
         cost_model: Optional[CostModel] = None,
+        partition_file: Optional[str] = None,
     ):
         self.graph = graph
+        # Owners loaded once from a file (shown as strategy "file")
+        self.file_parts, self.file_k = (
+            load_owner_file(partition_file, graph)
+            if partition_file
+            else (None, None)
+        )
+        self.partition_file = partition_file
         self.cost_model = cost_model or CostModel.uniform(graph)
         self.cost_model.check(graph)
         self.node_weights = node_weights(graph, self.cost_model)
@@ -269,7 +281,9 @@ class GraphViewer:
     def apply_partition(self):
         self.partition_error = None
         parts = None
-        if self.strategy != NO_PARTITION:
+        if self.strategy == FILE_STRATEGY:
+            parts, self.k = self.file_parts, self.file_k
+        elif self.strategy != NO_PARTITION:
             try:
                 parts = partition_layers(
                     [layer.xyz for layer in self.graph.layers],
@@ -279,6 +293,7 @@ class GraphViewer:
                     layer_lon_lat=[
                         layer.lon_lat for layer in self.graph.layers
                     ],
+                    graph=self.graph,
                 )
             except ValueError as e:  # e.g. a k the strategy does not support
                 self.partition_error = str(e)
@@ -301,6 +316,10 @@ class GraphViewer:
         self.refresh_colors()
 
     # ------------------------------------------------------------------ flow
+    def _mesh0_strategy(self):
+        cls = STRATEGIES.get(self.strategy)
+        return cls is not None and issubclass(cls, Mesh0Attach)
+
     def _per_layer_strategy(self):
         cls = STRATEGIES.get(self.strategy)
         return cls is not None and issubclass(cls, PerLayerPartitioner)
@@ -821,6 +840,8 @@ class GraphViewer:
         if psim.TreeNode("Partitioning"):
             self._cost_model_line()
             options = [NO_PARTITION] + list(STRATEGIES)
+            if self.file_parts is not None:
+                options.append(FILE_STRATEGY)
             changed, idx = psim.Combo(
                 "Strategy", options.index(self.strategy), options
             )
@@ -832,9 +853,19 @@ class GraphViewer:
                 self.apply_partition()
             if self.partition_error:
                 _wrapped(self.partition_error, WARN_COLOR)
+            elif self.strategy == FILE_STRATEGY:
+                psim.TextDisabled(
+                    f"Owners from {os.path.basename(self.partition_file)} "
+                    f"({self.file_k} partitions; slider ignored)"
+                )
             elif self._per_layer_strategy():
                 psim.TextDisabled(
                     "Each layer split on its own, balanced by node count"
+                )
+            elif self._mesh0_strategy():
+                psim.TextDisabled(
+                    "Mesh 0 split; other nodes follow their nearest mesh-0 "
+                    "node"
                 )
             else:
                 psim.TextDisabled(
@@ -890,6 +921,7 @@ def run(
     screenshot: Optional[str] = None,
     enable: Optional[Dict[str, bool]] = None,
     cost_model: Optional[CostModel] = None,
+    partition_file: Optional[str] = None,
 ):
     """Open the viewer, or render one frame to ``screenshot`` and exit."""
     ps.set_program_name(f"Graph viewer: {graph.name}")
@@ -901,7 +933,9 @@ def run(
     ps.init()
     # The panel above replaces the verbose default structure list
     ps.set_build_default_gui_panels(False)
-    viewer = GraphViewer(graph, level_gap, strategy, k, cost_model)
+    viewer = GraphViewer(
+        graph, level_gap, strategy, k, cost_model, partition_file
+    )
     viewer.load_fonts()
     viewer.register()
     for name, on in (enable or {}).items():
