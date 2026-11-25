@@ -155,3 +155,29 @@ Largest hidden size: 320–335 on 2 GPUs, 496–527 on 4 (predicted 337 and
   optimizer phases were all slower in 4467. All 2-GPU and hidden-256 runs
   agree within 1–3% between the jobs. Small, launch-bound configurations are
   sensitive to CPU contention on the node; compare them only within one job.
+
+# Inference memory (job 5932)
+
+One `predict_step` (prior, sample, decoder) under `no_grad`, batch 1, one
+GTX 1080 Ti, after a warm-up step ([`benchmarks/inference_memory.py`](../../benchmarks/inference_memory.py),
+[`jobs/inference_memory.sbatch`](../../jobs/inference_memory.sbatch);
+results in [`5932/`](5932)). Predicted from a CPU measurement at 1° (a
+dispatch-mode tracker of live tensor bytes), scaled by the 0.25° graph's
+edge and node counts.
+
+| Graph | Hidden | Predicted | Peak allocated | Step |
+| --- | ---: | ---: | ---: | ---: |
+| 1° | 64 | 0.331 GiB activations | 0.332 GiB activations (0.38 GiB total) | 54 ms |
+| 1° | 256 | 1.320 GiB activations | 1.324 GiB activations (1.44 GiB total) | 143 ms |
+| 0.25° | 64 | ≈ 5.5 GiB | 5.24 GiB | 587 ms |
+| 0.25° | 96 | ≈ 8.2 GiB | 7.90 GiB | 623 ms |
+| 0.25° | 112 | ≈ 9.5 GiB | 9.40 GiB | 735 ms |
+| 0.25° | 128 / 192 / 256 | out of memory | out of memory | — |
+
+- The peak is the edge MLP of the largest edge sets: at 1° the layer norm over
+  all 126,107 m2g edges; at 0.25°, hidden 256 the run fails allocating the
+  3.34 GiB g2m edge input (1.17 M edges × 3 × 256 values).
+- Inference needs ≈ 5× less memory than a training step, but at 0.25° one
+  11 GB GPU still fits only hidden ≈ 112–127 without changes. Processing edges
+  in chunks (no state is kept between chunks without gradients) removes most
+  of the peak; graph splitting would also, but needs several GPUs per member.
