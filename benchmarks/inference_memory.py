@@ -15,6 +15,7 @@ Any number of --hidden values can be given; each builds a fresh model.
 
 # Standard library
 import argparse
+import contextlib
 import json
 import sys
 import time
@@ -112,7 +113,24 @@ class LiveBytes(TorchDispatchMode):
         return out
 
 
-def measure(train_args, device):
+def _chunking(rows):
+    # First-party
+    from neural_lam import utils
+
+    return (
+        utils.inference_chunking(rows)
+        if rows
+        else contextlib.nullcontext()
+    )
+
+
+def _predict(model, args, rows, seed=0):
+    torch.manual_seed(seed)
+    with _chunking(rows):
+        return model.predict_step(*args)
+
+
+def measure(train_args, device, chunk_rows=None, check=False):
     model, args = build_model_and_batch(train_args)
     model.eval().to(device)
     args = tuple(a.to(device) if a is not None else None for a in args)
@@ -120,15 +138,25 @@ def measure(train_args, device):
     weights += sum(b.numel() * b.element_size() for b in model.buffers())
     inputs = sum(a.numel() * a.element_size() for a in args if a is not None)
     result = {"parameters": sum(p.numel() for p in model.parameters()),
-              "weights_bytes": weights, "inputs_bytes": inputs}
+              "weights_bytes": weights, "inputs_bytes": inputs,
+              "chunk_rows": chunk_rows}
     with torch.no_grad():
+        if check:
+            # Same seed for the latent sample: chunked vs unchunked forecast
+            chunked = _predict(model, args, chunk_rows)[0]
+            reference = _predict(model, args, None)[0]
+            result["max_abs_diff_vs_unchunked"] = float(
+                (chunked - reference).abs().max()
+            )
+            result["max_abs_reference"] = float(reference.abs().max())
+            del chunked, reference
         if device.type == "cuda":
-            model.predict_step(*args)  # warm-up (kernels, workspaces)
+            _predict(model, args, chunk_rows)  # warm-up (kernels, workspaces)
             torch.cuda.synchronize()
             torch.cuda.reset_peak_memory_stats()
             base = torch.cuda.memory_allocated()
             start = time.perf_counter()
-            model.predict_step(*args)
+            _predict(model, args, chunk_rows)
             torch.cuda.synchronize()
             result["step_ms"] = (time.perf_counter() - start) * 1000
             result["peak_allocated_bytes"] = torch.cuda.max_memory_allocated()
@@ -143,7 +171,7 @@ def measure(train_args, device):
             tracker = LiveBytes(external)
             start = time.perf_counter()
             with tracker:
-                model.predict_step(*args)
+                _predict(model, args, chunk_rows)
             result["step_ms"] = (time.perf_counter() - start) * 1000
             result["activation_peak_bytes"] = tracker.peak
             result["peak_op"] = tracker.peak_op
@@ -157,6 +185,18 @@ def main():
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--hidden", type=int, nargs="+", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument(
+        "--chunk-rows",
+        type=int,
+        help="Evaluate MLPs and message passing in chunks of this many rows "
+        "(utils.inference_chunking); default: unchunked",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Also compare the chunked forecast with the unchunked one "
+        "(needs memory for the unchunked step)",
+    )
     args, train_args = parser.parse_known_args()
     train_args = [a for a in train_args if a != "--"]
     device = torch.device(args.device)
@@ -169,7 +209,9 @@ def main():
         ]
         entry = {"hidden": hidden}
         try:
-            entry.update(measure(run_args, device))
+            entry.update(
+                measure(run_args, device, args.chunk_rows, args.check)
+            )
             entry["status"] = "ok"
         except torch.OutOfMemoryError as e:
             entry.update(status="oom", error=str(e).splitlines()[0])

@@ -1,4 +1,5 @@
 # Standard library
+import contextlib
 import os
 import shutil
 import warnings
@@ -338,6 +339,51 @@ def _mlp_layers(blueprint):
     return layers
 
 
+# Rows (nodes or edges) per chunk for chunked inference, None = off. Only
+# used while gradients are disabled, so training is never affected.
+_INFERENCE_CHUNK_ROWS = None
+
+
+@contextlib.contextmanager
+def inference_chunking(rows):
+    """Evaluate MLPs and message passing in chunks of ``rows`` rows.
+
+    Inside this context and with gradients disabled, row-wise MLPs process
+    their input ``rows`` rows at a time and InteractionNet, PropagationNet and
+    FlexibleNet compute messages ``rows`` edges at a time, adding each chunk
+    into the receiver aggregate. Results equal the unchunked evaluation up to
+    floating-point summation order; peak memory falls from the size of the
+    largest edge set to one chunk.
+    """
+    global _INFERENCE_CHUNK_ROWS
+    previous = _INFERENCE_CHUNK_ROWS
+    _INFERENCE_CHUNK_ROWS = rows
+    try:
+        yield
+    finally:
+        _INFERENCE_CHUNK_ROWS = previous
+
+
+def inference_chunk_rows():
+    """Chunk size if chunked inference is active and gradients are off."""
+    if _INFERENCE_CHUNK_ROWS is None or torch.is_grad_enabled():
+        return None
+    return _INFERENCE_CHUNK_ROWS
+
+
+def apply_rowwise_chunked(fn, x, rows):
+    """``fn`` applied to ``x`` (..., N, F) in chunks of ``rows`` rows along
+    dim -2; ``fn`` must act on each row independently."""
+    n = x.shape[-2]
+    out = None
+    for start in range(0, n, rows):
+        y = fn(x[..., start : start + rows, :])
+        if out is None:
+            out = y.new_empty(y.shape[:-2] + (n,) + y.shape[-1:])
+        out[..., start : start + rows, :] = y
+    return out
+
+
 class MLP(nn.Sequential):
     """
     Plain MLP, optionally with a LayerNorm on the output.
@@ -359,6 +405,11 @@ class MLP(nn.Sequential):
         x: (..., blueprint[0])
         emb: unused, present for call-compatibility with CondMLP
         """
+        rows = inference_chunk_rows()
+        if rows is not None and x.dim() >= 2 and x.shape[-2] > rows:
+            return apply_rowwise_chunked(
+                lambda part: nn.Sequential.forward(self, part), x, rows
+            )
         return super().forward(x)
 
 
@@ -384,6 +435,21 @@ class CondMLP(nn.Module):
         x: (..., blueprint[0])
         emb: (..., cond_dim), conditioning embedding
         """
+        rows = inference_chunk_rows()
+        # Chunk only if emb is shared by all rows (no row dimension)
+        shared_emb = emb is None or emb.dim() < x.dim() or emb.shape[-2] == 1
+        if (
+            rows is not None
+            and shared_emb
+            and x.dim() >= 2
+            and x.shape[-2] > rows
+        ):
+            return apply_rowwise_chunked(
+                lambda part: self._forward(part, emb), x, rows
+            )
+        return self._forward(x, emb)
+
+    def _forward(self, x, emb):
         x = self.mlp_layers(x)
 
         if self.layer_norm is not None:

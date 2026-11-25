@@ -7,6 +7,54 @@ from torch import nn
 from . import utils
 
 
+def _chunked_propagate(
+    message,
+    send_rep,
+    rec_rep,
+    edge_rep,
+    emb,
+    send_index,
+    rec_index,
+    num_rec,
+    mean,
+    rows,
+    keep_messages,
+):
+    """Message passing ``rows`` edges at a time (inference only).
+
+    For each chunk: gather sender and receiver states, compute the messages
+    with ``message(sender, receiver, edge, emb)`` and add them into the
+    receiver aggregate. Only one chunk's temporaries exist at a time.
+    Returns the aggregate (sum, or mean over in-degree) and, if
+    ``keep_messages``, all messages (needed when edges are updated).
+    """
+    num_edges = send_index.shape[0]
+    aggregate = messages = None
+    for start in range(0, num_edges, rows):
+        part = slice(start, start + rows)
+        chunk = message(
+            send_rep.index_select(-2, send_index[part]),
+            rec_rep.index_select(-2, rec_index[part]),
+            edge_rep[..., part, :],
+            emb,
+        )
+        if aggregate is None:
+            aggregate = chunk.new_zeros(
+                chunk.shape[:-2] + (num_rec, chunk.shape[-1])
+            )
+            if keep_messages:
+                messages = chunk.new_empty(
+                    chunk.shape[:-2] + (num_edges, chunk.shape[-1])
+                )
+        aggregate.index_add_(aggregate.dim() - 2, rec_index[part], chunk)
+        if keep_messages:
+            messages[..., part, :] = chunk
+    if mean:
+        degree = torch.bincount(rec_index, minlength=num_rec).clamp(min=1)
+        aggregate = aggregate / degree.to(aggregate.dtype).unsqueeze(-1)
+    return aggregate, messages
+
+
 class InteractionNet(pyg.nn.MessagePassing):
     """
     Implementation of a generic Interaction Network,
@@ -118,11 +166,8 @@ class InteractionNet(pyg.nn.MessagePassing):
         (optionally) edge_rep: (M, d_h), updated vector representations
             of edges
         """
-        # Always concatenate to [rec_nodes, send_nodes] for propagation,
-        # but only aggregate to rec_nodes
-        node_reps = torch.cat((rec_rep, send_rep), dim=-2)
-        edge_rep_aggr, edge_diff = self.propagate(
-            self.edge_index, x=node_reps, edge_attr=edge_rep, emb=emb
+        edge_rep_aggr, edge_diff = self._propagate(
+            send_rep, rec_rep, edge_rep, emb
         )
         rec_diff = self.aggr_mlp(
             torch.cat((rec_rep, edge_rep_aggr), dim=-1), emb
@@ -136,6 +181,32 @@ class InteractionNet(pyg.nn.MessagePassing):
             return rec_rep, edge_rep
 
         return rec_rep
+
+    def _propagate(self, send_rep, rec_rep, edge_rep, emb):
+        """Aggregated messages and the messages themselves; computed in
+        edge chunks under ``utils.inference_chunking`` without gradients."""
+        rows = utils.inference_chunk_rows()
+        if rows is not None and self.edge_index.shape[1] > rows:
+            num_rec = int(self.num_rec)
+            return _chunked_propagate(
+                self.message,
+                send_rep,
+                rec_rep,
+                edge_rep,
+                emb,
+                self.edge_index[0] - num_rec,  # senders start after receivers
+                self.edge_index[1],
+                num_rec,
+                self.aggr == "mean",
+                rows,
+                keep_messages=self.update_edges,
+            )
+        # Always concatenate to [rec_nodes, send_nodes] for propagation,
+        # but only aggregate to rec_nodes
+        node_reps = torch.cat((rec_rep, send_rep), dim=-2)
+        return self.propagate(
+            self.edge_index, x=node_reps, edge_attr=edge_rep, emb=emb
+        )
 
     def message(self, x_j, x_i, edge_attr, emb=None):
         """
@@ -201,11 +272,8 @@ class PropagationNet(InteractionNet):
         (optionally) edge_rep: (M, d_h), updated vector representations
             of edges
         """
-        # Always concatenate to [rec_nodes, send_nodes] for propagation,
-        # but only aggregate to rec_nodes
-        node_reps = torch.cat((rec_rep, send_rep), dim=-2)
-        edge_rep_aggr, edge_diff = self.propagate(
-            self.edge_index, x=node_reps, edge_attr=edge_rep, emb=emb
+        edge_rep_aggr, edge_diff = self._propagate(
+            send_rep, rec_rep, edge_rep, emb
         )
         rec_diff = self.aggr_mlp(
             torch.cat((rec_rep, edge_rep_aggr), dim=-1), emb
@@ -288,14 +356,30 @@ class FlexibleNet(pyg.nn.MessagePassing):
         Returns:
         rec_rep: (N_rec, d_h), updated vector representations of receiver nodes
         """
-        edge_rep_aggr = self.propagate(
-            self.edge_index,
-            send_rep=send_rep,
-            rec_rep=rec_rep,
-            edge_attr=edge_rep,
-            dim_size=self.num_rec,
-            emb=emb,
-        )
+        rows = utils.inference_chunk_rows()
+        if rows is not None and self.edge_index.shape[1] > rows:
+            edge_rep_aggr, _ = _chunked_propagate(
+                self.message,
+                send_rep,
+                rec_rep,
+                edge_rep,
+                emb,
+                self.edge_index[0],
+                self.edge_index[1],
+                int(self.num_rec),
+                self.aggr == "mean",
+                rows,
+                keep_messages=False,
+            )
+        else:
+            edge_rep_aggr = self.propagate(
+                self.edge_index,
+                send_rep=send_rep,
+                rec_rep=rec_rep,
+                edge_attr=edge_rep,
+                dim_size=self.num_rec,
+                emb=emb,
+            )
         rec_diff = self.aggr_mlp(
             torch.cat((rec_rep, edge_rep_aggr), dim=-1), emb
         )
