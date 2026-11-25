@@ -78,7 +78,7 @@ One GPU at hidden 256: CUDA out of memory (10.0 GiB allocated).
 | 2. Hidden 64 within ±5% | ✅ (lon_bands k = 4 +5.2%, inside the repetition spread) |
 | 3. Hidden 256 slowdowns | ✅ Mt-KaHyPar +3.0 / +5.0% and lon_bands −1.1 / −0.5%; METIS right direction, smaller than predicted at k = 4 |
 | 4. One GPU OOM at hidden 256 | ✅ |
-| 5. 2 → 4 GPU scaling | ❌ 0.76× at hidden 64 (gradient sync, metric reduce and optimizer grow from ≈ 1 to 39 ms), 1.56× at hidden 256 |
+| 5. 2 → 4 GPU scaling | ❌ 0.76× at hidden 64 (gradient sync, metric reduce and optimizer grow from ≈ 1 to 39 ms), 1.56× at hidden 256. **Not reproducible:** job 5882 on the same node and code measured 121 ms at 4 GPUs, hidden 64 (1.19× over 2 GPUs); see below |
 
 ## Conclusion
 
@@ -107,3 +107,51 @@ directly.
   spread.
 - The cost model is in [`neural_lam/graph_viewer`](https://github.com/maximilianfricke/baltic-sea-forecasting/tree/lassi-balance-metrics/neural_lam/graph_viewer)
   on `lassi-balance-metrics`.
+
+# Capacity and hidden-size sweep (job 5882)
+
+Same harness settings (batch 2, AR1, rank-zero broadcast, geographic split),
+one 4-GPU allocation on `studgpu-node02`, 68 min. Job script
+[`jobs/capacity_and_scaling.sbatch`](../../jobs/capacity_and_scaling.sbatch);
+results in [`5882/`](5882).
+
+## Largest hidden size that fits
+
+Predicted from the job-4467 peaks: activations per hidden unit (29.8 MiB at
+2 GPUs, 18.2 MiB at 4) plus parameter, gradient and two Adam moments
+(growing with h²), against an allocatable limit of 10.3 GiB.
+
+| GPUs | Hidden | Predicted peak | Result |
+| ---: | ---: | ---: | --- |
+| 2 | 320 | 9.77 GiB | fits, **9.75 GiB** |
+| 2 | 336 | 10.26 GiB (at the limit) | out of memory |
+| 2 | 352 | 10.75 GiB | out of memory |
+| 4 | 496 | 9.62 GiB | fits, **9.56 GiB** |
+| 4 | 528 | 10.26 GiB (at the limit) | out of memory |
+| 4 | 560 | 10.91 GiB | out of memory |
+
+Largest hidden size: 320–335 on 2 GPUs, 496–527 on 4 (predicted 337 and
+530). Peaks are within 0.2–0.6% of the model; the usable limit is closer to
+10.1 GiB. When only some ranks run out of memory, the others wait for the
+10-minute NCCL timeout.
+
+## Hidden-size sweep (model step, ms, two repetitions)
+
+| Hidden | 1 GPU | 2 GPUs | 4 GPUs | 2 → 4 GPUs | Peak per GPU (1 / 2 / 4) |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 64 | 220 | 144 | 121 | 1.19× | 3.55 / 2.09 / 1.38 GiB |
+| 128 | 360 | 222 | 149 | 1.49× | 6.85 / 4.00 / 2.55 GiB |
+| 192 | — | 321 | 203 | 1.58× | — / 5.90 / 3.72 GiB |
+| 256 | — | 427 | 263 | 1.63× | — / 7.82 / 4.93 GiB |
+
+- The 2 → 4 GPU speedup grows with hidden size; 4 GPUs are faster than 2 at
+  every size measured.
+- **Doubling GPUs and hidden size together** (1 GPU h64 → 2 GPUs h128 → 4 GPUs
+  h256): 220 → 222 → 263 ms with 3.55 → 4.00 → 4.93 GiB per GPU. Compute per
+  GPU doubles each step, but the time barely moves: at these sizes the GPUs
+  are limited by kernel launches and synchronisation, not arithmetic.
+- **Run-to-run variability at hidden 64 on 4 GPUs:** 121 ms here vs 188.5 ms
+  in job 4467 (same node, same code); forward, backward, metric reduction and
+  optimizer phases were all slower in 4467. All 2-GPU and hidden-256 runs
+  agree within 1–3% between the jobs. Small, launch-bound configurations are
+  sensitive to CPU contention on the node; compare them only within one job.
