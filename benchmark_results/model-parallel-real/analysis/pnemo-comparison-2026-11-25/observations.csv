@@ -1,0 +1,23 @@
+experiment,hidden,gpus,metric,value,scope,source
+Max MP,64,1,wall_speedup,1.0,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-1gpu-4944.json
+Max MP,64,1,model_speedup,1.0,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-1gpu-4944.json
+Max MP,64,1,model_ms,1540.3377661132813,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-1gpu-4944.json
+Max MP,64,1,total_ms,1599.8970750137792,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-1gpu-4944.json
+Max MP,64,1,peak_gib,3.495039939880371,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-1gpu-4944.json
+Max MP,64,2,wall_speedup,1.352550137150159,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-2gpu-4949.json
+Max MP,64,2,model_speedup,1.3445767845352732,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-2gpu-4949.json
+Max MP,64,2,model_ms,1145.5930102539062,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-2gpu-4949.json
+Max MP,64,2,total_ms,1182.4895527058188,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-2gpu-4949.json
+Max MP,64,2,peak_gib,1.8007707595825195,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-2gpu-4949.json
+Max MP,64,4,wall_speedup,1.2687568314884288,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-4gpu-4952.json
+Max MP,64,4,model_speedup,1.250746411097272,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-4gpu-4952.json
+Max MP,64,4,model_ms,1231.5348278808594,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-4gpu-4952.json
+Max MP,64,4,total_ms,1260.5704828096555,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-4gpu-4952.json
+Max MP,64,4,peak_gib,0.9648466110229492,Live input; one launch; means except whole-window wall speedup,benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-4gpu-4952.json
+Nils PhysicsNeMo,64,2,speedup_1_to_2,1.79,Cached model step; rounded slide label; launches and four-step cycle blocks,pnemo-results.pptx slide 6
+Nils PhysicsNeMo,64,4,speedup_1_to_4,2.42,Cached model step; rounded slide label; launches and four-step cycle blocks,pnemo-results.pptx slide 6
+Nils PhysicsNeMo,64,4,speedup_2_to_4,1.35,Cached model step; rounded slide label; launches and four-step cycle blocks,pnemo-results.pptx slide 6
+Nils PhysicsNeMo,128,2,speedup_1_to_2,1.82,Cached model step; rounded slide label; within one launch only,pnemo-results.pptx slide 6
+Nils PhysicsNeMo,128,4,speedup_1_to_4,3.42,Cached model step; rounded slide label; within one launch only,pnemo-results.pptx slide 6
+Nils PhysicsNeMo,128,4,speedup_2_to_4,1.88,Cached model step; rounded slide label; within one launch only,pnemo-results.pptx slide 6
+Nils PhysicsNeMo,256,4,speedup_2_to_4,1.93,Cached model step; rounded slide label; within one launch only; no 1-GPU training baseline,pnemo-results.pptx slide 6

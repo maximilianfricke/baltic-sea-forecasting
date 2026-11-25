@@ -1,0 +1,1779 @@
+{
+  "file": "/Users/maximilian/ETH/Master/4_semester/DPHPC/njord-message-passing-website/njord-data-model-results.html",
+  "sizes": [
+    {
+      "width": 1440,
+      "height": 900,
+      "documentWidth": 1440,
+      "duplicateIDs": [],
+      "currentRows": 5,
+      "mainWords": 1366,
+      "svgTextClipped": []
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "documentWidth": 1280,
+      "duplicateIDs": [],
+      "currentRows": 5,
+      "mainWords": 1366,
+      "svgTextClipped": []
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "documentWidth": 1024,
+      "duplicateIDs": [],
+      "currentRows": 5,
+      "mainWords": 1366,
+      "svgTextClipped": []
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "documentWidth": 768,
+      "duplicateIDs": [],
+      "currentRows": 5,
+      "mainWords": 1366,
+      "svgTextClipped": []
+    },
+    {
+      "width": 375,
+      "height": 667,
+      "documentWidth": 375,
+      "duplicateIDs": [],
+      "currentRows": 5,
+      "mainWords": 1366,
+      "svgTextClipped": []
+    },
+    {
+      "width": 414,
+      "height": 896,
+      "documentWidth": 414,
+      "duplicateIDs": [],
+      "currentRows": 5,
+      "mainWords": 1366,
+      "svgTextClipped": []
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "documentWidth": 667,
+      "duplicateIDs": [],
+      "currentRows": 5,
+      "mainWords": 1366,
+      "svgTextClipped": []
+    }
+  ],
+  "interactions": [
+    {
+      "name": "No page overflow 1440",
+      "passed": true,
+      "detail": {
+        "width": 1440,
+        "height": 900,
+        "documentWidth": 1440,
+        "duplicateIDs": [],
+        "currentRows": 5,
+        "mainWords": 1366,
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "Five current rows 1440",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "No duplicate IDs 1440",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Unclipped SVG labels 1440",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Shard rendering 1440",
+      "passed": true
+    },
+    {
+      "name": "Loader local 1440",
+      "passed": true
+    },
+    {
+      "name": "Loader original 1440",
+      "passed": true
+    },
+    {
+      "name": "Loader broadcast 1440",
+      "passed": true
+    },
+    {
+      "name": "Loader scatter 1440",
+      "passed": true
+    },
+    {
+      "name": "Loader indexed 1440",
+      "passed": true
+    },
+    {
+      "name": "Loader tiles 1440",
+      "passed": true
+    },
+    {
+      "name": "Model training stage count 1440",
+      "passed": true,
+      "detail": 28
+    },
+    {
+      "name": "Stage training 0 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 1 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 2 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 3 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 4 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 5 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 6 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 7 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 8 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 9 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 10 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 11 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 12 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 13 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 14 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 15 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 16 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 17 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 18 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 19 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 20 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 21 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 22 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 23 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 24 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 25 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 26 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 27 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Relation count training 1440",
+      "passed": true,
+      "detail": "Stage 28 of 28 · 18 graph applications / forecast; 72 across AR4"
+    },
+    {
+      "name": "Forecast history training 1440",
+      "passed": true
+    },
+    {
+      "name": "Model inference stage count 1440",
+      "passed": true,
+      "detail": 22
+    },
+    {
+      "name": "Stage inference 0 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 1 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 2 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 3 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 4 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 5 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 6 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 7 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 8 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 9 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 10 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 11 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 12 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 13 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 14 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 15 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 16 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 17 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 18 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 19 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 20 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 21 1440",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Relation count inference 1440",
+      "passed": true,
+      "detail": "Stage 22 of 22 · 14 graph applications / forecast; 56 across four steps per member"
+    },
+    {
+      "name": "Forecast history inference 1440",
+      "passed": true
+    },
+    {
+      "name": "Halo 0 1440",
+      "passed": true
+    },
+    {
+      "name": "Halo 1 1440",
+      "passed": true
+    },
+    {
+      "name": "Halo 2 1440",
+      "passed": true
+    },
+    {
+      "name": "Halo 3 1440",
+      "passed": true
+    },
+    {
+      "name": "Halo 4 1440",
+      "passed": true
+    },
+    {
+      "name": "Halo 5 1440",
+      "passed": true
+    },
+    {
+      "name": "Map 1 grid 1440",
+      "passed": true,
+      "detail": {
+        "rows": 1,
+        "width": 1174,
+        "caption": "2,118 plotted positions sampled from 42,348 ocean-grid nodes. Colors show 1 owner rank."
+      }
+    },
+    {
+      "name": "Map 1 mesh0 1440",
+      "passed": true,
+      "detail": {
+        "rows": 1,
+        "width": 1174,
+        "caption": "2,114 plotted positions sampled from 8,456 mesh-0 nodes. Colors show 1 owner rank."
+      }
+    },
+    {
+      "name": "Map 1 mesh1 1440",
+      "passed": true,
+      "detail": {
+        "rows": 1,
+        "width": 1174,
+        "caption": "2,097 plotted positions sampled from 2,097 mesh-1 nodes. Colors show 1 owner rank."
+      }
+    },
+    {
+      "name": "Map 2 grid 1440",
+      "passed": true,
+      "detail": {
+        "rows": 2,
+        "width": 1174,
+        "caption": "2,118 plotted positions sampled from 42,348 ocean-grid nodes. Colors show 2 owner ranks."
+      }
+    },
+    {
+      "name": "Map 2 mesh0 1440",
+      "passed": true,
+      "detail": {
+        "rows": 2,
+        "width": 1174,
+        "caption": "2,114 plotted positions sampled from 8,456 mesh-0 nodes. Colors show 2 owner ranks."
+      }
+    },
+    {
+      "name": "Map 2 mesh1 1440",
+      "passed": true,
+      "detail": {
+        "rows": 2,
+        "width": 1174,
+        "caption": "2,097 plotted positions sampled from 2,097 mesh-1 nodes. Colors show 2 owner ranks."
+      }
+    },
+    {
+      "name": "Map 4 grid 1440",
+      "passed": true,
+      "detail": {
+        "rows": 4,
+        "width": 1174,
+        "caption": "2,118 plotted positions sampled from 42,348 ocean-grid nodes. Colors show 4 owner ranks."
+      }
+    },
+    {
+      "name": "Map 4 mesh0 1440",
+      "passed": true,
+      "detail": {
+        "rows": 4,
+        "width": 1174,
+        "caption": "2,114 plotted positions sampled from 8,456 mesh-0 nodes. Colors show 4 owner ranks."
+      }
+    },
+    {
+      "name": "Map 4 mesh1 1440",
+      "passed": true,
+      "detail": {
+        "rows": 4,
+        "width": 1174,
+        "caption": "2,097 plotted positions sampled from 2,097 mesh-1 nodes. Colors show 4 owner ranks."
+      }
+    },
+    {
+      "name": "Bench throughput 4981 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · full store49811.0621.000×1,877.73.408",
+        "caption": "Global samples / second. Reference: Original · full store / 4981. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench throughput 5031 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · ocean shard50311.1971.000×1,665.83.408",
+        "caption": "Global samples / second. Reference: Original · ocean shard / 5031. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench throughput 4944 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "MP · 1 GPU49441.2471.000×1,599.93.495",
+        "caption": "Global samples / second. Reference: MP · 1 GPU / 4944. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench end_to_end_ms 4981 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · full store49811.0621.000×1,877.73.408",
+        "caption": "Milliseconds / global batch. Reference: Original · full store / 4981. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench end_to_end_ms 5031 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · ocean shard50311.1971.000×1,665.83.408",
+        "caption": "Milliseconds / global batch. Reference: Original · ocean shard / 5031. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench end_to_end_ms 4944 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "MP · 1 GPU49441.2471.000×1,599.93.495",
+        "caption": "Milliseconds / global batch. Reference: MP · 1 GPU / 4944. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench peakGiB 4981 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · full store49811.0621.000×1,877.73.408",
+        "caption": "Peak allocated GiB / GPU. Reference: Original · full store / 4981. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench peakGiB 5031 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · ocean shard50311.1971.000×1,665.83.408",
+        "caption": "Peak allocated GiB / GPU. Reference: Original · ocean shard / 5031. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench peakGiB 4944 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "MP · 1 GPU49441.2471.000×1,599.93.495",
+        "caption": "Peak allocated GiB / GPU. Reference: MP · 1 GPU / 4944. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench gpuSeconds 4981 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · full store49811.0621.000×1,877.73.408",
+        "caption": "Allocated GPU-seconds / global sample. Reference: Original · full store / 4981. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench gpuSeconds 5031 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · ocean shard50311.1971.000×1,665.83.408",
+        "caption": "Allocated GPU-seconds / global sample. Reference: Original · ocean shard / 5031. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench gpuSeconds 4944 1440",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "MP · 1 GPU49441.2471.000×1,599.93.495",
+        "caption": "Allocated GPU-seconds / global sample. Reference: MP · 1 GPU / 4944. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "History all 1440",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "History Earlier AR1 1440",
+      "passed": true,
+      "detail": 15
+    },
+    {
+      "name": "History Smoke 1440",
+      "passed": true,
+      "detail": 8
+    },
+    {
+      "name": "Downloads 1440",
+      "passed": true,
+      "detail": {
+        "count": 2,
+        "sourceRuns": 5,
+        "csvRows": 6
+      }
+    },
+    {
+      "name": "All details fit 1440",
+      "passed": true,
+      "detail": {
+        "page": 1440,
+        "local": 16
+      }
+    },
+    {
+      "name": "No page overflow 1280",
+      "passed": true,
+      "detail": {
+        "width": 1280,
+        "height": 720,
+        "documentWidth": 1280,
+        "duplicateIDs": [],
+        "currentRows": 5,
+        "mainWords": 1366,
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "Five current rows 1280",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "No duplicate IDs 1280",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Unclipped SVG labels 1280",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "No page overflow 1024",
+      "passed": true,
+      "detail": {
+        "width": 1024,
+        "height": 768,
+        "documentWidth": 1024,
+        "duplicateIDs": [],
+        "currentRows": 5,
+        "mainWords": 1366,
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "Five current rows 1024",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "No duplicate IDs 1024",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Unclipped SVG labels 1024",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "No page overflow 768",
+      "passed": true,
+      "detail": {
+        "width": 768,
+        "height": 1024,
+        "documentWidth": 768,
+        "duplicateIDs": [],
+        "currentRows": 5,
+        "mainWords": 1366,
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "Five current rows 768",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "No duplicate IDs 768",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Unclipped SVG labels 768",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "No page overflow 375",
+      "passed": true,
+      "detail": {
+        "width": 375,
+        "height": 667,
+        "documentWidth": 375,
+        "duplicateIDs": [],
+        "currentRows": 5,
+        "mainWords": 1366,
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "Five current rows 375",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "No duplicate IDs 375",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Unclipped SVG labels 375",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Shard rendering 375",
+      "passed": true
+    },
+    {
+      "name": "Loader local 375",
+      "passed": true
+    },
+    {
+      "name": "Loader original 375",
+      "passed": true
+    },
+    {
+      "name": "Loader broadcast 375",
+      "passed": true
+    },
+    {
+      "name": "Loader scatter 375",
+      "passed": true
+    },
+    {
+      "name": "Loader indexed 375",
+      "passed": true
+    },
+    {
+      "name": "Loader tiles 375",
+      "passed": true
+    },
+    {
+      "name": "Model training stage count 375",
+      "passed": true,
+      "detail": 28
+    },
+    {
+      "name": "Stage training 0 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 1 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 2 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 3 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 4 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 5 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 6 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": true
+      }
+    },
+    {
+      "name": "Stage training 7 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 8 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 9 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 10 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 11 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 12 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 13 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 14 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 15 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 16 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 17 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 18 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 19 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 20 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 21 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 22 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 23 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 24 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 25 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 26 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage training 27 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Relation count training 375",
+      "passed": true,
+      "detail": "Stage 28 of 28 · 18 graph applications / forecast; 72 across AR4"
+    },
+    {
+      "name": "Forecast history training 375",
+      "passed": true
+    },
+    {
+      "name": "Model inference stage count 375",
+      "passed": true,
+      "detail": 22
+    },
+    {
+      "name": "Stage inference 0 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 1 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 2 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 3 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 4 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 5 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 6 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 7 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 8 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 9 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 10 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 11 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 12 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 13 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 14 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 15 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 16 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 17 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 18 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 19 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 20 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Stage inference 21 375",
+      "passed": true,
+      "detail": {
+        "hasTitle": true,
+        "hasNaN": false,
+        "posterior": false
+      }
+    },
+    {
+      "name": "Relation count inference 375",
+      "passed": true,
+      "detail": "Stage 22 of 22 · 14 graph applications / forecast; 56 across four steps per member"
+    },
+    {
+      "name": "Forecast history inference 375",
+      "passed": true
+    },
+    {
+      "name": "Halo 0 375",
+      "passed": true
+    },
+    {
+      "name": "Halo 1 375",
+      "passed": true
+    },
+    {
+      "name": "Halo 2 375",
+      "passed": true
+    },
+    {
+      "name": "Halo 3 375",
+      "passed": true
+    },
+    {
+      "name": "Halo 4 375",
+      "passed": true
+    },
+    {
+      "name": "Halo 5 375",
+      "passed": true
+    },
+    {
+      "name": "Map 1 grid 375",
+      "passed": true,
+      "detail": {
+        "rows": 1,
+        "width": 339,
+        "caption": "2,118 plotted positions sampled from 42,348 ocean-grid nodes. Colors show 1 owner rank."
+      }
+    },
+    {
+      "name": "Map 1 mesh0 375",
+      "passed": true,
+      "detail": {
+        "rows": 1,
+        "width": 339,
+        "caption": "2,114 plotted positions sampled from 8,456 mesh-0 nodes. Colors show 1 owner rank."
+      }
+    },
+    {
+      "name": "Map 1 mesh1 375",
+      "passed": true,
+      "detail": {
+        "rows": 1,
+        "width": 339,
+        "caption": "2,097 plotted positions sampled from 2,097 mesh-1 nodes. Colors show 1 owner rank."
+      }
+    },
+    {
+      "name": "Map 2 grid 375",
+      "passed": true,
+      "detail": {
+        "rows": 2,
+        "width": 339,
+        "caption": "2,118 plotted positions sampled from 42,348 ocean-grid nodes. Colors show 2 owner ranks."
+      }
+    },
+    {
+      "name": "Map 2 mesh0 375",
+      "passed": true,
+      "detail": {
+        "rows": 2,
+        "width": 339,
+        "caption": "2,114 plotted positions sampled from 8,456 mesh-0 nodes. Colors show 2 owner ranks."
+      }
+    },
+    {
+      "name": "Map 2 mesh1 375",
+      "passed": true,
+      "detail": {
+        "rows": 2,
+        "width": 339,
+        "caption": "2,097 plotted positions sampled from 2,097 mesh-1 nodes. Colors show 2 owner ranks."
+      }
+    },
+    {
+      "name": "Map 4 grid 375",
+      "passed": true,
+      "detail": {
+        "rows": 4,
+        "width": 339,
+        "caption": "2,118 plotted positions sampled from 42,348 ocean-grid nodes. Colors show 4 owner ranks."
+      }
+    },
+    {
+      "name": "Map 4 mesh0 375",
+      "passed": true,
+      "detail": {
+        "rows": 4,
+        "width": 339,
+        "caption": "2,114 plotted positions sampled from 8,456 mesh-0 nodes. Colors show 4 owner ranks."
+      }
+    },
+    {
+      "name": "Map 4 mesh1 375",
+      "passed": true,
+      "detail": {
+        "rows": 4,
+        "width": 339,
+        "caption": "2,097 plotted positions sampled from 2,097 mesh-1 nodes. Colors show 4 owner ranks."
+      }
+    },
+    {
+      "name": "Bench throughput 4981 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · full store49811.0621.000×1,877.73.408",
+        "caption": "Global samples / second. Reference: Original · full store / 4981. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench throughput 5031 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · ocean shard50311.1971.000×1,665.83.408",
+        "caption": "Global samples / second. Reference: Original · ocean shard / 5031. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench throughput 4944 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "MP · 1 GPU49441.2471.000×1,599.93.495",
+        "caption": "Global samples / second. Reference: MP · 1 GPU / 4944. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench end_to_end_ms 4981 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · full store49811.0621.000×1,877.73.408",
+        "caption": "Milliseconds / global batch. Reference: Original · full store / 4981. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench end_to_end_ms 5031 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · ocean shard50311.1971.000×1,665.83.408",
+        "caption": "Milliseconds / global batch. Reference: Original · ocean shard / 5031. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench end_to_end_ms 4944 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "MP · 1 GPU49441.2471.000×1,599.93.495",
+        "caption": "Milliseconds / global batch. Reference: MP · 1 GPU / 4944. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench peakGiB 4981 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · full store49811.0621.000×1,877.73.408",
+        "caption": "Peak allocated GiB / GPU. Reference: Original · full store / 4981. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench peakGiB 5031 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · ocean shard50311.1971.000×1,665.83.408",
+        "caption": "Peak allocated GiB / GPU. Reference: Original · ocean shard / 5031. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench peakGiB 4944 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "MP · 1 GPU49441.2471.000×1,599.93.495",
+        "caption": "Peak allocated GiB / GPU. Reference: MP · 1 GPU / 4944. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench gpuSeconds 4981 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · full store49811.0621.000×1,877.73.408",
+        "caption": "Allocated GPU-seconds / global sample. Reference: Original · full store / 4981. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench gpuSeconds 5031 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "Original · ocean shard50311.1971.000×1,665.83.408",
+        "caption": "Allocated GPU-seconds / global sample. Reference: Original · ocean shard / 5031. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "Bench gpuSeconds 4944 375",
+      "passed": true,
+      "detail": {
+        "bars": 5,
+        "ref": "MP · 1 GPU49441.2471.000×1,599.93.495",
+        "caption": "Allocated GPU-seconds / global sample. Reference: MP · 1 GPU / 4944. Throughput ratios below use actual samples over the measured wall window; changing a reference does not change the underlying measurements."
+      }
+    },
+    {
+      "name": "History all 375",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "History Earlier AR1 375",
+      "passed": true,
+      "detail": 15
+    },
+    {
+      "name": "History Smoke 375",
+      "passed": true,
+      "detail": 8
+    },
+    {
+      "name": "Downloads 375",
+      "passed": true,
+      "detail": {
+        "count": 2,
+        "sourceRuns": 5,
+        "csvRows": 6
+      }
+    },
+    {
+      "name": "All details fit 375",
+      "passed": true,
+      "detail": {
+        "page": 375,
+        "local": 16
+      }
+    },
+    {
+      "name": "No page overflow 414",
+      "passed": true,
+      "detail": {
+        "width": 414,
+        "height": 896,
+        "documentWidth": 414,
+        "duplicateIDs": [],
+        "currentRows": 5,
+        "mainWords": 1366,
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "Five current rows 414",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "No duplicate IDs 414",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Unclipped SVG labels 414",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "No page overflow 667",
+      "passed": true,
+      "detail": {
+        "width": 667,
+        "height": 375,
+        "documentWidth": 667,
+        "duplicateIDs": [],
+        "currentRows": 5,
+        "mainWords": 1366,
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "Five current rows 667",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "No duplicate IDs 667",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Unclipped SVG labels 667",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Print expansion and restore",
+      "passed": true,
+      "detail": {
+        "requested": true,
+        "allOpen": true,
+        "restored": true
+      }
+    }
+  ],
+  "runtimeErrors": [],
+  "passed": true
+}

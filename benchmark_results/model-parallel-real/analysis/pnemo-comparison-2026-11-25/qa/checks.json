@@ -1,0 +1,447 @@
+[
+  {
+    "width": 1440,
+    "overflow": false,
+    "chapters": 4,
+    "tables": 19,
+    "tablesWithoutEmphasis": [],
+    "currentRows": 5,
+    "historyRows": 23,
+    "comparisonRows": 5,
+    "pngs": [
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      }
+    ],
+    "oldSvgCount": 18,
+    "placeholders": false,
+    "text": true
+  },
+  {
+    "width": 1280,
+    "overflow": false,
+    "chapters": 4,
+    "tables": 19,
+    "tablesWithoutEmphasis": [],
+    "currentRows": 5,
+    "historyRows": 23,
+    "comparisonRows": 5,
+    "pngs": [
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      }
+    ],
+    "oldSvgCount": 18,
+    "placeholders": false,
+    "text": true
+  },
+  {
+    "width": 1024,
+    "overflow": false,
+    "chapters": 4,
+    "tables": 19,
+    "tablesWithoutEmphasis": [],
+    "currentRows": 5,
+    "historyRows": 23,
+    "comparisonRows": 5,
+    "pngs": [
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      }
+    ],
+    "oldSvgCount": 18,
+    "placeholders": false,
+    "text": true
+  },
+  {
+    "width": 768,
+    "overflow": false,
+    "chapters": 4,
+    "tables": 19,
+    "tablesWithoutEmphasis": [],
+    "currentRows": 5,
+    "historyRows": 23,
+    "comparisonRows": 5,
+    "pngs": [
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      }
+    ],
+    "oldSvgCount": 18,
+    "placeholders": false,
+    "text": true
+  },
+  {
+    "width": 375,
+    "overflow": false,
+    "chapters": 4,
+    "tables": 19,
+    "tablesWithoutEmphasis": [],
+    "currentRows": 5,
+    "historyRows": 23,
+    "comparisonRows": 5,
+    "pngs": [
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": true,
+        "overflow": false
+      }
+    ],
+    "oldSvgCount": 18,
+    "placeholders": false,
+    "text": true
+  },
+  {
+    "width": 414,
+    "overflow": false,
+    "chapters": 4,
+    "tables": 19,
+    "tablesWithoutEmphasis": [],
+    "currentRows": 5,
+    "historyRows": 23,
+    "comparisonRows": 5,
+    "pngs": [
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": true,
+        "overflow": false
+      }
+    ],
+    "oldSvgCount": 18,
+    "placeholders": false,
+    "text": true
+  },
+  {
+    "width": 667,
+    "overflow": false,
+    "chapters": 4,
+    "tables": 19,
+    "tablesWithoutEmphasis": [],
+    "currentRows": 5,
+    "historyRows": 23,
+    "comparisonRows": 5,
+    "pngs": [
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 1615,
+        "visible": true,
+        "overflow": false
+      },
+      {
+        "complete": true,
+        "width": 760,
+        "visible": false,
+        "overflow": false
+      }
+    ],
+    "oldSvgCount": 18,
+    "placeholders": false,
+    "text": true
+  },
+  {
+    "javascriptDisabled": true,
+    "comparisonVisible": true
+  }
+]

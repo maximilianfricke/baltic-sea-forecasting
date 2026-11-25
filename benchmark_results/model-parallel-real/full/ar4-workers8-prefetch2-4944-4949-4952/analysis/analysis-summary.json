@@ -1,0 +1,383 @@
+{
+  "analysis_commit": "a766208",
+  "benchmark_commit": "aa5829a48bbafa14f9846a3aba087f1e316bbb7f",
+  "same_code_commit_and_node": true,
+  "independent_runs_per_gpu_count": 1,
+  "rows": [
+    {
+      "gpus": 1,
+      "job_id": "4944",
+      "samples_per_second": 1.2468588397395624,
+      "speedup": 1.0,
+      "parallel_efficiency": 1.0,
+      "gpu_seconds_per_sample_steady_state": 0.8020154071401339,
+      "peak_memory_per_gpu_gib": 3.495039939880371,
+      "end_to_end_mean_ms": 1599.8970750137792,
+      "end_to_end_p95_ms": 1862.2148713483475,
+      "within_run_cv": 0.04871005846024966,
+      "published_data_phase_share": 0.037226962803207135,
+      "critical_rank_phase_mean_ms": {
+        "data_distribution_ms": 59.559308900497854,
+        "forward_ms": 535.2047009277344,
+        "backward_ms": 1004.2537316894532,
+        "gradient_sync_ms": 0.002129280010703951,
+        "optimizer_ms": 0.6324236822128296,
+        "metric_reduce_ms": 0.24477311998605727
+      },
+      "loss_mean": 15698777.445,
+      "max_per_step_loss_relative_error_from_one_gpu": 0.0,
+      "mean_nll": 15629648.575,
+      "mean_kl": 69128.81982421875,
+      "ten_step_block_means_ms": [
+        1624.5162636284717,
+        1613.1441831548232,
+        1569.6872073942795,
+        1612.8717339181808,
+        1579.2659869731403
+      ],
+      "ranks": [
+        {
+          "rank": 0,
+          "grid_nodes": 42348,
+          "mesh_nodes_by_level": [
+            8456,
+            2097
+          ],
+          "owned_edges": 273845,
+          "halo_entries_across_relations": 0,
+          "halo_entries_by_relation": {
+            "g2m": 0,
+            "m2g": 0,
+            "m2m": 0,
+            "mesh_down": 0,
+            "mesh_up": 0
+          },
+          "phase_mean_ms": {
+            "data_distribution_ms": 59.559308900497854,
+            "forward_ms": 535.2047009277344,
+            "backward_ms": 1004.2537316894532,
+            "gradient_sync_ms": 0.002129280010703951,
+            "optimizer_ms": 0.6324236822128296,
+            "metric_reduce_ms": 0.24477311998605727,
+            "data_read_ms": 6.057692558970302,
+            "data_rank_wait_ms": 0.0005123403389006853,
+            "step_ms": 1540.3377661132813
+          },
+          "initialization_ms": {
+            "data_staging_ms": 11265.0,
+            "optimizer_and_stream_ms": 92465.42769600637,
+            "preflight_batch_ms": 8611.497336998582,
+            "preflight_forward_ms": 3510.1759880199097,
+            "rank_local_dataset_load_ms": 397.116806008853,
+            "sharded_model_build_ms": 153.7007240112871,
+            "total_before_training_ms": 106233.13380597392,
+            "workload_load_ms": 858.0546540324576
+          }
+        }
+      ]
+    },
+    {
+      "gpus": 2,
+      "job_id": "4949",
+      "samples_per_second": 1.6864390946966332,
+      "speedup": 1.352550137150159,
+      "parallel_efficiency": 0.6762750685750795,
+      "gpu_seconds_per_sample_steady_state": 1.1859307616204022,
+      "peak_memory_per_gpu_gib": 1.8007707595825195,
+      "end_to_end_mean_ms": 1182.4895527058188,
+      "end_to_end_p95_ms": 1476.2302268692292,
+      "within_run_cv": 0.09584177809038262,
+      "published_data_phase_share": 0.03144261698842328,
+      "critical_rank_phase_mean_ms": {
+        "data_distribution_ms": 37.09208322339691,
+        "forward_ms": 434.6919470214844,
+        "backward_ms": 695.464482421875,
+        "gradient_sync_ms": 4.02937859416008,
+        "optimizer_ms": 4.906083887815475,
+        "metric_reduce_ms": 6.305580798387528
+      },
+      "loss_mean": 15698777.88,
+      "max_per_step_loss_relative_error_from_one_gpu": 2.1770989438131038e-07,
+      "mean_nll": 15629648.94,
+      "mean_kl": 69128.81953125,
+      "ten_step_block_means_ms": [
+        1202.948989361059,
+        1194.0939478470013,
+        1160.376919604838,
+        1181.0709611161146,
+        1173.9569456000813
+      ],
+      "ranks": [
+        {
+          "rank": 0,
+          "grid_nodes": 21174,
+          "mesh_nodes_by_level": [
+            4228,
+            1049
+          ],
+          "owned_edges": 137536,
+          "halo_entries_across_relations": 564,
+          "halo_entries_by_relation": {
+            "g2m": 0,
+            "m2g": 268,
+            "m2m": 226,
+            "mesh_down": 25,
+            "mesh_up": 45
+          },
+          "phase_mean_ms": {
+            "data_distribution_ms": 36.98927521472797,
+            "forward_ms": 434.1216644287109,
+            "backward_ms": 695.9920654296875,
+            "gradient_sync_ms": 5.249169974327088,
+            "optimizer_ms": 6.290947239398957,
+            "metric_reduce_ms": 3.463289635181427,
+            "data_read_ms": 4.949789458187297,
+            "data_rank_wait_ms": 7.62750196037814,
+            "step_ms": 1145.117138671875
+          },
+          "initialization_ms": {
+            "data_staging_ms": 5657.0,
+            "optimizer_and_stream_ms": 84685.35601801705,
+            "preflight_batch_ms": 13991.115176002495,
+            "preflight_forward_ms": 2192.745461012237,
+            "rank_local_dataset_load_ms": 702.5291459867731,
+            "sharded_model_build_ms": 210.75223799562082,
+            "total_before_training_ms": 108732.02960402705,
+            "workload_load_ms": 6662.368620047346
+          }
+        },
+        {
+          "rank": 1,
+          "grid_nodes": 21174,
+          "mesh_nodes_by_level": [
+            4228,
+            1048
+          ],
+          "owned_edges": 136309,
+          "halo_entries_across_relations": 947,
+          "halo_entries_by_relation": {
+            "g2m": 652,
+            "m2g": 1,
+            "m2m": 227,
+            "mesh_down": 31,
+            "mesh_up": 36
+          },
+          "phase_mean_ms": {
+            "data_distribution_ms": 37.01779442257248,
+            "forward_ms": 434.3796069335938,
+            "backward_ms": 695.2413757324218,
+            "gradient_sync_ms": 3.6544294607639314,
+            "optimizer_ms": 3.7574112379550932,
+            "metric_reduce_ms": 8.050241903066635,
+            "data_read_ms": 5.117916560266167,
+            "data_rank_wait_ms": 6.193575680954382,
+            "step_ms": 1145.0830615234374
+          },
+          "initialization_ms": {
+            "data_staging_ms": 5657.0,
+            "optimizer_and_stream_ms": 99761.65730302455,
+            "preflight_batch_ms": 4690.538675989956,
+            "preflight_forward_ms": 2190.8822809928097,
+            "rank_local_dataset_load_ms": 552.095735038165,
+            "sharded_model_build_ms": 183.54619399178773,
+            "total_before_training_ms": 108736.0256150132,
+            "workload_load_ms": 1126.3535830075853
+          }
+        }
+      ]
+    },
+    {
+      "gpus": 4,
+      "job_id": "4952",
+      "samples_per_second": 1.5819606708213056,
+      "speedup": 1.2687568314884288,
+      "parallel_efficiency": 0.3171892078721072,
+      "gpu_seconds_per_sample_steady_state": 2.5285078660794533,
+      "peak_memory_per_gpu_gib": 0.9648466110229492,
+      "end_to_end_mean_ms": 1260.5704828096555,
+      "end_to_end_p95_ms": 1562.5614236071706,
+      "within_run_cv": 0.10305334994347848,
+      "published_data_phase_share": 0.02377413894941014,
+      "critical_rank_phase_mean_ms": {
+        "data_distribution_ms": 29.113628561608493,
+        "forward_ms": 446.60053466796876,
+        "backward_ms": 758.4446704101563,
+        "gradient_sync_ms": 11.24413821220398,
+        "optimizer_ms": 7.621343383789062,
+        "metric_reduce_ms": 7.546172168850899
+      },
+      "loss_mean": 15698777.6,
+      "max_per_step_loss_relative_error_from_one_gpu": 1.8209678990673913e-07,
+      "mean_nll": 15629648.54,
+      "mean_kl": 69128.81874023438,
+      "ten_step_block_means_ms": [
+        1271.6836294638458,
+        1304.575393574452,
+        1212.3261535102968,
+        1261.3902785405983,
+        1252.876958959084
+      ],
+      "ranks": [
+        {
+          "rank": 0,
+          "grid_nodes": 10587,
+          "mesh_nodes_by_level": [
+            2114,
+            525
+          ],
+          "owned_edges": 68784,
+          "halo_entries_across_relations": 475,
+          "halo_entries_by_relation": {
+            "g2m": 81,
+            "m2g": 168,
+            "m2m": 174,
+            "mesh_down": 20,
+            "mesh_up": 32
+          },
+          "phase_mean_ms": {
+            "data_distribution_ms": 29.227938022231683,
+            "forward_ms": 446.3924951171875,
+            "backward_ms": 758.597001953125,
+            "gradient_sync_ms": 9.7522975730896,
+            "optimizer_ms": 6.640065920352936,
+            "metric_reduce_ms": 9.415449119210244,
+            "data_read_ms": 4.961192843038589,
+            "data_rank_wait_ms": 10.999183723470196,
+            "step_ms": 1230.7973083496095
+          },
+          "initialization_ms": {
+            "data_staging_ms": 7914.0,
+            "optimizer_and_stream_ms": 114867.13079101173,
+            "preflight_batch_ms": 21105.734000972006,
+            "preflight_forward_ms": 1545.1618779916316,
+            "rank_local_dataset_load_ms": 804.0446980157867,
+            "sharded_model_build_ms": 228.78516901982948,
+            "total_before_training_ms": 140027.07139396807,
+            "workload_load_ms": 1322.450330015272
+          }
+        },
+        {
+          "rank": 1,
+          "grid_nodes": 10587,
+          "mesh_nodes_by_level": [
+            2114,
+            524
+          ],
+          "owned_edges": 68752,
+          "halo_entries_across_relations": 404,
+          "halo_entries_by_relation": {
+            "g2m": 43,
+            "m2g": 164,
+            "m2m": 154,
+            "mesh_down": 16,
+            "mesh_up": 27
+          },
+          "phase_mean_ms": {
+            "data_distribution_ms": 28.785175094380975,
+            "forward_ms": 445.45133544921873,
+            "backward_ms": 758.1052038574219,
+            "gradient_sync_ms": 9.82795838356018,
+            "optimizer_ms": 5.5071788656711576,
+            "metric_reduce_ms": 11.891911616325379,
+            "data_read_ms": 5.623603296699002,
+            "data_rank_wait_ms": 7.532943382393569,
+            "step_ms": 1230.7835900878906
+          },
+          "initialization_ms": {
+            "data_staging_ms": 7914.0,
+            "optimizer_and_stream_ms": 126880.73570898268,
+            "preflight_batch_ms": 9591.767748992424,
+            "preflight_forward_ms": 1545.2395650208928,
+            "rank_local_dataset_load_ms": 595.3656809870154,
+            "sharded_model_build_ms": 189.51491703046486,
+            "total_before_training_ms": 140026.85744001064,
+            "workload_load_ms": 1128.675250976812
+          }
+        },
+        {
+          "rank": 2,
+          "grid_nodes": 10587,
+          "mesh_nodes_by_level": [
+            2114,
+            524
+          ],
+          "owned_edges": 68318,
+          "halo_entries_across_relations": 933,
+          "halo_entries_by_relation": {
+            "g2m": 546,
+            "m2g": 117,
+            "m2m": 175,
+            "mesh_down": 20,
+            "mesh_up": 75
+          },
+          "phase_mean_ms": {
+            "data_distribution_ms": 28.89342024223879,
+            "forward_ms": 446.1064392089844,
+            "backward_ms": 756.4351037597656,
+            "gradient_sync_ms": 10.393852100372314,
+            "optimizer_ms": 5.472636851072312,
+            "metric_reduce_ms": 12.071449584364892,
+            "data_read_ms": 4.997193618910387,
+            "data_rank_wait_ms": 9.411220295587555,
+            "step_ms": 1230.479473876953
+          },
+          "initialization_ms": {
+            "data_staging_ms": 7914.0,
+            "optimizer_and_stream_ms": 127722.42841799743,
+            "preflight_batch_ms": 3194.7974209906533,
+            "preflight_forward_ms": 1543.112869025208,
+            "rank_local_dataset_load_ms": 575.3744369721971,
+            "sharded_model_build_ms": 218.1786639848724,
+            "total_before_training_ms": 140027.12941000937,
+            "workload_load_ms": 6675.055878004059
+          }
+        },
+        {
+          "rank": 3,
+          "grid_nodes": 10587,
+          "mesh_nodes_by_level": [
+            2114,
+            524
+          ],
+          "owned_edges": 67991,
+          "halo_entries_across_relations": 1262,
+          "halo_entries_by_relation": {
+            "g2m": 978,
+            "m2g": 28,
+            "m2m": 194,
+            "mesh_down": 39,
+            "mesh_up": 23
+          },
+          "phase_mean_ms": {
+            "data_distribution_ms": 29.041092792758718,
+            "forward_ms": 446.236591796875,
+            "backward_ms": 756.9636413574219,
+            "gradient_sync_ms": 10.926109409332275,
+            "optimizer_ms": 6.8804416239261625,
+            "metric_reduce_ms": 9.255219795703887,
+            "data_read_ms": 5.463241066318005,
+            "data_rank_wait_ms": 9.04065246344544,
+            "step_ms": 1230.262001953125
+          },
+          "initialization_ms": {
+            "data_staging_ms": 7914.0,
+            "optimizer_and_stream_ms": 110861.21024203021,
+            "preflight_batch_ms": 20418.239287973847,
+            "preflight_forward_ms": 1545.2470920281485,
+            "rank_local_dataset_load_ms": 626.4905600110069,
+            "sharded_model_build_ms": 199.3022309616208,
+            "total_before_training_ms": 140027.56224095356,
+            "workload_load_ms": 1172.6124430424534
+          }
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "No original unpartitioned global-model GPU timing in this series.",
+    "Forward/backward include halo communication, CPU launch gaps and checkpoint work; these are not isolated kernel-only timings.",
+    "Visible DataLoader wait is not worker read/decompression service time.",
+    "Halo entry counts are not per-step bytes and may repeat nodes across relations.",
+    "physical_repeat_16 is an I/O proxy with repeated scientific values, not a full accuracy dataset."
+  ]
+}

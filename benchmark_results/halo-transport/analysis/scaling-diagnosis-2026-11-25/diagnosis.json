@@ -1,0 +1,190 @@
+{
+  "source_commit": "78507fe",
+  "statistics": "150 measured steps per backend/GPU count; phase means follow the rank with maximum wall time for that step, avoiding sums of unrelated rank maxima",
+  "observations": [
+    {
+      "gpus": 1,
+      "job": 6114,
+      "cpu_affinity_per_rank": [
+        6,
+        7
+      ],
+      "allowed_logical_cpus_shared_by_all_ranks": 2,
+      "hostname": "studgpu-node06.inf.ethz.ch",
+      "source_sha256": {
+        "benchmark_results/halo-transport/full-1gpu-6114/repeat-0.json": "fc3b9214d83512d30e4de23de85ee70537557545b9bf14bb0437a2ad971d070b",
+        "benchmark_results/halo-transport/full-1gpu-6114/repeat-1.json": "0c962da54353b8d03cb7d55c40b2994a14197dadb851dd474165013af9ba7b3f",
+        "benchmark_results/halo-transport/full-1gpu-6114/repeat-2.json": "3a400ed6827ae03c9bfb593ff4322edd5c7ceb8fd859972d713e77e103494b76"
+      },
+      "cases": {
+        "p2p": {
+          "critical_rank_phase_means_ms": {
+            "model_wall_ms": 1539.8184191187222,
+            "forward_ms": 542.1440047200521,
+            "backward_ms": 990.1516866048177,
+            "gradient_sync_ms": 0.0020465066640948256,
+            "optimizer_ms": 0.6212475740909577,
+            "metric_reduce_ms": 0.22360661387443542,
+            "wrapper_residual_ms": 6.675827099222943
+          },
+          "all_rank_optimizer_median_ms": 0.623119980096817,
+          "critical_rank_counts": {
+            "0": 150
+          },
+          "node_counts_by_rank": [
+            42348
+          ]
+        },
+        "physicsnemo": {
+          "critical_rank_phase_means_ms": {
+            "model_wall_ms": 1539.0772540867329,
+            "forward_ms": 541.5237430826822,
+            "backward_ms": 990.1293493652344,
+            "gradient_sync_ms": 0.0020471466643114883,
+            "optimizer_ms": 0.6220738152662914,
+            "metric_reduce_ms": 0.22566570669412614,
+            "wrapper_residual_ms": 6.574374970191457
+          },
+          "all_rank_optimizer_median_ms": 0.622079998254776,
+          "critical_rank_counts": {
+            "0": 150
+          },
+          "node_counts_by_rank": [
+            42348
+          ]
+        }
+      }
+    },
+    {
+      "gpus": 2,
+      "job": 6117,
+      "cpu_affinity_per_rank": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "allowed_logical_cpus_shared_by_all_ranks": 4,
+      "hostname": "studgpu-node06.inf.ethz.ch",
+      "source_sha256": {
+        "benchmark_results/halo-transport/full-2gpu-6117/repeat-0.json": "e90e4b64cdb89bc876703d236f3e84b6c9b6552db52004d86015dd043041ef5a",
+        "benchmark_results/halo-transport/full-2gpu-6117/repeat-1.json": "3ab764e53d8ed0abe54b5260180262691fa9c2ca723237c00e58d33fd1684b8e",
+        "benchmark_results/halo-transport/full-2gpu-6117/repeat-2.json": "dda4c5ea8d118c36d6ca52a0427d56216dee2852e909376c834e2044953724f1"
+      },
+      "cases": {
+        "p2p": {
+          "critical_rank_phase_means_ms": {
+            "model_wall_ms": 974.798586498946,
+            "forward_ms": 336.30281311035156,
+            "backward_ms": 623.0888505045573,
+            "gradient_sync_ms": 2.419254196087519,
+            "optimizer_ms": 3.246080431540807,
+            "metric_reduce_ms": 4.401656112770239,
+            "wrapper_residual_ms": 5.339932143638521
+          },
+          "all_rank_optimizer_median_ms": 1.7802239656448364,
+          "critical_rank_counts": {
+            "0": 78,
+            "1": 72
+          },
+          "node_counts_by_rank": [
+            21174,
+            21174
+          ]
+        },
+        "physicsnemo": {
+          "critical_rank_phase_means_ms": {
+            "model_wall_ms": 941.8305304770669,
+            "forward_ms": 316.3401338704427,
+            "backward_ms": 610.0024886067708,
+            "gradient_sync_ms": 2.3583820712566377,
+            "optimizer_ms": 3.4310630293687185,
+            "metric_reduce_ms": 4.473276575356722,
+            "wrapper_residual_ms": 5.2251863238712986
+          },
+          "all_rank_optimizer_median_ms": 2.4217599630355835,
+          "critical_rank_counts": {
+            "0": 101,
+            "1": 49
+          },
+          "node_counts_by_rank": [
+            21174,
+            21174
+          ]
+        }
+      }
+    },
+    {
+      "gpus": 4,
+      "job": 6121,
+      "cpu_affinity_per_rank": [
+        6,
+        7
+      ],
+      "allowed_logical_cpus_shared_by_all_ranks": 2,
+      "hostname": "studgpu-node06.inf.ethz.ch",
+      "source_sha256": {
+        "benchmark_results/halo-transport/full-4gpu-6121/repeat-0.json": "62a9fb52c6a6d4f73e975e3c407cf9ce996413b225467596759d0bbf6ffc1393",
+        "benchmark_results/halo-transport/full-4gpu-6121/repeat-1.json": "6964bcee76f3f0ef6dbd5aa29bb4571f7100bc4dd0c67772589d50a0c0402bbf",
+        "benchmark_results/halo-transport/full-4gpu-6121/repeat-2.json": "59d318f7b496030ffc9027e65e13f23aabaeef8d365662e13390da4e7ecc3924"
+      },
+      "cases": {
+        "p2p": {
+          "critical_rank_phase_means_ms": {
+            "model_wall_ms": 2140.5936098409197,
+            "forward_ms": 660.5206669108073,
+            "backward_ms": 1413.86599609375,
+            "gradient_sync_ms": 21.146090971628826,
+            "optimizer_ms": 18.87653137723605,
+            "metric_reduce_ms": 12.425615381995836,
+            "wrapper_residual_ms": 13.758709105501566
+          },
+          "all_rank_optimizer_median_ms": 19.04844856262207,
+          "critical_rank_counts": {
+            "0": 29,
+            "1": 35,
+            "2": 40,
+            "3": 46
+          },
+          "node_counts_by_rank": [
+            10587,
+            10587,
+            10587,
+            10587
+          ]
+        },
+        "physicsnemo": {
+          "critical_rank_phase_means_ms": {
+            "model_wall_ms": 1946.475440716992,
+            "forward_ms": 600.8404007975261,
+            "backward_ms": 1279.6834716796875,
+            "gradient_sync_ms": 21.29467435201009,
+            "optimizer_ms": 18.97306708097458,
+            "metric_reduce_ms": 11.4456938457489,
+            "wrapper_residual_ms": 14.238132961044812
+          },
+          "all_rank_optimizer_median_ms": 18.87180805206299,
+          "critical_rank_counts": {
+            "0": 40,
+            "1": 42,
+            "2": 35,
+            "3": 33
+          },
+          "node_counts_by_rank": [
+            10587,
+            10587,
+            10587,
+            10587
+          ]
+        }
+      }
+    }
+  ],
+  "leading_hypothesis": "Four main rank threads restricted to the same two logical CPUs, causing host scheduling/launch contention and synchronization amplification.",
+  "causal_status": "Observed main-thread affinity restriction; contribution to slowdown requires a controlled affinity rerun. Helper-thread placement and physical core mapping were not recorded.",
+  "limitations": [
+    "No measured pure NCCL transfer time or GPU kernel-only time in these phase records.",
+    "No allocation.txt: slurm.txt excluded by existing *slurm* ignore rule.",
+    "Nils raw traces/environment not available."
+  ]
+}

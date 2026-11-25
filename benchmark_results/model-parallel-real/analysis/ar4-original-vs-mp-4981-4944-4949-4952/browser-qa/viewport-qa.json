@@ -1,0 +1,160 @@
+{
+  "deck": "/Users/maximilian/ETH/Master/4_semester/DPHPC/njord-message-passing-website/benchmark-analysis-presentation.html",
+  "sizes": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "clientWidth": 1920,
+      "slideCount": 22,
+      "documentWidth": 1920,
+      "imageCount": 8,
+      "brokenImages": 0,
+      "overflows": [],
+      "navigation": {
+        "windowY": 0,
+        "bodyY": 1080,
+        "secondSlideTop": 0,
+        "activeDot": 1
+      },
+      "keyboardForwardWorked": true
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "clientWidth": 1440,
+      "slideCount": 22,
+      "documentWidth": 1440,
+      "imageCount": 8,
+      "brokenImages": 0,
+      "overflows": [],
+      "navigation": {
+        "windowY": 0,
+        "bodyY": 900,
+        "secondSlideTop": 0,
+        "activeDot": 1
+      },
+      "keyboardForwardWorked": true
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "clientWidth": 1280,
+      "slideCount": 22,
+      "documentWidth": 1280,
+      "imageCount": 8,
+      "brokenImages": 0,
+      "overflows": [],
+      "navigation": {
+        "windowY": 0,
+        "bodyY": 720,
+        "secondSlideTop": 0,
+        "activeDot": 1
+      },
+      "keyboardForwardWorked": true
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "clientWidth": 1024,
+      "slideCount": 22,
+      "documentWidth": 1024,
+      "imageCount": 8,
+      "brokenImages": 0,
+      "overflows": [],
+      "navigation": {
+        "windowY": 0,
+        "bodyY": 768,
+        "secondSlideTop": 0,
+        "activeDot": 1
+      },
+      "keyboardForwardWorked": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "clientWidth": 768,
+      "slideCount": 22,
+      "documentWidth": 768,
+      "imageCount": 8,
+      "brokenImages": 0,
+      "overflows": [],
+      "navigation": {
+        "windowY": 0,
+        "bodyY": 1024,
+        "secondSlideTop": 0,
+        "activeDot": 1
+      },
+      "keyboardForwardWorked": true
+    },
+    {
+      "width": 375,
+      "height": 667,
+      "clientWidth": 375,
+      "slideCount": 22,
+      "documentWidth": 375,
+      "imageCount": 8,
+      "brokenImages": 0,
+      "overflows": [],
+      "navigation": {
+        "windowY": 0,
+        "bodyY": 667,
+        "secondSlideTop": 0,
+        "activeDot": 1
+      },
+      "keyboardForwardWorked": true
+    },
+    {
+      "width": 414,
+      "height": 896,
+      "clientWidth": 414,
+      "slideCount": 22,
+      "documentWidth": 414,
+      "imageCount": 8,
+      "brokenImages": 0,
+      "overflows": [],
+      "navigation": {
+        "windowY": 0,
+        "bodyY": 896,
+        "secondSlideTop": 0,
+        "activeDot": 1
+      },
+      "keyboardForwardWorked": true
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "clientWidth": 667,
+      "slideCount": 22,
+      "documentWidth": 667,
+      "imageCount": 8,
+      "brokenImages": 0,
+      "overflows": [],
+      "navigation": {
+        "windowY": 0,
+        "bodyY": 375,
+        "secondSlideTop": 0,
+        "activeDot": 1
+      },
+      "keyboardForwardWorked": true
+    },
+    {
+      "width": 896,
+      "height": 414,
+      "clientWidth": 896,
+      "slideCount": 22,
+      "documentWidth": 896,
+      "imageCount": 8,
+      "brokenImages": 0,
+      "overflows": [],
+      "navigation": {
+        "windowY": 0,
+        "bodyY": 414,
+        "secondSlideTop": 0,
+        "activeDot": 1
+      },
+      "keyboardForwardWorked": true
+    }
+  ],
+  "runtimeErrors": [],
+  "passed": true
+}

@@ -212,7 +212,7 @@ def _plot_speedup(comparison, gpu_counts, output_dir):
     )
     axes[0].set_xticks(gpu_counts, labels)
     axes[0].set_ylabel("Speedup relative to 1 GPU")
-    axes[0].set_ylim(0.8, max(gpu_counts) * 1.08)
+    axes[0].set_ylim(0, max(gpu_counts) * 1.08)
     axes[0].set_title("Strong scaling")
     axes[0].legend(loc="upper left")
 
@@ -241,12 +241,14 @@ def _plot_speedup(comparison, gpu_counts, output_dir):
     )
     axes[1].axhline(100, linestyle="--", linewidth=1.4, color=RED)
     for count, value in zip(gpu_counts[1:], end_to_end_efficiency[1:]):
+        low_value = value < 15
         axes[1].annotate(
             f"{value:.0f}%",
             (count, value),
-            xytext=(0, -16),
+            xytext=(0, 8 if low_value else -16),
             textcoords="offset points",
             ha="center",
+            va="bottom" if low_value else "top",
             color=GREEN,
         )
     axes[1].set_xticks(gpu_counts, labels)

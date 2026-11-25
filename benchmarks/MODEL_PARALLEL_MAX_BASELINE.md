@@ -208,8 +208,15 @@ All nine tests in this reference/configuration check passed locally on
 22 November, including the actual full-grid loader with eight spawn workers,
 prefetch two and a matching archived first-batch fingerprint. The logging
 adapter preserves the original checkpointed AR4 loss and gradients in the
-equivalence test. This is CPU verification; the new reference GPU timings
-still need the cluster run.
+equivalence test. Original CUDA reference job **4981** subsequently completed
+with matching batch/preflight checks and exactly equal scalar losses to MP1
+at all 50 measured steps. Its archive is
+`benchmark_results/model-parallel-real/baseline/original-ar4-workers8-prefetch2-4981/`.
+The full original-versus-MP 1/2/4 comparison, source identities, raw-derived
+metrics, report and presentation are in
+`benchmark_results/model-parallel-real/analysis/ar4-original-vs-mp-4981-4944-4949-4952/`.
+Regenerate the analysis with
+`.venv/bin/python -m benchmarks.analyze_ar4_reference_comparison`.
 
 Submit on the student cluster, from the repository root:
 

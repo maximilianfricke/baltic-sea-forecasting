@@ -1,0 +1,99 @@
+{
+  "checkedOn": "24 November 2026",
+  "previousTeamRefs": {
+    "alex": "9f058a325e0bff8726656452189e77f8e5b92734",
+    "lassi-partition-benchmark": "2539d36fb10d1f76ca8058b4af9a7d107c485972",
+    "lassi-graph-viewer": "f3561a26f50ce6c340f5dcc5de80820818336448",
+    "lassi-profiling": "883c48e8a581ddef93f8ed1b5ac5c821dfeee5f5",
+    "nils": "9d858b669ede2ec07ea16477f4e3228c04fec0b1",
+    "max": "51ae80592e12d56c9b47be66453a6fb39ab960ca"
+  },
+  "teamRefs": {
+    "alex": "5beb9521187c28cad5e1e9b655d62318206aef3d",
+    "lassi-partition-benchmark": "2539d36fb10d1f76ca8058b4af9a7d107c485972",
+    "lassi-graph-viewer": "f3561a26f50ce6c340f5dcc5de80820818336448",
+    "lassi-profiling": "883c48e8a581ddef93f8ed1b5ac5c821dfeee5f5",
+    "nils": "9d858b669ede2ec07ea16477f4e3228c04fec0b1",
+    "max": "51ae80592e12d56c9b47be66453a6fb39ab960ca"
+  },
+  "changedBranches": [
+    "alex"
+  ],
+  "alexOverlap": {
+    "report": "benchmark_archive/graph-parallel/overlap-checkpoint-fix/report.md",
+    "fixCommit": "a69138e",
+    "results": [
+      {
+        "gpus": 2,
+        "blocking": {
+          "file": "benchmark_archive/graph-parallel/overlap-checkpoint-fix/timed-g2-blocking-h64-r4-4476.json",
+          "sha256": "bfb08b0d07563912f842a06311f0d4d03614ba4bfda65bc3136729066993749e",
+          "samplesPerSecond": 0.5579931057289669,
+          "peakGiB": 2.804133415222168,
+          "host": "studgpu-node06.inf.ethz.ch",
+          "warmup": 20,
+          "steps": 200,
+          "workers": 0,
+          "checkpoint": true,
+          "git": {
+            "commit": "9f058a325e0bff8726656452189e77f8e5b92734",
+            "dirty": true
+          }
+        },
+        "overlap": {
+          "file": "benchmark_archive/graph-parallel/overlap-checkpoint-fix/timed-g2-overlap-h64-r4-4480.json",
+          "sha256": "d361cc0167088dc09a81bc2c4614cfa88390eb1e4aef04ba1e99767c6642c34d",
+          "samplesPerSecond": 0.49834008992221923,
+          "peakGiB": 2.3763222694396973,
+          "host": "studgpu-node06.inf.ethz.ch",
+          "warmup": 20,
+          "steps": 200,
+          "workers": 0,
+          "checkpoint": true,
+          "git": {
+            "commit": "9f058a325e0bff8726656452189e77f8e5b92734",
+            "dirty": true
+          }
+        },
+        "throughputChangePercent": -10.690636711150125,
+        "memoryChangePercent": -15.256447623358738
+      },
+      {
+        "gpus": 4,
+        "blocking": {
+          "file": "benchmark_archive/graph-parallel/overlap-checkpoint-fix/timed-g4-blocking-h64-r5-4488.json",
+          "sha256": "be5f1a8f04128c5b9748f4c7ce972f9d98ee918dad356d0163d6521d30c268d7",
+          "samplesPerSecond": 0.48891597125792857,
+          "peakGiB": 2.431546688079834,
+          "host": "studgpu-node02.inf.ethz.ch",
+          "warmup": 20,
+          "steps": 200,
+          "workers": 0,
+          "checkpoint": true,
+          "git": {
+            "commit": "9f058a325e0bff8726656452189e77f8e5b92734",
+            "dirty": true
+          }
+        },
+        "overlap": {
+          "file": "benchmark_archive/graph-parallel/overlap-checkpoint-fix/timed-g4-overlap-h64-r4-4486.json",
+          "sha256": "2009996dc95cc0506ac031b4969f25ffc1b34436363dced13e83ce02464e1091",
+          "samplesPerSecond": 0.4463673221510698,
+          "peakGiB": 2.2385196685791016,
+          "host": "studgpu-node02.inf.ethz.ch",
+          "warmup": 20,
+          "steps": 200,
+          "workers": 0,
+          "checkpoint": true,
+          "git": {
+            "commit": "9f058a325e0bff8726656452189e77f8e5b92734",
+            "dirty": true
+          }
+        },
+        "throughputChangePercent": -8.702650681953727,
+        "memoryChangePercent": -7.938445946648209
+      }
+    ],
+    "notes": "Archived runs used the fix in a dirty 9f058a3 worktree; it was subsequently committed as a69138e. One matched timing pair per GPU count; zero workers, H64/L2/B2/AR4/FP32/checkpointing, 20 warmup + 200 measurement steps. CPU/Gloo and CUDA/NCCL equivalence logs passed."
+  }
+}

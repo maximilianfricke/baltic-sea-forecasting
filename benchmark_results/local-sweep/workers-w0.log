@@ -1,0 +1,71 @@
+/Users/maximilian/ETH/Master/4_semester/DPHPC/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Seed set to 42
+/Users/maximilian/ETH/Master/4_semester/DPHPC/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no state data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+/Users/maximilian/ETH/Master/4_semester/DPHPC/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no static data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+/Users/maximilian/ETH/Master/4_semester/DPHPC/baltic-sea-forecasting/neural_lam/datastore/mdp.py:196: UserWarning: no mask data found in datastore
+  warnings.warn(f"no {category} data found in datastore")
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+The loaded datastore contains the following features:
+ state   : zos siconc sithick thetao_0m thetao_47m thetao_92m thetao_222m thetao_318m thetao_541m so_0m so_47m so_92m so_222m so_318m so_541m uo_0m uo_47m uo_92m uo_222m uo_318m uo_541m vo_0m vo_47m vo_92m vo_222m vo_318m vo_541m
+ forcing : day_of_year_sin day_of_year_cos
+ static  : deptho mdt sin_lon cos_lon sin_lat cos_lat coast_dist
+ mask    : zos siconc sithick thetao_0m thetao_47m thetao_92m thetao_222m thetao_318m thetao_541m so_0m so_47m so_92m so_222m so_318m so_541m uo_0m uo_47m uo_92m uo_222m uo_318m uo_541m vo_0m vo_47m vo_92m vo_222m vo_318m vo_541m
+With the following splits (over time):
+ train   : 2023-01-01T00:00 to 2023-01-14T00:00
+ val     : 2023-01-15T00:00 to 2023-01-22T00:00
+ test    : 2023-01-23T00:00 to 2023-01-31T00:00
+The loaded datastore contains the following features:
+ forcing : sotemair sowinu10 sowinv10 sosudosw sosudolw sowaprec sod2m somslpre
+With the following splits (over time):
+ train   : 2023-01-01T00:00 to 2023-01-14T00:00
+ val     : 2023-01-15T00:00 to 2023-01-22T00:00
+ test    : 2023-01-23T00:00 to 2023-01-31T00:00
+Using hidden_dim_grid=64, hidden_dim_mesh_nodes=64, hidden_dim_edge=64, hidden_dim=64
+g2m_dim.shape: 4, m2g_dim.shape: 4
+GraphEFM, self.interior_dim=93, self.boundary_dim=None, self.atmosphere_dim=24, 
+Loaded hierarchical graph with structure:
+level 0 - 8456 nodes, 48546 same-level edges
+  0<->1
+ - 8456 up edges, 8456 down edges
+level 1 - 2097 nodes, 11640 same-level edges
+Loaded graph with 52901 nodes (42348 grid, 10553 mesh)
+HiGraphLatentEncoder hidden_dim: 64, hidden_dim_grid: 64
+HiGraphLatentEncoder hidden_dim: 64, hidden_dim_grid: 64
+┏━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃    ┃ Name                      ┃ Type               ┃ Params ┃ Mode  ┃ FLOPs ┃
+┡━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│ 0  │ m2m_edge_index            │ BufferList         │      0 │ train │     0 │
+│ 1  │ mesh_up_edge_index        │ BufferList         │      0 │ train │     0 │
+│ 2  │ mesh_down_edge_index      │ BufferList         │      0 │ train │     0 │
+│ 3  │ m2m_features              │ BufferList         │      0 │ train │     0 │
+│ 4  │ mesh_up_features          │ BufferList         │      0 │ train │     0 │
+│ 5  │ mesh_down_features        │ BufferList         │      0 │ train │     0 │
+│ 6  │ mesh_static_features      │ BufferList         │      0 │ train │     0 │
+│ 7  │ interior_embedder         │ MLP                │ 10.3 K │ train │     0 │
+│ 8  │ interior_current_embedder │ MLP                │ 12.1 K │ train │     0 │
+│ 9  │ g2m_embedder              │ MLP                │  4.6 K │ train │     0 │
+│ 10 │ m2g_embedder              │ MLP                │  4.6 K │ train │     0 │
+│ 11 │ mesh_embedders            │ ModuleList         │  9.3 K │ train │     0 │
+│ 12 │ mesh_up_embedders         │ ModuleList         │  4.6 K │ train │     0 │
+│ 13 │ mesh_down_embedders       │ ModuleList         │  4.6 K │ train │     0 │
+│ 14 │ m2m_embedders             │ ModuleList         │  9.2 K │ train │     0 │
+│ 15 │ prior_model               │ HiGraphLatentEnco… │  129 K │ train │     0 │
+│ 16 │ encoder                   │ HiGraphLatentEnco… │  133 K │ train │     0 │
+│ 17 │ decoder                   │ HiGraphLatentDeco… │  410 K │ train │     0 │
+└────┴───────────────────────────┴────────────────────┴────────┴───────┴───────┘
+Trainable params: 732 K                                                         
+Non-trainable params: 0                                                         
+Total params: 732 K                                                             
+Total estimated model params size (MB): 2.930                                   
+Modules in train mode: 365                                                      
+Modules in eval mode: 0                                                         
+Total FLOPs: 0                                                                  
+/Users/maximilian/ETH/Master/4_semester/DPHPC/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+/Users/maximilian/ETH/Master/4_semester/DPHPC/baltic-sea-forecasting/.venv/lib/python3.12/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=13` in the `DataLoader` to improve performance.
+`Trainer.fit` stopped: `max_steps=13` reached.
+Benchmark written to /Users/maximilian/ETH/Master/4_semester/DPHPC/baltic-sea-forecasting/benchmark_results/local-sweep/workers-w0.json

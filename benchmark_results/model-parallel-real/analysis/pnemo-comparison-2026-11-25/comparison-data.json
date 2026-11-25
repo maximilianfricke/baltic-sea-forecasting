@@ -1,0 +1,249 @@
+{
+  "checked_on": "2026-11-25",
+  "source": {
+    "filename": "pnemo-results.pptx",
+    "original_path": "/Users/maximilian/Downloads/pnemo-results.pptx",
+    "sha256": "83163a6119152a9e2bb32acb117dc89d6547dad59535625febe8f6bd49d9f8ff",
+    "slides": [
+      {
+        "slide": 1,
+        "text": "\nDPHPC project \u00b7 Njord GraphEFM\nScaling ML Ocean Forecasting with Multi-GPU Parallelism"
+      },
+      {
+        "slide": 2,
+        "text": "Four ways to split the graph (4 GPUs)\nchunks\n \u00b7 split node lists by index \u00b7 \nmax halo 23,428 nodes/GPU\nRCB\n \u00b7 recursive geometric bisection \u00b7 max halo 623 nodes/GPU\nMETIS\n \u00b7 min. cut edges \u00b7 max halo 386 nodes/GPU\nMt-KaHyPar km1\n \u00b7 min. communication volume \u00b7 max halo 331 nodes/GPU\nOwner of each G0 mesh node:"
+      },
+      {
+        "slide": 3,
+        "text": "Equal node counts are not equal work\nEach grid node feeds its nearest G0 node. \nThe 1\u00b0 grid has 360 nodes in every row, so toward the poles they crowd together; the mesh stays evenly spaced.\nReal 1\u00b0 graph: \nmedian 4 grid nodes per G0 in the tropics, 11 poleward of 60\u00b0, up to 360 at the North Pole. Coastlines make no difference.\nSchematic, not to scale."
+      },
+      {
+        "slide": 4,
+        "text": "Weighting balances the grid across GPUs\nFix: \nweight each G0 node by its grid nodes when partitioning (METIS vertex weights, Mt-KaHyPar node weights, weighted median in RCB)\n\nMETIS, 4 GPUs\nUnweighted: \nGPU 3 gets 14,140 grid nodes, 34% above the mean. It holds most of the polar ocean.\nWeighted: \nevery GPU within 1.6% of the mean\nCost: \nG0 and G1 counts become up to 8% uneven\nMeasured step time\n2 GPUs: weighted 2\u20134% faster (CIs separate)\n4 GPUs: no significant difference\nDashed line: mean per GPU. Step times: METIS and Mt-KaHyPar, 3 launches each (jobs 5497/5498)."
+      },
+      {
+        "slide": 5,
+        "text": "PhysicsNeMo: exact distributed message passing\n\nWhat it is\nNVIDIA's open-source PyTorch framework for physics-ML\nShips graph models (MeshGraphNet, GraphCast) and their multi-GPU graph support\n\nWhy we use it\nExact full-graph training: same result as one GPU\nAccepts any node \u2192 GPU map, so our partitioners plug in\nPyG / DGL distributed sample neighbours, which changes the algorithm\n\nWhat DistributedGraph does\nBuilds each GPU's local graph from the owner map\nHalo fetch: indexed all-to-all of remote sender features (NCCL)\nBackward: reverse all-to-all with summation\nHow GraphEFM is integrated (no change to the original model code)\n\n1. One DistributedGraph per relation\ng2m, m2m per level, up/down, m2g\n\n2. Slice static features\nnode and edge features to the GPU's part\n\n3. Wrap every layer\nhalo fetch \u2192 original layer on local edges\n\n4. Sync\nglobal-order noise; all-reduce loss and gradients\ndef forward(self, send, receive, edge):   # LocalLayer wrapping Njord's original layer\n    send = relation.graph.get_src_node_features_in_local_graph(send)   # halo exchange\n    return self.net(send, receive, edge)                              # original layer, original weights\nPhysicsNeMo"
+      },
+      {
+        "slide": 6,
+        "text": "Speedup with 95% confidence intervals\n4 GPUs vs 1 GPU: \nH64 2.42\u00d7 [2.38, 2.50] \u00b7 H128 3.42\u00d7 [3.42, 3.43]     \n2 \u2192 4 GPUs: \nH64 1.35\u00d7 \u00b7 H128 1.88\u00d7 \u00b7 H256 1.93\u00d7\nTraining step, Mt-KaHyPar, checkpointing on, batches pre-loaded. Ratio of medians; bootstrap CI over launches and 4-step blocks. H64: 3 launches; H128/H256: 1 launch."
+      },
+      {
+        "slide": 7,
+        "text": "Gradient checkpointing on vs off\nCheckpointing trades memory for time: \nactivations are recomputed in the backward pass. Off: 2 GPUs 732 \u2192 484 ms (1.51\u00d7), 4 GPUs 541 \u2192 320 ms (1.69\u00d7)\nOff needs 3.6\u00d7 more memory per GPU, \nso it only fits once the graph is split: 4 GPUs without recompute are 4.09\u00d7 faster than 1 GPU with it\nH64, Mt-KaHyPar, batches pre-loaded. Speedup labels vs 1 GPU with checkpointing on. Off cases: 1 launch each. 1 GPU off did not fit in an earlier run, so it was not benchmarked."
+      },
+      {
+        "slide": 8,
+        "text": "\u2039#\u203a\nConclusions \nMore of SPCL\u2019s research:\n\u2026 or \nspcl.ethz.ch\n210+ Talks\nyoutube.com/@spcl\ntwitter.com/spcl_eth\n1.6K+ Followers\ngithub.com/spcl\n5.6K+ Stars\nSummary Slide 1\nSummary Slide 2\nSummary Slide 4\nSummary Slide 3\nMore content here"
+      }
+    ],
+    "figures": [
+      {
+        "slide": 4,
+        "path": "source-figures/slide4-balance.png",
+        "sha256": "9c4ed6a41ca3d1278e8671dc4706bdde2bdc1467936b4ad20cc9f6d479d3fe1e"
+      },
+      {
+        "slide": 6,
+        "path": "source-figures/slide6-speedup.png",
+        "sha256": "3a0a442d35daf9e6ee0153a66782a09073b88b84671e2407580778117ca576b9"
+      },
+      {
+        "slide": 7,
+        "path": "source-figures/slide7-checkpoint.png",
+        "sha256": "9f6a69b96a0e13dd0bf4412174c51a44fdbc90a3c0c0afa058550e31c8dadc88"
+      }
+    ],
+    "raw_measurements_available": false,
+    "extraction": "Slide text and exact PNGs; chart labels manually verified. No pixel-estimated timings."
+  },
+  "ours": [
+    {
+      "gpus": 1,
+      "job": 4944,
+      "source": "benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-1gpu-4944.json",
+      "sha256": "6da85421a4a5bcf08e80dddcd763ee2b11190e652a8c527fab30837fc576b3b7",
+      "wall_samples_per_second": 1.2468588397395624,
+      "model_ms": 1540.3377661132813,
+      "total_ms": 1599.8970750137792,
+      "input_ms": 59.559308900497854,
+      "peak_gib": 3.495039939880371,
+      "mesh_sizes": [
+        8456,
+        2097
+      ],
+      "wall_speedup": 1.0,
+      "model_speedup": 1.0,
+      "input_share_percent": 3.7226962803207133,
+      "memory_fraction_of_1gpu": 1.0
+    },
+    {
+      "gpus": 2,
+      "job": 4949,
+      "source": "benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-2gpu-4949.json",
+      "sha256": "b3859ef40f891d78d34606bb9c891679d496435cbd2cdf375c21ab9fa0b336d4",
+      "wall_samples_per_second": 1.6864390946966332,
+      "model_ms": 1145.5930102539062,
+      "total_ms": 1182.4895527058188,
+      "input_ms": 37.18056609854102,
+      "peak_gib": 1.8007707595825195,
+      "mesh_sizes": [
+        8456,
+        2097
+      ],
+      "wall_speedup": 1.352550137150159,
+      "model_speedup": 1.3445767845352732,
+      "input_share_percent": 3.144261698842328,
+      "memory_fraction_of_1gpu": 0.5152361033230872
+    },
+    {
+      "gpus": 4,
+      "job": 4952,
+      "source": "benchmark_results/model-parallel-real/full/ar4-workers8-prefetch2-4944-4949-4952/real-mp-max-ar4-ckpt-full-rank-local-4gpu-4952.json",
+      "sha256": "121d63c2bc367bf40814757b1eb41b109eda9a2a197911d5aabaf40e55f1709d",
+      "wall_samples_per_second": 1.5819606708213056,
+      "model_ms": 1231.5348278808594,
+      "total_ms": 1260.5704828096555,
+      "input_ms": 29.968977813841775,
+      "peak_gib": 0.9648466110229492,
+      "mesh_sizes": [
+        8456,
+        2097
+      ],
+      "wall_speedup": 1.2687568314884288,
+      "model_speedup": 1.250746411097272,
+      "input_share_percent": 2.377413894941014,
+      "memory_fraction_of_1gpu": 0.2760616838776309
+    }
+  ],
+  "nils": {
+    "commit": "69939c9",
+    "graph": "global_hierarchical_graph",
+    "mesh_sizes": [
+      7193,
+      1812
+    ],
+    "widths": [
+      {
+        "hidden": 64,
+        "speedup_1_to_2": 1.79,
+        "speedup_1_to_4": 2.42,
+        "speedup_2_to_4": 1.35,
+        "four_gpu_ci95": [
+          2.38,
+          2.5
+        ],
+        "launches": 3,
+        "ci_scope": "launches and four-step cycle blocks",
+        "slide": 6
+      },
+      {
+        "hidden": 128,
+        "speedup_1_to_2": 1.82,
+        "speedup_1_to_4": 3.42,
+        "speedup_2_to_4": 1.88,
+        "four_gpu_ci95": [
+          3.42,
+          3.43
+        ],
+        "launches": 1,
+        "ci_scope": "within one launch only",
+        "slide": 6
+      },
+      {
+        "hidden": 256,
+        "speedup_1_to_2": null,
+        "speedup_1_to_4": null,
+        "speedup_2_to_4": 1.93,
+        "four_gpu_ci95": null,
+        "launches": 1,
+        "ci_scope": "within one launch only; no 1-GPU training baseline",
+        "slide": 6
+      }
+    ],
+    "checkpoint": [
+      {
+        "gpus": 2,
+        "on_ms": 732,
+        "off_ms": 484,
+        "on_gib": 1.62,
+        "off_gib": 5.85,
+        "slide": 7,
+        "speedup": 1.512396694214876,
+        "time_saved_percent": 33.879781420765035,
+        "memory_multiplier": 3.6111111111111107
+      },
+      {
+        "gpus": 4,
+        "on_ms": 541,
+        "off_ms": 320,
+        "on_gib": 0.87,
+        "off_gib": 3.11,
+        "slide": 7,
+        "speedup": 1.690625,
+        "time_saved_percent": 40.85027726432532,
+        "memory_multiplier": 3.574712643678161
+      }
+    ],
+    "on_memory_gib": [
+      3.08,
+      1.62,
+      0.87
+    ],
+    "one_gpu_on_ms": null,
+    "one_gpu_off": "Slide reports earlier failure to fit; no matched timing case",
+    "four_gpu_off_vs_one_gpu_on": 4.09,
+    "halo_counts": {
+      "chunks": 23428,
+      "RCB": 623,
+      "METIS": 386,
+      "Mt-KaHyPar km1": 331
+    },
+    "weighted_balance": {
+      "grid_max_mean": [
+        1.336,
+        1.016
+      ],
+      "mesh0_max_mean": [
+        1.007,
+        1.082
+      ],
+      "mesh1_max_mean": [
+        1.009,
+        1.066
+      ],
+      "two_gpu_time_gain_percent": [
+        2,
+        4
+      ],
+      "four_gpu_difference": "No significant difference reported under the report's CI criterion"
+    },
+    "owner_evidence": {
+      "path": "dphpc/pnemo/owners/weighted/metis-k4.npz",
+      "sha256": "a4d1028eafb28a88cd9c307ef4d6e3abfa5c11943f70bbc07e467fa74d2c3480",
+      "graph_fingerprint": "b556bc628750e57ef66297924d9d47c5145097567ec4a761c23a2d563905a981",
+      "counts": {
+        "grid": [
+          10756,
+          10530,
+          10542,
+          10520
+        ],
+        "mesh_0": [
+          1868,
+          1601,
+          1946,
+          1778
+        ],
+        "mesh_1": [
+          470,
+          408,
+          483,
+          451
+        ]
+      }
+    }
+  },
+  "caveat": "Independent experiments, different graphs and input/timing policies. No causal backend speedup is established."
+}

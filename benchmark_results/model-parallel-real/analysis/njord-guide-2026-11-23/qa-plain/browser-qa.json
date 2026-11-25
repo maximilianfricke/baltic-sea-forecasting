@@ -1,0 +1,1203 @@
+{
+  "file": "/Users/maximilian/ETH/Master/4_semester/DPHPC/baltic-sea-forecasting/docs/njord-guide.html",
+  "sizes": [
+    {
+      "width": 1440,
+      "height": 900,
+      "chapterTitles": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ],
+      "documentWidth": 1440,
+      "currentRows": 5,
+      "historyRows": 23,
+      "svgCount": 18,
+      "controlsVisible": true,
+      "unresolved": false,
+      "brokenAnchors": [],
+      "duplicateIDs": [],
+      "svgTextClipped": []
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "chapterTitles": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ],
+      "documentWidth": 1280,
+      "currentRows": 5,
+      "historyRows": 23,
+      "svgCount": 18,
+      "controlsVisible": true,
+      "unresolved": false,
+      "brokenAnchors": [],
+      "duplicateIDs": [],
+      "svgTextClipped": []
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "chapterTitles": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ],
+      "documentWidth": 1024,
+      "currentRows": 5,
+      "historyRows": 23,
+      "svgCount": 18,
+      "controlsVisible": true,
+      "unresolved": false,
+      "brokenAnchors": [],
+      "duplicateIDs": [],
+      "svgTextClipped": []
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "chapterTitles": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ],
+      "documentWidth": 768,
+      "currentRows": 5,
+      "historyRows": 23,
+      "svgCount": 18,
+      "controlsVisible": true,
+      "unresolved": false,
+      "brokenAnchors": [],
+      "duplicateIDs": [],
+      "svgTextClipped": []
+    },
+    {
+      "width": 375,
+      "height": 667,
+      "chapterTitles": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ],
+      "documentWidth": 375,
+      "currentRows": 5,
+      "historyRows": 23,
+      "svgCount": 18,
+      "controlsVisible": true,
+      "unresolved": false,
+      "brokenAnchors": [],
+      "duplicateIDs": [],
+      "svgTextClipped": []
+    },
+    {
+      "width": 414,
+      "height": 896,
+      "chapterTitles": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ],
+      "documentWidth": 414,
+      "currentRows": 5,
+      "historyRows": 23,
+      "svgCount": 18,
+      "controlsVisible": true,
+      "unresolved": false,
+      "brokenAnchors": [],
+      "duplicateIDs": [],
+      "svgTextClipped": []
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "chapterTitles": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ],
+      "documentWidth": 667,
+      "currentRows": 5,
+      "historyRows": 23,
+      "svgCount": 18,
+      "controlsVisible": true,
+      "unresolved": false,
+      "brokenAnchors": [],
+      "duplicateIDs": [],
+      "svgTextClipped": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "Table highlights 1440",
+      "passed": true,
+      "detail": {
+        "tableCount": 14,
+        "allEmphasized": true,
+        "green": "rgb(22, 101, 52)",
+        "red": "rgb(163, 38, 34)"
+      }
+    },
+    {
+      "name": "Four chapters 1440",
+      "passed": true,
+      "detail": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ]
+    },
+    {
+      "name": "No page overflow 1440",
+      "passed": true,
+      "detail": 1440
+    },
+    {
+      "name": "Five current rows 1440",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "23 historical rows 1440",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "18 embedded SVGs (eleven figures) 1440",
+      "passed": true,
+      "detail": 18
+    },
+    {
+      "name": "Selector enabled 1440",
+      "passed": true
+    },
+    {
+      "name": "No placeholders or broken anchors 1440",
+      "passed": true,
+      "detail": {
+        "chapterTitles": [
+          "1. Data versions",
+          "2. Model: where message passing happens, before and now",
+          "3. Results",
+          "4. Next steps and relation to the team’s work"
+        ],
+        "documentWidth": 1440,
+        "currentRows": 5,
+        "historyRows": 23,
+        "svgCount": 18,
+        "controlsVisible": true,
+        "unresolved": false,
+        "brokenAnchors": [],
+        "duplicateIDs": [],
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "No clipped SVG labels 1440",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Relation g2m 1440",
+      "passed": true,
+      "detail": {
+        "active": [
+          "g2m"
+        ],
+        "caption": "Grid → mesh 0: grid embeddings are aggregated by mean at fine-mesh receivers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Relation m0 1440",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m0"
+        ],
+        "caption": "Within mesh 0: each layer combines messages from neighboring fine-mesh nodes by sum. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 6
+      }
+    },
+    {
+      "name": "Relation up 1440",
+      "passed": true,
+      "detail": {
+        "active": [
+          "up"
+        ],
+        "caption": "Mesh 0 → mesh 1: encoder/prior use mean; decoder uses sum and a latent-initialized receiver. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m1 1440",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m1"
+        ],
+        "caption": "Within mesh 1: messages combine coarse-node information by sum. No additional upward pass is inserted between these layers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 2
+      }
+    },
+    {
+      "name": "Relation down 1440",
+      "passed": true,
+      "detail": {
+        "active": [
+          "down"
+        ],
+        "caption": "Mesh 1 → mesh 0: decoder mean propagation updates the saved fine-mesh receiver states. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m2g 1440",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m2g"
+        ],
+        "caption": "Mesh 0 → grid: sum aggregation updates grid receivers that contain the direct grid skip. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Expanded sections fit 1440",
+      "passed": true
+    },
+    {
+      "name": "Works without JavaScript 1440",
+      "passed": true,
+      "detail": {
+        "rows": 5,
+        "svg": 18,
+        "defaultEdges": 10,
+        "hiddenControl": true,
+        "width": 1440
+      }
+    },
+    {
+      "name": "Table highlights 1280",
+      "passed": true,
+      "detail": {
+        "tableCount": 14,
+        "allEmphasized": true,
+        "green": "rgb(22, 101, 52)",
+        "red": "rgb(163, 38, 34)"
+      }
+    },
+    {
+      "name": "Four chapters 1280",
+      "passed": true,
+      "detail": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ]
+    },
+    {
+      "name": "No page overflow 1280",
+      "passed": true,
+      "detail": 1280
+    },
+    {
+      "name": "Five current rows 1280",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "23 historical rows 1280",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "18 embedded SVGs (eleven figures) 1280",
+      "passed": true,
+      "detail": 18
+    },
+    {
+      "name": "Selector enabled 1280",
+      "passed": true
+    },
+    {
+      "name": "No placeholders or broken anchors 1280",
+      "passed": true,
+      "detail": {
+        "chapterTitles": [
+          "1. Data versions",
+          "2. Model: where message passing happens, before and now",
+          "3. Results",
+          "4. Next steps and relation to the team’s work"
+        ],
+        "documentWidth": 1280,
+        "currentRows": 5,
+        "historyRows": 23,
+        "svgCount": 18,
+        "controlsVisible": true,
+        "unresolved": false,
+        "brokenAnchors": [],
+        "duplicateIDs": [],
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "No clipped SVG labels 1280",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Relation g2m 1280",
+      "passed": true,
+      "detail": {
+        "active": [
+          "g2m"
+        ],
+        "caption": "Grid → mesh 0: grid embeddings are aggregated by mean at fine-mesh receivers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Relation m0 1280",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m0"
+        ],
+        "caption": "Within mesh 0: each layer combines messages from neighboring fine-mesh nodes by sum. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 6
+      }
+    },
+    {
+      "name": "Relation up 1280",
+      "passed": true,
+      "detail": {
+        "active": [
+          "up"
+        ],
+        "caption": "Mesh 0 → mesh 1: encoder/prior use mean; decoder uses sum and a latent-initialized receiver. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m1 1280",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m1"
+        ],
+        "caption": "Within mesh 1: messages combine coarse-node information by sum. No additional upward pass is inserted between these layers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 2
+      }
+    },
+    {
+      "name": "Relation down 1280",
+      "passed": true,
+      "detail": {
+        "active": [
+          "down"
+        ],
+        "caption": "Mesh 1 → mesh 0: decoder mean propagation updates the saved fine-mesh receiver states. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m2g 1280",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m2g"
+        ],
+        "caption": "Mesh 0 → grid: sum aggregation updates grid receivers that contain the direct grid skip. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Expanded sections fit 1280",
+      "passed": true
+    },
+    {
+      "name": "Works without JavaScript 1280",
+      "passed": true,
+      "detail": {
+        "rows": 5,
+        "svg": 18,
+        "defaultEdges": 10,
+        "hiddenControl": true,
+        "width": 1280
+      }
+    },
+    {
+      "name": "Table highlights 1024",
+      "passed": true,
+      "detail": {
+        "tableCount": 14,
+        "allEmphasized": true,
+        "green": "rgb(22, 101, 52)",
+        "red": "rgb(163, 38, 34)"
+      }
+    },
+    {
+      "name": "Four chapters 1024",
+      "passed": true,
+      "detail": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ]
+    },
+    {
+      "name": "No page overflow 1024",
+      "passed": true,
+      "detail": 1024
+    },
+    {
+      "name": "Five current rows 1024",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "23 historical rows 1024",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "18 embedded SVGs (eleven figures) 1024",
+      "passed": true,
+      "detail": 18
+    },
+    {
+      "name": "Selector enabled 1024",
+      "passed": true
+    },
+    {
+      "name": "No placeholders or broken anchors 1024",
+      "passed": true,
+      "detail": {
+        "chapterTitles": [
+          "1. Data versions",
+          "2. Model: where message passing happens, before and now",
+          "3. Results",
+          "4. Next steps and relation to the team’s work"
+        ],
+        "documentWidth": 1024,
+        "currentRows": 5,
+        "historyRows": 23,
+        "svgCount": 18,
+        "controlsVisible": true,
+        "unresolved": false,
+        "brokenAnchors": [],
+        "duplicateIDs": [],
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "No clipped SVG labels 1024",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Relation g2m 1024",
+      "passed": true,
+      "detail": {
+        "active": [
+          "g2m"
+        ],
+        "caption": "Grid → mesh 0: grid embeddings are aggregated by mean at fine-mesh receivers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Relation m0 1024",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m0"
+        ],
+        "caption": "Within mesh 0: each layer combines messages from neighboring fine-mesh nodes by sum. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 6
+      }
+    },
+    {
+      "name": "Relation up 1024",
+      "passed": true,
+      "detail": {
+        "active": [
+          "up"
+        ],
+        "caption": "Mesh 0 → mesh 1: encoder/prior use mean; decoder uses sum and a latent-initialized receiver. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m1 1024",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m1"
+        ],
+        "caption": "Within mesh 1: messages combine coarse-node information by sum. No additional upward pass is inserted between these layers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 2
+      }
+    },
+    {
+      "name": "Relation down 1024",
+      "passed": true,
+      "detail": {
+        "active": [
+          "down"
+        ],
+        "caption": "Mesh 1 → mesh 0: decoder mean propagation updates the saved fine-mesh receiver states. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m2g 1024",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m2g"
+        ],
+        "caption": "Mesh 0 → grid: sum aggregation updates grid receivers that contain the direct grid skip. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Expanded sections fit 1024",
+      "passed": true
+    },
+    {
+      "name": "Works without JavaScript 1024",
+      "passed": true,
+      "detail": {
+        "rows": 5,
+        "svg": 18,
+        "defaultEdges": 10,
+        "hiddenControl": true,
+        "width": 1024
+      }
+    },
+    {
+      "name": "Table highlights 768",
+      "passed": true,
+      "detail": {
+        "tableCount": 14,
+        "allEmphasized": true,
+        "green": "rgb(22, 101, 52)",
+        "red": "rgb(163, 38, 34)"
+      }
+    },
+    {
+      "name": "Four chapters 768",
+      "passed": true,
+      "detail": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ]
+    },
+    {
+      "name": "No page overflow 768",
+      "passed": true,
+      "detail": 768
+    },
+    {
+      "name": "Five current rows 768",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "23 historical rows 768",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "18 embedded SVGs (eleven figures) 768",
+      "passed": true,
+      "detail": 18
+    },
+    {
+      "name": "Selector enabled 768",
+      "passed": true
+    },
+    {
+      "name": "No placeholders or broken anchors 768",
+      "passed": true,
+      "detail": {
+        "chapterTitles": [
+          "1. Data versions",
+          "2. Model: where message passing happens, before and now",
+          "3. Results",
+          "4. Next steps and relation to the team’s work"
+        ],
+        "documentWidth": 768,
+        "currentRows": 5,
+        "historyRows": 23,
+        "svgCount": 18,
+        "controlsVisible": true,
+        "unresolved": false,
+        "brokenAnchors": [],
+        "duplicateIDs": [],
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "No clipped SVG labels 768",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Relation g2m 768",
+      "passed": true,
+      "detail": {
+        "active": [
+          "g2m"
+        ],
+        "caption": "Grid → mesh 0: grid embeddings are aggregated by mean at fine-mesh receivers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Relation m0 768",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m0"
+        ],
+        "caption": "Within mesh 0: each layer combines messages from neighboring fine-mesh nodes by sum. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 6
+      }
+    },
+    {
+      "name": "Relation up 768",
+      "passed": true,
+      "detail": {
+        "active": [
+          "up"
+        ],
+        "caption": "Mesh 0 → mesh 1: encoder/prior use mean; decoder uses sum and a latent-initialized receiver. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m1 768",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m1"
+        ],
+        "caption": "Within mesh 1: messages combine coarse-node information by sum. No additional upward pass is inserted between these layers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 2
+      }
+    },
+    {
+      "name": "Relation down 768",
+      "passed": true,
+      "detail": {
+        "active": [
+          "down"
+        ],
+        "caption": "Mesh 1 → mesh 0: decoder mean propagation updates the saved fine-mesh receiver states. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m2g 768",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m2g"
+        ],
+        "caption": "Mesh 0 → grid: sum aggregation updates grid receivers that contain the direct grid skip. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Expanded sections fit 768",
+      "passed": true
+    },
+    {
+      "name": "Works without JavaScript 768",
+      "passed": true,
+      "detail": {
+        "rows": 5,
+        "svg": 18,
+        "defaultEdges": 10,
+        "hiddenControl": true,
+        "width": 768
+      }
+    },
+    {
+      "name": "Table highlights 375",
+      "passed": true,
+      "detail": {
+        "tableCount": 14,
+        "allEmphasized": true,
+        "green": "rgb(22, 101, 52)",
+        "red": "rgb(163, 38, 34)"
+      }
+    },
+    {
+      "name": "Four chapters 375",
+      "passed": true,
+      "detail": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ]
+    },
+    {
+      "name": "No page overflow 375",
+      "passed": true,
+      "detail": 375
+    },
+    {
+      "name": "Five current rows 375",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "23 historical rows 375",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "18 embedded SVGs (eleven figures) 375",
+      "passed": true,
+      "detail": 18
+    },
+    {
+      "name": "Selector enabled 375",
+      "passed": true
+    },
+    {
+      "name": "No placeholders or broken anchors 375",
+      "passed": true,
+      "detail": {
+        "chapterTitles": [
+          "1. Data versions",
+          "2. Model: where message passing happens, before and now",
+          "3. Results",
+          "4. Next steps and relation to the team’s work"
+        ],
+        "documentWidth": 375,
+        "currentRows": 5,
+        "historyRows": 23,
+        "svgCount": 18,
+        "controlsVisible": true,
+        "unresolved": false,
+        "brokenAnchors": [],
+        "duplicateIDs": [],
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "No clipped SVG labels 375",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Relation g2m 375",
+      "passed": true,
+      "detail": {
+        "active": [
+          "g2m"
+        ],
+        "caption": "Grid → mesh 0: grid embeddings are aggregated by mean at fine-mesh receivers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Relation m0 375",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m0"
+        ],
+        "caption": "Within mesh 0: each layer combines messages from neighboring fine-mesh nodes by sum. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 6
+      }
+    },
+    {
+      "name": "Relation up 375",
+      "passed": true,
+      "detail": {
+        "active": [
+          "up"
+        ],
+        "caption": "Mesh 0 → mesh 1: encoder/prior use mean; decoder uses sum and a latent-initialized receiver. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m1 375",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m1"
+        ],
+        "caption": "Within mesh 1: messages combine coarse-node information by sum. No additional upward pass is inserted between these layers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 2
+      }
+    },
+    {
+      "name": "Relation down 375",
+      "passed": true,
+      "detail": {
+        "active": [
+          "down"
+        ],
+        "caption": "Mesh 1 → mesh 0: decoder mean propagation updates the saved fine-mesh receiver states. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m2g 375",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m2g"
+        ],
+        "caption": "Mesh 0 → grid: sum aggregation updates grid receivers that contain the direct grid skip. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Expanded sections fit 375",
+      "passed": true
+    },
+    {
+      "name": "Works without JavaScript 375",
+      "passed": true,
+      "detail": {
+        "rows": 5,
+        "svg": 18,
+        "defaultEdges": 10,
+        "hiddenControl": true,
+        "width": 375
+      }
+    },
+    {
+      "name": "Table highlights 414",
+      "passed": true,
+      "detail": {
+        "tableCount": 14,
+        "allEmphasized": true,
+        "green": "rgb(22, 101, 52)",
+        "red": "rgb(163, 38, 34)"
+      }
+    },
+    {
+      "name": "Four chapters 414",
+      "passed": true,
+      "detail": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ]
+    },
+    {
+      "name": "No page overflow 414",
+      "passed": true,
+      "detail": 414
+    },
+    {
+      "name": "Five current rows 414",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "23 historical rows 414",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "18 embedded SVGs (eleven figures) 414",
+      "passed": true,
+      "detail": 18
+    },
+    {
+      "name": "Selector enabled 414",
+      "passed": true
+    },
+    {
+      "name": "No placeholders or broken anchors 414",
+      "passed": true,
+      "detail": {
+        "chapterTitles": [
+          "1. Data versions",
+          "2. Model: where message passing happens, before and now",
+          "3. Results",
+          "4. Next steps and relation to the team’s work"
+        ],
+        "documentWidth": 414,
+        "currentRows": 5,
+        "historyRows": 23,
+        "svgCount": 18,
+        "controlsVisible": true,
+        "unresolved": false,
+        "brokenAnchors": [],
+        "duplicateIDs": [],
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "No clipped SVG labels 414",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Relation g2m 414",
+      "passed": true,
+      "detail": {
+        "active": [
+          "g2m"
+        ],
+        "caption": "Grid → mesh 0: grid embeddings are aggregated by mean at fine-mesh receivers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Relation m0 414",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m0"
+        ],
+        "caption": "Within mesh 0: each layer combines messages from neighboring fine-mesh nodes by sum. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 6
+      }
+    },
+    {
+      "name": "Relation up 414",
+      "passed": true,
+      "detail": {
+        "active": [
+          "up"
+        ],
+        "caption": "Mesh 0 → mesh 1: encoder/prior use mean; decoder uses sum and a latent-initialized receiver. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m1 414",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m1"
+        ],
+        "caption": "Within mesh 1: messages combine coarse-node information by sum. No additional upward pass is inserted between these layers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 2
+      }
+    },
+    {
+      "name": "Relation down 414",
+      "passed": true,
+      "detail": {
+        "active": [
+          "down"
+        ],
+        "caption": "Mesh 1 → mesh 0: decoder mean propagation updates the saved fine-mesh receiver states. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m2g 414",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m2g"
+        ],
+        "caption": "Mesh 0 → grid: sum aggregation updates grid receivers that contain the direct grid skip. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Expanded sections fit 414",
+      "passed": true
+    },
+    {
+      "name": "Works without JavaScript 414",
+      "passed": true,
+      "detail": {
+        "rows": 5,
+        "svg": 18,
+        "defaultEdges": 10,
+        "hiddenControl": true,
+        "width": 414
+      }
+    },
+    {
+      "name": "Table highlights 667",
+      "passed": true,
+      "detail": {
+        "tableCount": 14,
+        "allEmphasized": true,
+        "green": "rgb(22, 101, 52)",
+        "red": "rgb(163, 38, 34)"
+      }
+    },
+    {
+      "name": "Four chapters 667",
+      "passed": true,
+      "detail": [
+        "1. Data versions",
+        "2. Model: where message passing happens, before and now",
+        "3. Results",
+        "4. Next steps and relation to the team’s work"
+      ]
+    },
+    {
+      "name": "No page overflow 667",
+      "passed": true,
+      "detail": 667
+    },
+    {
+      "name": "Five current rows 667",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "name": "23 historical rows 667",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "18 embedded SVGs (eleven figures) 667",
+      "passed": true,
+      "detail": 18
+    },
+    {
+      "name": "Selector enabled 667",
+      "passed": true
+    },
+    {
+      "name": "No placeholders or broken anchors 667",
+      "passed": true,
+      "detail": {
+        "chapterTitles": [
+          "1. Data versions",
+          "2. Model: where message passing happens, before and now",
+          "3. Results",
+          "4. Next steps and relation to the team’s work"
+        ],
+        "documentWidth": 667,
+        "currentRows": 5,
+        "historyRows": 23,
+        "svgCount": 18,
+        "controlsVisible": true,
+        "unresolved": false,
+        "brokenAnchors": [],
+        "duplicateIDs": [],
+        "svgTextClipped": []
+      }
+    },
+    {
+      "name": "No clipped SVG labels 667",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Relation g2m 667",
+      "passed": true,
+      "detail": {
+        "active": [
+          "g2m"
+        ],
+        "caption": "Grid → mesh 0: grid embeddings are aggregated by mean at fine-mesh receivers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Relation m0 667",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m0"
+        ],
+        "caption": "Within mesh 0: each layer combines messages from neighboring fine-mesh nodes by sum. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 6
+      }
+    },
+    {
+      "name": "Relation up 667",
+      "passed": true,
+      "detail": {
+        "active": [
+          "up"
+        ],
+        "caption": "Mesh 0 → mesh 1: encoder/prior use mean; decoder uses sum and a latent-initialized receiver. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m1 667",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m1"
+        ],
+        "caption": "Within mesh 1: messages combine coarse-node information by sum. No additional upward pass is inserted between these layers. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 2
+      }
+    },
+    {
+      "name": "Relation down 667",
+      "passed": true,
+      "detail": {
+        "active": [
+          "down"
+        ],
+        "caption": "Mesh 1 → mesh 0: decoder mean propagation updates the saved fine-mesh receiver states. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 4
+      }
+    },
+    {
+      "name": "Relation m2g 667",
+      "passed": true,
+      "detail": {
+        "active": [
+          "m2g"
+        ],
+        "caption": "Mesh 0 → grid: sum aggregation updates grid receivers that contain the direct grid skip. Blue/green nodes have different owners; orange edges need halos. This is a schematic subset.",
+        "edges": 10
+      }
+    },
+    {
+      "name": "Expanded sections fit 667",
+      "passed": true
+    },
+    {
+      "name": "Works without JavaScript 667",
+      "passed": true,
+      "detail": {
+        "rows": 5,
+        "svg": 18,
+        "defaultEdges": 10,
+        "hiddenControl": true,
+        "width": 667
+      }
+    },
+    {
+      "name": "Previously opened file now works",
+      "passed": true
+    }
+  ],
+  "runtimeErrors": [],
+  "passed": true
+}
