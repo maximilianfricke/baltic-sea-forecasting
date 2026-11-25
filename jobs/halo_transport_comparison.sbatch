@@ -43,7 +43,7 @@ for ((REPEAT=0; REPEAT<NJORD_AB_REPEATS; REPEAT++)); do
         --partitioned-data-root "$STAGED" \
         --output "$RESULTS/repeat-${REPEAT}.json" --repeat "$REPEAT" \
         --warmup-steps "$NJORD_AB_WARMUP" --steps "$NJORD_AB_STEPS" \
-        --cached-batches 4 --num-workers 8 --prefetch-factor 2 --deterministic on
+        --cached-batches 4 --num-workers 0 --deterministic on
 done
 "$PYTHON" -m benchmarks.compare_halo_transports summarize --directory "$RESULTS" --repeats "$NJORD_AB_REPEATS"
 echo "Final result: $RESULTS/comparison.json"

@@ -120,7 +120,8 @@ def cached_batches(dataset, args):
     if len(dataset) < count:
         raise ValueError(f"Need {count} distinct samples, got {len(dataset)}")
     options = real._data_loader_options(args.num_workers, args.prefetch_factor, torch.device("cpu"))
-    # Exhausting a finite non-persistent loader stops ALL workers before timing.
+    # With zero workers the rank's main process prepares the cache. If workers
+    # are explicitly enabled, exhausting this finite loader stops them first.
     options["persistent_workers"] = False
     loader = DataLoader(Subset(dataset, list(range(count))), batch_size=args.batch_size,
                         shuffle=False, generator=torch.Generator().manual_seed(args.seed), **options)
@@ -218,7 +219,7 @@ def run(args):
             raise ValueError("Shard IDs/order do not match common partition")
         batches = cached_batches(dataset, args)
         initialization['rank_dataset_and_cache_ms'] = (time.perf_counter()-phase)*1000
-        real._progress(rank, "CPU cache ready; loader workers stopped; preparing common halo plans")
+        real._progress(rank, "CPU cache ready; no loader workers active; preparing common halo plans")
         transports = HaloTransports(partition)
         local_control = {"rank": rank, "batch_hashes": [[digest_tensor(t) for t in batch] for batch in batches],
                          "owned_grid_ids_sha256": digest_tensor(ids), "transport_plan_sha256": transports.signature,
@@ -237,7 +238,7 @@ def run(args):
         controls = {"graph_sha256": graph_hash, "initial_state_sha256": state_digest(initial),
                     "sample_indices": list(range(args.cached_batches*args.batch_size)), "world_size": size,
                     "model": vars(real._model_args(args)), "workers_per_rank": args.num_workers,
-                    "prefetch_factor": args.prefetch_factor, "pin_memory": False,
+                    "prefetch_factor": args.prefetch_factor if args.num_workers > 0 else None, "pin_memory": False,
                     "deterministic_algorithms": args.deterministic == "on", "warmup_steps": args.warmup_steps,
                     "measurement_steps": args.steps, "checkpoint_early_stop": False,
                     "cached_workers_active_during_timing": False,
@@ -311,6 +312,8 @@ def summarize(directory, repeats):
         ratios.append(statistics.median(medians['p2p'][i] for i in ids)/statistics.median(medians['physicsnemo'][i] for i in ids))
     ratios.sort()
     report={"status":"completed", "world_size":results[0]['controls']['world_size'], "independent_paired_launches":repeats,
+            "workers_per_rank":results[0]['controls'].get('workers_per_rank'),
+            "prefetch_factor":results[0]['controls'].get('prefetch_factor'),
             "controls_sha256":results[0]['controls_sha256'], "per_launch_model_wall_medians_ms":medians,
             "physicsnemo_speedup_over_p2p":ratio, "paired_launch_bootstrap_ci95":[ratios[99],ratios[3899]] if repeats>1 else None,
             "ci_scope":"Paired independent launches only; three repeats provide limited uncertainty resolution",
@@ -332,7 +335,8 @@ def main():
     p.add_argument("--warmup-steps",type=int,default=10)
     p.add_argument("--steps",type=int,default=50)
     p.add_argument("--cached-batches",type=int,default=4)
-    p.add_argument("--num-workers",type=int,default=8)
+    p.add_argument("--num-workers",type=int,default=0,
+                   help="CPU cache preparation workers per rank; 0 uses the rank's main process")
     p.add_argument("--prefetch-factor",type=int,default=2)
     p.add_argument("--deterministic",choices=("on","off"),default="on")
     p.set_defaults(graph="global_cluster_graph", hidden_dim=64, processor_layers=2, batch_size=2,

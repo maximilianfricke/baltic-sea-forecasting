@@ -37,10 +37,11 @@ measurement has yet apportioned the gap among these causes.
 - H64, decoder L2, encoder/prior L1, AR4, global batch 2, FP32, WMSE+KL,
   AdamW learning rate .001 / betas .9,.95 / weight decay .1.
 - Deterministic algorithms on, full AR-step checkpoint replay on every GPU count.
-- Four CPU batches: dataset sample indices 0..7, in order. CPU preparation uses
-  8 workers/rank and prefetch 2 with unpinned buffers, then exhausts and stops the
-  finite loader. Both candidates reuse those exact CPU tensors. Only one batch
-  is copied to a GPU for a step.
+- Four CPU batches: dataset sample indices 0..7, in order. Each rank prepares
+  its cache in the main process with **0 workers**, for 1/2/4 GPUs alike.
+  Prefetch is disabled and recorded as `null`; buffers remain unpinned.
+  Both candidates reuse those exact CPU tensors. Only one batch is copied to
+  a GPU for a step. No loader processes are started.
 - SHA256 checks on the graph, initial state, local batch tensors, node/edge IDs,
   halo IDs and packing indices. Rank data IDs must match graph ownership.
 - The same local sender/halo layout and the same original MLP/aggregation calls.
@@ -56,6 +57,11 @@ weights, buffers, optimizer and latent RNG between timed candidates. Three fresh
 torchrun launches give order P2P/PN, PN/P2P, P2P/PN. Each full candidate has 10
 warmup + 50 measured optimizer steps. A smoke has one pair and one measured
 step, so its rate is not a steady-state benchmark.
+
+Smoke job 6107 used the earlier eight-worker cache preparation. Keep that
+historical functional result, but use the new zero-worker policy consistently
+for all full runs. Existing benchmark/model files and scientific data are
+unchanged. The controls hash prevents pooling repeats with different policies.
 
 The headline is **cached model wall-step time**, starting after copy and rank
 readiness. It includes training, reverse/replayed communication, parameter

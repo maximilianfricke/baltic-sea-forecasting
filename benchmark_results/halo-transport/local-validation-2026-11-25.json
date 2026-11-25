@@ -1,6 +1,8 @@
 {
   "status": "passed",
-  "unique_tests_passed": 13,
+  "unique_tests_passed": 14,
+  "cache_preparation_workers_per_rank": 0,
+  "cache_prefetch_factor": null,
   "coverage": [
     "1/2/4 CPU-Gloo processes",
     "AR4 forecasts, loss, gradients, two unmasked AdamW updates",
@@ -8,6 +10,7 @@
     "Unequal halo sizes and repeated sender use",
     "Real H64 graph and 1/2/4 rank shard IDs",
     "Exact CPU cache versus selected source samples",
+    "CLI defaults prepare cached batches without worker processes or prefetch",
     "Reject mismatched controls; restore backend after error",
     "Six fake-sbatch submission cases; shell syntax"
   ],

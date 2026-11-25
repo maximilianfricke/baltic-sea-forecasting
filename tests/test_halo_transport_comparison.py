@@ -20,6 +20,7 @@ import torch.multiprocessing as mp
 
 from benchmarks.compare_halo_transports import cached_batches, compare_snapshots, graph_digest, state_digest, summarize, validation_snapshot
 from benchmarks import model_parallel_real as real
+from benchmarks import compare_halo_transports as comparison
 from benchmarks.halo_transport_backends import HaloTransports, P2P_EXCHANGE
 from benchmarks.vendor.physicsnemo.distributed import utils as pn_utils
 from neural_lam import distributed_message_passing as message_passing
@@ -104,7 +105,7 @@ def test_cpu_emulated_pnemo_matches_p2p_ar4(tmp_path, size, checkpointing):
 
 
 def repeat_result(index):
-    return {"status":"completed", "controls_sha256":"same", "controls":{"world_size":2,"source_hashes":{"a":"same"}},
+    return {"status":"completed", "controls_sha256":"same", "controls":{"world_size":2,"workers_per_rank":0,"prefetch_factor":None,"source_hashes":{"a":"same"}},
             "validation":[{"passed":True}], "interpretation":{"timer":"cached model"},
             "cases":{b:{"summary":{"model_wall_ms":{"median":v}}} for b,v in (("p2p",100+index),("physicsnemo",80+index))}}
 
@@ -113,6 +114,7 @@ def test_summary_requires_matching_controls_and_all_repeats(tmp_path):
     for i in range(3): (tmp_path/f"repeat-{i}.json").write_text(json.dumps(repeat_result(i)))
     report = summarize(tmp_path,3)
     assert report["physicsnemo_speedup_over_p2p"] == pytest.approx(101/81)
+    assert report["workers_per_rank"] == 0 and report["prefetch_factor"] is None
     bad = repeat_result(2); bad["controls_sha256"] = "different"
     (tmp_path/'repeat-2.json').write_text(json.dumps(bad))
     with pytest.raises(ValueError,match="Controls differ"): summarize(tmp_path,3)
@@ -124,6 +126,33 @@ def test_backend_context_restores_after_failure():
         with transports.use("physicsnemo"):
             raise RuntimeError("test")
     assert message_passing.exchange_halo is P2P_EXCHANGE
+
+
+def test_default_cache_runs_in_main_process_without_worker_prefetch(monkeypatch, tmp_path):
+    captured = []
+    monkeypatch.setattr('sys.argv', ['compare_halo_transports', 'run', '--config-path', 'unused.yaml',
+        '--partitioned-data-root', 'unused', '--output', str(tmp_path/'result.json')])
+    monkeypatch.setattr(comparison, 'run', captured.append)
+    comparison.main()
+    args = captured[0]
+    actual_loader = torch.utils.data.DataLoader
+    settings = []
+
+    def record_loader(*arguments, **options):
+        loader = actual_loader(*arguments, **options)
+        settings.append((loader.num_workers, loader.prefetch_factor, loader.persistent_workers))
+        return loader
+
+    def reject_multiprocessing(*arguments, **options):
+        raise AssertionError('The cache must not start worker processes')
+
+    monkeypatch.setattr(comparison, 'DataLoader', record_loader)
+    monkeypatch.setattr(torch.utils.data.dataloader, '_MultiProcessingDataLoaderIter', reject_multiprocessing)
+    dataset = torch.utils.data.TensorDataset(torch.arange(8))
+    batches = cached_batches(dataset, args)
+    assert settings == [(0, None, False)]
+    assert len(batches) == 4
+    torch.testing.assert_close(torch.cat([batch[0] for batch in batches]), torch.arange(8))
 
 
 @pytest.mark.skipif(not Path("data/physical_repeat_16/global_ocean_1.yaml").exists(), reason="Local physical data optional")
