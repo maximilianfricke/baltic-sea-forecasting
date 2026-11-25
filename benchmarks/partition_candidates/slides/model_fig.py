@@ -132,12 +132,12 @@ i = keys.index(k)
 axH.text(X[i, 2] * MB_PER_COPY - 2.5, yH[i], names[k], ha="right",
          va="center", fontsize=13.5, color=INK)
 low = [j for j, k in enumerate(keys) if k != "nils_weighted_chunks"]
-axH.annotate("the other five partitions:\n1–4 MB, all within ±3 ms of the line",
+axH.annotate("the other five partitions:\n1–4 MB per sample, all within ±3 ms of the line",
              xy=(4.5, float(np.mean(yH[low]))), xytext=(12, 252),
              ha="left", va="center", fontsize=13.5, color=INK,
              arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8, shrinkB=4))
 axH.set_xlim(-3, 80)
-axH.set_xlabel("Halo traffic of the busiest GPU (MB per forward step)",
+axH.set_xlabel("Halo traffic of the busiest GPU (MB per step per sample)",
                color=MUTED, fontsize=15)
 axH.tick_params(axis="y", labelleft=False)
 axH.set_title(f"Halo: {c * 1e3 / MB_PER_COPY / 1e3:.2f} ms per MB "
@@ -187,7 +187,7 @@ for k, s_, h, t, p in zip(keys, X[:, 1], X[:, 2] * MB_PER_COPY, T, pred):
             bbox=dict(facecolor="white", edgecolor="none", alpha=0.8, pad=1.5),
             weight="normal")
 ax.set_xlabel(r"$\mathit{imbalance}$", color=MUTED, fontsize=14, labelpad=14)
-ax.set_ylabel(r"$\mathit{traffic}$ (MB per step)", color=MUTED, fontsize=14,
+ax.set_ylabel(r"$\mathit{traffic}$ (MB per step per sample)", color=MUTED, fontsize=14,
               labelpad=14)
 ax.set_zlabel("Step time (ms)", color=MUTED, fontsize=14, labelpad=10)
 ax.set_xlim(1.02, 1.095)

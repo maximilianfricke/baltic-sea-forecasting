@@ -92,8 +92,8 @@ ax.set_xticklabels(["0.2", "0.5", "1", "2", "5", "10", "20", "50", "100"])
 ax.minorticks_off()
 ax.set_ylim(238, 284)
 ax.legend(loc="upper left", frameon=False, fontsize=15, handlelength=2.5)
-ax.set_xlabel("Halo traffic of the busiest GPU per forward step "
-              "(MB, fp32, log scale)", color=MUTED, fontsize=15)
+ax.set_xlabel("Halo traffic of the busiest GPU "
+              "(MB per step per sample, fp32, log scale)", color=MUTED, fontsize=15)
 ax.set_ylabel("Mean time per training step (ms)", color=MUTED, fontsize=15)
 ax.grid(color=GRID, linewidth=1)
 ax.set_axisbelow(True)
@@ -106,7 +106,7 @@ ax.tick_params(colors=MUTED, labelsize=13)
 fig.text(0.045, 0.075,
          "Large dot: mean of all measured steps; small dots: mean of each run "
          "(25 steps). Halo traffic: node copies from the cost model × 256 "
-         "values × 4 bytes.", fontsize=12.5, color=MUTED)
+         "values × 4 bytes, per sample.", fontsize=12.5, color=MUTED)
 fig.text(0.045, 0.045,
          "1° icosahedral hierarchical graph, batch 2, one AR step, 4 × GTX 1080 Ti "
          f"on one node. Slurm jobs {', '.join(jobs)}.", fontsize=12.5,

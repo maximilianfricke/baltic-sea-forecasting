@@ -89,7 +89,7 @@ k = "nils_weighted_chunks"
 if k in med:
     ax.text(S[k] + 0.0017, med[k] - 2.6,
             f"slow from halo traffic: {HALO[k]:,} node copies per step,\n"
-            f"20–65× the others (≈ {HALO[k] * 256 * 4 / 1e6:.0f} MB)",
+            f"20–65× the others (≈ {HALO[k] * 256 * 4 / 1e6:.0f} MB per sample)",
             ha="left", va="top", fontsize=13, color=MUTED, linespacing=1.2)
 
 ax.set_xlim(1.015, 1.101)
@@ -110,7 +110,7 @@ ax.tick_params(colors=MUTED, labelsize=13)
 fig.text(0.045, 0.075,
          "Large dot: mean of all measured steps; small dots: mean of each run "
          "(25 steps). Halo traffic of the other partitions: 945–3,561 node copies "
-         "per step (1–4 MB).", fontsize=12.5, color=MUTED)
+         "per step (1–4 MB per sample).", fontsize=12.5, color=MUTED)
 fig.text(0.045, 0.045,
          "1° icosahedral hierarchical graph, batch 2, one AR step, 4 × GTX 1080 Ti "
          f"on one node. Slurm jobs {', '.join(jobs)}.", fontsize=12.5,
