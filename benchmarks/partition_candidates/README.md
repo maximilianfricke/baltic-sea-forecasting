@@ -16,7 +16,7 @@ wheel).
 | --- | --- | --- |
 | 1. Export graph, node weights, uses and exchanges | `export_graph.py <dir>` | project, with the graph viewer |
 | 2. Geometric, Mt-KaHyPar and KaHIP partitions | `run_partitioners.py <dir> <graph_viewer dir>` | partitioner env |
-| 3. METIS with one constraint per layer | `run_metis.py` / `run_metis_rb.py <dir> <pymetis path>` | partitioner env |
+| 3. METIS (intended: one constraint per layer; pymetis actually uses one weight per node, the first n entries; see `benchmark_results/partition-comparison/README.md`) | `run_metis.py` / `run_metis_rb.py <dir> <pymetis path>` | partitioner env |
 | 4. Write owner files (best seed by synchronised halo traffic) | `make_partition_files.py <dir> <dir holding partition.py>` | partitioner env |
 | 5. Check files through `build_partition_from_graph_efm` | `check_harness.py <dir>` | project |
 | 6. Summarise results against predictions | `analyse.py <results dir> <dir>` | project, with the graph viewer |

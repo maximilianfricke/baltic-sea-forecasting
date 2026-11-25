@@ -1,5 +1,9 @@
-"""Shared-border geometric, Mt-KaHyPar and per-layer-constraint METIS
-partitions for a graph with any number of mesh levels.
+"""Shared-border geometric, Mt-KaHyPar and METIS partitions for a graph with
+any number of mesh levels.
+
+WARNING: the METIS call passes one weight per node and layer, but
+pymetis.part_graph uses one weight per node (the first n entries), so the
+METIS result is not a multi-constraint partition.
 
 Usage: python run_any.py <exp_dir> <dir holding partition.py> <pymetis path>
        [k ...] [--seeds N]

@@ -1,4 +1,9 @@
-"""Multi-constraint METIS: one balance constraint per layer (scratch venv).
+"""METIS meant to have one balance constraint per layer (scratch venv).
+
+WARNING: pymetis.part_graph takes ONE weight per node. Passed n * L weights it
+silently uses the first n entries, so this is not a multi-constraint
+partition. A real one needs METIS_PartGraphKway with ncon = L (see the
+metis_two_constraints function on nils-pnemo; Linux pymetis builds only).
 
 Usage: python run_metis.py <exp_dir> <pymetis site-packages>
 """

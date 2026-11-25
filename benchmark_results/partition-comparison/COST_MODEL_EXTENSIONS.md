@@ -41,17 +41,21 @@ hidden 64** (fp32, one forecast step, 2 processor layers).
 | 2 | **lon_bands** | 9,412 | 9,430 | **1.002** | **50.01%** | 1.008 (mesh 1) | 78 | 39 |
 | 2 | RCB (shared borders) | 6,920 | 6,978 | 1.024 | 50.01% | 1.054 (mesh 0) | 78 | 39 |
 | 2 | Mt-KaHyPar | **1,691** | **1,720** | 1.058 | 51.47% | 1.072 (mesh 1) | 75 | 38 |
-| 2 | METIS (per-layer constraints) | 2,099 | 2,307 | 1.033 | 50.99% | 1.120 (mesh 1) | 76 | 38 |
+| 2 | METIS (single unintended weight, see note) | 2,099 | 2,307 | 1.033 | 50.99% | 1.120 (mesh 1) | 76 | 38 |
 | 4 | geographic (per layer) | 32,496 | 33,679 | 1.033 | 25.43% | 1.000 | 153 | 76 |
 | 4 | **lon_bands** | 8,868 | 9,961 | **1.010** | **25.04%** | 1.018 (mesh 1) | 155 | 77 |
 | 4 | RCB (shared borders) | 8,091 | 8,533 | 1.045 | 25.02% | 1.072 (mesh 0) | 155 | 78 |
 | 4 | Mt-KaHyPar | **3,928** | **3,956** | 1.084 | 25.65% | 1.109 (mesh 1) | 151 | 76 |
-| 4 | METIS (per-layer constraints) | 4,083 | 4,339 | 1.081 | 25.94% | 1.300 (mesh 1) | 150 | 75 |
+| 4 | METIS (single unintended weight, see note) | 4,083 | 4,339 | 1.081 | 25.94% | 1.300 (mesh 1) | 150 | 75 |
 
 d_max: largest hidden size whose activations fit 10.5 GiB per GPU with
 0.16 GiB fixed, fp32, one forecast step in memory (checkpointing between
 steps), rank-local data. *Estimate*; it leaves out optimizer state (small
 at these sizes) and broadcast-mode replication.
+
+The METIS rows are **not** multi-constraint partitions: pymetis reads one
+weight per node and used the first n entries of the per-layer weight array
+(see the [README](README.md) caveats).
 
 Findings:
 
