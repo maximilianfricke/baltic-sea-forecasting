@@ -75,7 +75,8 @@ run() {
         --data-mode rank-zero-broadcast \
         --partition-strategy "$([[ ${gpus} == 1 ]] && echo auto || echo geographic)" \
         --output "${RESULT_DIR}/${label}.json"
-    echo "=== $(date -u +%H:%M:%S) ${label}: exit $?"
+    local status=$?
+    echo "=== $(date -u +%H:%M:%S) ${label}: exit ${status}"
 }
 
 # H4: capacity
