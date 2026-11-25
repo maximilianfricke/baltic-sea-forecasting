@@ -1,0 +1,21 @@
+{
+  "package": "nvidia-physicsnemo",
+  "version": "2.3.0",
+  "files": [
+    {
+      "upstream": "distributed/autograd.py",
+      "local": "distributed/autograd.py",
+      "sha256_upstream": "c0070cb0c5eddc691f7e5a18b9cd647b2a1d812d96bb31a20cfbe371cbaa0a4f",
+      "sha256_local": "c0070cb0c5eddc691f7e5a18b9cd647b2a1d812d96bb31a20cfbe371cbaa0a4f"
+    },
+    {
+      "upstream": "distributed/utils.py",
+      "local": "distributed/utils.py",
+      "sha256_upstream": "8528da04fe29fdcfc0b51246ef677d564812c9a635eb4932374db86738513726",
+      "sha256_local": "20312750d2655c418cd956d3e5c6fdf4d06f1cb5509a5cbb838750a2523b7a4a"
+    }
+  ],
+  "changes": "Imports only. Explicit process_group required; unused DistributedManager imports removed. No partitioning or communication implementation changed.",
+  "vendored_from": "maximilianfricke/baltic-sea-forecasting@69939c9:dphpc/third_party/physicsnemo",
+  "changes_in_this_copy": "None. Graph partitioning stays in the common P2P benchmark; only the indexed exchange and its autograd implementation are used."
+}
