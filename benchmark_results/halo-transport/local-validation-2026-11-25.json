@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "unique_tests_passed": 13,
+  "coverage": [
+    "1/2/4 CPU-Gloo processes",
+    "AR4 forecasts, loss, gradients, two unmasked AdamW updates",
+    "Checkpointing on and off",
+    "Unequal halo sizes and repeated sender use",
+    "Real H64 graph and 1/2/4 rank shard IDs",
+    "Exact CPU cache versus selected source samples",
+    "Reject mismatched controls; restore backend after error",
+    "Six fake-sbatch submission cases; shell syntax"
+  ],
+  "local_physicsnemo_transport": "Test-only CPU P2P emulation for the lowest all_to_all call; original PN packing/autograd untouched",
+  "native_nccl_tested": false,
+  "cluster_jobs_submitted": false,
+  "original_model_files_changed": false
+}
