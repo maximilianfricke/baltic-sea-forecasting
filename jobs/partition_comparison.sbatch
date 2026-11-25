@@ -30,10 +30,13 @@ module add cuda/12.6.3
 PYTHON="${NJORD_VENV:?Set NJORD_VENV}/bin/python"
 CONFIG_PATH="${NJORD_DATA_ROOT:?Set NJORD_DATA_ROOT}/global_ocean_1.yaml"
 PARTITION_DIR="${NJORD_PARTITION_DIR:?Set NJORD_PARTITION_DIR}"
+GRAPH="${NJORD_GRAPH:-global_cluster_graph}"
 STRATEGIES="${NJORD_STRATEGIES:-geographic lon_bands mtkahypar_km1 metis}"
 HIDDEN_DIMS="${NJORD_HIDDEN_DIMS:-64 256}"
 GPU_COUNTS="${NJORD_GPU_COUNTS:-2 4}"
 REPETITIONS="${NJORD_REPETITIONS:-2}"
+# 0 skips the one-GPU hidden-256 out-of-memory check
+SINGLE_GPU_CHECK="${NJORD_SINGLE_GPU_CHECK:-1}"
 WARMUP_STEPS="${NJORD_WARMUP_STEPS:-5}"
 MEASUREMENT_STEPS="${NJORD_MEASUREMENT_STEPS:-25}"
 NUM_WORKERS="${NJORD_NUM_WORKERS:-2}"
@@ -58,6 +61,7 @@ print('neural_lam from', neural_lam.__file__)" || exit 2
 
 nvidia-smi --query-gpu=index,name,uuid,memory.total,driver_version \
     --format=csv,noheader
+echo "Graph: ${GRAPH}"
 echo "Strategies: ${STRATEGIES}; hidden: ${HIDDEN_DIMS}; GPUs: ${GPU_COUNTS}"
 echo "Repetitions: ${REPETITIONS}; warm-up ${WARMUP_STEPS}; steps ${MEASUREMENT_STEPS}"
 
@@ -72,7 +76,7 @@ run() {
         --standalone --nproc-per-node="${gpus}" \
         benchmarks/model_parallel_real.py \
         --config-path "${CONFIG_PATH}" \
-        --graph global_cluster_graph \
+        --graph "${GRAPH}" \
         --hidden-dim "${hidden}" \
         --processor-layers 2 \
         --batch-size 2 \
@@ -89,7 +93,9 @@ run() {
 
 # Prediction check: one GPU cannot hold hidden 256 (expected to fail with
 # an out-of-memory error; the job continues either way)
-run "h256-1gpu-single" 1 256 --partition-strategy auto
+if [[ "${SINGLE_GPU_CHECK}" == "1" ]]; then
+    run "h256-1gpu-single" 1 256 --partition-strategy auto
+fi
 
 for rep in $(seq 1 "${REPETITIONS}"); do
     for hidden in ${HIDDEN_DIMS}; do
