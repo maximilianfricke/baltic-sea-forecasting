@@ -278,3 +278,38 @@ Pooled over jobs 6088, 6104 and 6116 (7–10 runs per partition), medians:
 Fit over the six medians: step ≈ 98.1 ms + 140.6 ms × S + 0.49 µs × halo
 (node copies of the busiest GPU), RMS residual 1.2 ms; the halo coefficient
 rests on chunks alone.
+
+## Out-of-sample test of the step-time model (job 6133)
+
+Eight new partitions of `global_hierarchical_graph` (k = 4), built from the
+pooled longitude-band cut: random reassignment of 1/3/10/30% of every layer's
+nodes (more halo), skewed borders giving one GPU 10%/20% more weight (more
+imbalance), skew 10% + noise 3%, and fully random. Files in
+[`partitions_hier/`](partitions_hier) (`test_*`); generator
+[`make_test_partitions.py`](../../benchmarks/partition_candidates/slides/make_test_partitions.py).
+Same harness, 3 runs each, lon_bands as same-day reference; 41 min.
+
+Model fitted on the six strategies of jobs 6088/6104/6116:
+time = 105.8 ms + 134.0 ms × imbalance + 0.49 µs × traffic.
+
+| Partition | imbalance | traffic (MB/sample) | Predicted | Measured | Error |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| noise 1% | 1.024 | 3.5 | 244.7 | 244.9 | +0.2 |
+| noise 3% | 1.027 | 6.9 | 246.7 | 247.6 | +0.9 |
+| noise 10% | 1.021 | 14.7 | 249.7 | 251.2 | +1.5 |
+| noise 30% | 1.014 | 34.3 | 258.1 | 263.0 | +4.9 |
+| skew 10% | 1.102 | 2.3 | 254.5 | 256.9 | +2.4 |
+| skew 20% | 1.201 | 2.4 | 267.8 | 272.7 | +4.9 |
+| skew 10% + noise 3% | 1.097 | 6.5 | 255.9 | 256.9 | +1.0 |
+| random | 1.029 | 65.8 | 275.2 | 282.7 | +7.5 |
+
+- Out of sample R² = 0.90, RMS error 3.8 ms; every partition is slower than
+  predicted, increasingly so outside the fitted range.
+- Controlled families: imbalance costs 167 ms per unit (model 134) and
+  scattered halo 0.62 µs per node copy (noise family, linear R² 0.998;
+  model 0.49). Chunks' contiguous halo costs ≈ 0.49 µs per copy.
+- Causes: the six fitting strategies had imbalance and halo
+  anti-correlated, so the fit could not separate the two terms; and the
+  halo coefficient came from chunks alone, whose contiguous halo is cheaper
+  per copy than scattered halo.
+- Peak memory followed the cost model's memory share (skew 20%: 5.10 GiB).
