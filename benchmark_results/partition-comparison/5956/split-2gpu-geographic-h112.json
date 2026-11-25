@@ -1,0 +1,21 @@
+{
+  "world_size": 2,
+  "graph": "global_cluster_analysis",
+  "results": [
+    {
+      "hidden": 112,
+      "partition_strategy": "geographic",
+      "step_ms_per_rank": [
+        347.0405760454014,
+        352.90412593167275
+      ],
+      "peak_allocated_bytes_per_rank": [
+        5083662848,
+        5074103296
+      ],
+      "step_ms": 352.90412593167275,
+      "owned_grid_nodes": 337610,
+      "status": "ok"
+    }
+  ]
+}

@@ -181,3 +181,40 @@ edge and node counts.
   11 GB GPU still fits only hidden ≈ 112–127 without changes. Processing edges
   in chunks (no state is kept between chunks without gradients) removes most
   of the peak; graph splitting would also, but needs several GPUs per member.
+
+# Edge-chunked vs split inference (job 5956)
+
+0.25° `global_cluster_analysis`, batch 1, one 4-GPU allocation on
+`studgpu-node02`, 14 min ([`jobs/inference_chunking_vs_split.sbatch`](../../jobs/inference_chunking_vs_split.sbatch),
+branch `lassi-inference-chunking`; results in [`5956/`](5956)).
+
+- **Chunked:** `utils.inference_chunking(65536)` on one GPU: row-wise MLPs in
+  row chunks, message passing in edge chunks added into the receiver
+  aggregate (gradients off). Forecast equal to unchunked (max |diff| 1.9e-6).
+- **Split:** `benchmarks/inference_split.py`, the sharded prior and decoder of
+  the model-parallel core, each rank embedding only its own nodes and edges;
+  equal to the unsplit forecast on CPU (≈ 1e-6). No chunking.
+
+| Hidden | Unchunked, 1 GPU (5932) | Chunked, 1 GPU | Split, 2 GPUs | Split, 4 GPUs |
+| ---: | --- | --- | --- | --- |
+| 64 | 587 ms, 5.24 GiB | 615 ms, 2.55 GiB | 302–307 ms, 2.97 GiB | 171–176 ms, 1.75 GiB |
+| 112 | 735 ms, 9.40 GiB | 720 ms, 4.05 GiB | 353–375 ms, 4.73 GiB | 220–234 ms, 2.63 GiB |
+| 128 | out of memory | 739 ms, 4.56 GiB | | |
+| 192 | out of memory | 1,127 ms, 6.57 GiB | | |
+| 256 | out of memory | **1,507 ms, 8.59 GiB** | out of memory | **397–402 ms, 5.33 GiB** |
+| 288 | out of memory | 1,788 ms, 9.60 GiB | | |
+| 320 | out of memory | out of memory | | |
+
+Split ranges cover the geographic and lon_bands owners (< 5% apart; memory
+identical); memory is the largest peak over the ranks.
+
+- **Chunking** costs −2…+5% time and raises the largest single-GPU hidden size
+  from 112–127 to 288–319; the paper's hidden 256 fits one GTX 1080 Ti.
+- **Ensemble throughput at hidden 256 on 4 GPUs:** one chunked member per GPU
+  gives 2.65 members/s, every member split over 4 GPUs 2.52 members/s.
+- **Latency:** splitting over 4 GPUs is 3.8× faster per forecast (0.40 vs
+  1.51 s at hidden 256) and 3.3–3.4× faster than one unchunked GPU at hidden
+  64 / 112.
+- For inference, graph splitting is a latency tool; chunking handles memory.
+- Chunking leaves node states and the edge embeddings (computed once per
+  step) in memory; at 1° these are ≈ 52% of the unchunked peak.

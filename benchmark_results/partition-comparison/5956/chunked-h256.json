@@ -1,0 +1,32 @@
+{
+  "device": "cuda",
+  "train_args": [
+    "--config_path",
+    "/scratch/users/lluukkonen/njord-data-025/configs/analysis_ocean_30d.yaml",
+    "--graph",
+    "global_cluster_analysis",
+    "--model",
+    "graph_efm",
+    "--processor_layers",
+    "2",
+    "--ar_steps_train",
+    "4",
+    "--ar_steps_eval",
+    "4",
+    "--num_workers",
+    "0"
+  ],
+  "results": [
+    {
+      "hidden": 256,
+      "parameters": 14831388,
+      "weights_bytes": 401633084,
+      "inputs_bytes": 232275336,
+      "chunk_rows": 65536,
+      "step_ms": 1507.0772420149297,
+      "peak_allocated_bytes": 9225414144,
+      "activation_peak_bytes": 8581093376,
+      "status": "ok"
+    }
+  ]
+}
