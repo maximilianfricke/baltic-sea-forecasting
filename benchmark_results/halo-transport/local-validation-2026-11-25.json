@@ -1,8 +1,11 @@
 {
   "status": "passed",
-  "unique_tests_passed": 14,
+  "unique_tests_passed": 32,
   "cache_preparation_workers_per_rank": 0,
   "cache_prefetch_factor": null,
+  "cpu_placement_policy": "slurm-disjoint-ranks-v1",
+  "native_cpu_placement_tested": false,
+  "original_source_files_verified": 13,
   "coverage": [
     "1/2/4 CPU-Gloo processes",
     "AR4 forecasts, loss, gradients, two unmasked AdamW updates",
@@ -11,8 +14,10 @@
     "Real H64 graph and 1/2/4 rank shard IDs",
     "Exact CPU cache versus selected source samples",
     "CLI defaults prepare cached batches without worker processes or prefetch",
+    "Simulated Linux CPU masks: disjoint 1/2/4 rank placement, launch validation, thread repair and timing rejection",
+    "Reject incomplete or changed per-rank CPU placement audits in summaries",
     "Reject mismatched controls; restore backend after error",
-    "Six fake-sbatch submission cases; shell syntax"
+    "Six fake-sbatch and six fake-srun cases, including missing CPUS_PER_TASK fallback; shell syntax"
   ],
   "local_physicsnemo_transport": "Test-only CPU P2P emulation for the lowest all_to_all call; original PN packing/autograd untouched",
   "native_nccl_tested": false,

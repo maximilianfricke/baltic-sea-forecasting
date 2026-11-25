@@ -63,6 +63,54 @@ historical functional result, but use the new zero-worker policy consistently
 for all full runs. Existing benchmark/model files and scientific data are
 unchanged. The controls hash prevents pooling repeats with different policies.
 
+## CPU placement correction after jobs 6114 / 6117 / 6121
+
+Baseline audit: `global-model@76b30d7` uses Lightning with deterministic
+algorithms enabled; the core GraphEFM/interaction/latent-encoder/decoder source
+is unchanged in `nils-pnemo@69939c9`. `max@51ae805` adds benchmarking and its
+job helper reads `SLURM_CPUS_PER_TASK`, falling back to `SLURM_CPUS_ON_NODE`.
+The recorded original-model reference 5031 had two allocated CPUs and mask
+`[6,7]`, which is normal for that one-GPU job and says nothing about four-GPU
+placement. Neither original training nor Nils's driver explicitly fixes CPU
+affinity. Nils records initial and post-preparation affinity, but those raw
+files are not in his branch. His clean CPU placement cannot be inferred from
+the slides alone.
+
+One additional code difference is explicit in Nils's worker:
+`Distribution.set_default_validate_args(False)`. Original training and our
+comparison retain the default argument checks. Normal distributions in both
+latent encoders therefore perform extra constraint reductions/host decisions
+in our path. This is a potential synchronization cost, not a demonstrated
+cause of the four-GPU slowdown. The CPU correction leaves this policy intact
+and records it in controls, so a later separate A/B test can isolate it.
+
+Job 6121 had eight Slurm CPUs, but all four rank main threads reported the same
+two-CPU mask. This is an observed placement restriction; its contribution to
+the slowdown needs a controlled cluster rerun. The new job starts torchrun in
+one `srun` step bound to the CPUs **already allocated** to the job, with the
+same GPU count. It does not request a larger job allocation.
+
+A stdlib-only launcher verifies that the initial logical-CPU mask matches
+the allocated CPU count (`SLURM_CPUS_PER_TASK`, with the same `CPUS_ON_NODE`
+fallback as max), then assigns disjoint slices to local ranks before torch
+is imported. With the current 2/4/8-CPU allocations that is two logical CPUs
+per rank, collectively covering the entire allocation. CPU IDs are discovered,
+never hard-coded. Inherited OpenMP affinity settings are disabled; compute
+thread counts remain one per rank.
+
+Main/helper-thread masks are logged and restored only within each rank's
+verified CPU slice, outside timing: after imports, thread setup, CUDA/NCCL,
+model/cache construction, and warmup. A changed mask at the end of a measured
+candidate rejects that result. Model, graph, deterministic algorithms, AR4,
+checkpointing, cached samples and zero-worker policy are unchanged.
+
+`batch-cpu-mask.json`, `cpu-launch-*.json`, per-rank affinity reports, `allocation.txt` and
+`cpu-topology.txt` preserve the placement evidence. `allocation.txt` replaces
+`slurm.txt`, whose name matched the repository's existing `*slurm*` ignore rule.
+The CPU policy/masks and launcher source hashes are part of the controls;
+old and new runs must not be pooled as identical-policy repeats. Rerun 1/2/4
+GPU scaling under the new policy after checking the first four-GPU case.
+
 The headline is **cached model wall-step time**, starting after copy and rank
 readiness. It includes training, reverse/replayed communication, parameter
 gradient synchronization, optimizer and metric reduction. CPU preparation,
@@ -79,7 +127,8 @@ resolution, and the smoke has no independent-run confidence interval.
 cd /Users/maximilian/ETH/Master/4_semester/DPHPC/baltic-sea-forecasting
 MPLCONFIGDIR=/private/tmp/njord-matplotlib-cache MLFLOW_DISABLE_AGENT_HINT=1 \
   .venv/bin/python -m pytest --noconftest -q \
-  tests/test_halo_transport_comparison.py tests/test_model_parallel_real_benchmark.py
+  tests/test_cpu_affinity.py tests/test_halo_transport_comparison.py \
+  tests/test_model_parallel_real_benchmark.py
 bash -n jobs/submit_halo_transport_comparison.sh
 bash -n jobs/halo_transport_comparison.sbatch
 ```

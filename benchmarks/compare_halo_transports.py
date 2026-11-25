@@ -17,6 +17,12 @@ import statistics
 import subprocess
 import time
 
+# Apply rank placement before torch or CUDA can create helper threads.
+from benchmarks.cpu_affinity import AffinityGuard, POLICY
+
+CPU_AFFINITY = AffinityGuard.from_environment()
+CPU_AFFINITY.checkpoint("before_torch_import", repair=True)
+
 import torch
 import torch.distributed as dist
 from torch.utils.data import DataLoader, Subset
@@ -25,6 +31,7 @@ from benchmarks import model_parallel_real as real
 from benchmarks.halo_transport_backends import BACKENDS, HaloTransports, relations
 from neural_lam.models.distributed_graph_efm_training import DistributedGraphEFMTraining
 
+CPU_AFFINITY.checkpoint("after_imports", repair=True)
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -132,6 +139,7 @@ def cached_batches(dataset, args):
 
 
 def measured_case(training, transports, backend, batches, initial, args, device):
+    CPU_AFFINITY.checkpoint(f"{backend}_before_warmup", repair=True)
     training.load_state_dict(initial)
     training.train()
     optimizer = optimizer_for(training)
@@ -141,6 +149,8 @@ def measured_case(training, transports, backend, batches, initial, args, device)
     records = []
     with transports.use(backend):
         for step in range(args.warmup_steps + args.steps):
+            if step == args.warmup_steps:
+                CPU_AFFINITY.checkpoint(f"{backend}_after_warmup", repair=True)
             copy_start = time.perf_counter()
             batch = tuple(t.to(device, non_blocking=True) for t in batches[step % len(batches)])
             torch.cuda.synchronize(device)
@@ -164,6 +174,7 @@ def measured_case(training, transports, backend, batches, initial, args, device)
                     (step >= args.warmup_steps and ((step-args.warmup_steps+1) % 10 == 0 or step+1 == args.warmup_steps+args.steps))):
                 real._progress(0, f"{backend}: completed {'warmup' if step<args.warmup_steps else 'measurement'} step "
                                f"{step+1 if step<args.warmup_steps else step-args.warmup_steps+1}")
+    CPU_AFFINITY.checkpoint(f"{backend}_after_measurement")
     optimizer.zero_grad(set_to_none=True)
     del optimizer
     torch.cuda.synchronize(device)
@@ -185,21 +196,26 @@ def aggregate(rank_records):
 
 
 def run(args):
+    if os.environ.get("SLURM_JOB_ID") and CPU_AFFINITY.target is None:
+        raise RuntimeError("Use the updated Slurm job script to verify CPU placement")
     if not torch.cuda.is_available():
         raise RuntimeError("Official transport timings require CUDA/NCCL; run the CPU tests locally")
     if args.deterministic == "on": os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
     else: os.environ.pop("CUBLAS_WORKSPACE_CONFIG", None)
     torch.use_deterministic_algorithms(args.deterministic == "on")
     torch.set_num_threads(1)
+    CPU_AFFINITY.checkpoint("after_torch_thread_setup", repair=True)
     device = torch.device("cuda", int(os.environ["LOCAL_RANK"]))
     torch.cuda.set_device(device)
     if "1080 Ti" not in torch.cuda.get_device_name(device):
         raise RuntimeError("This controlled suite requires the requested GTX 1080 Ti architecture")
+    CPU_AFFINITY.checkpoint("after_cuda_init", repair=True)
     dist.init_process_group("nccl", device_id=device, timeout=timedelta(minutes=5))
     rank, size = dist.get_rank(), dist.get_world_size()
     started = time.perf_counter()
     initialization = {}
     try:
+        CPU_AFFINITY.checkpoint("after_nccl_init", repair=True)
         torch.manual_seed(args.seed)
         real._progress(rank, f"Loading common H64/AR4 workload on {size} GPU(s)")
         phase = time.perf_counter()
@@ -221,6 +237,7 @@ def run(args):
         initialization['rank_dataset_and_cache_ms'] = (time.perf_counter()-phase)*1000
         real._progress(rank, "CPU cache ready; no loader workers active; preparing common halo plans")
         transports = HaloTransports(partition)
+        CPU_AFFINITY.checkpoint("after_model_and_cache", repair=True)
         local_control = {"rank": rank, "batch_hashes": [[digest_tensor(t) for t in batch] for batch in batches],
                          "owned_grid_ids_sha256": digest_tensor(ids), "transport_plan_sha256": transports.signature,
                          "graph_sha256":graph_hash, "initial_state_sha256":state_digest(initial),
@@ -230,7 +247,8 @@ def run(args):
                              "pack_indices":[digest_tensor(v) for v in p.send_local_indices_by_peer]}
                              for name,p in relations(partition)},
                          "partition": real._partition_metadata(partition), "hardware": real._hardware_metadata(device, rank),
-                         "cpu_affinity": sorted(os.sched_getaffinity(0)), "rank_data_root": str(rank_root)}
+                         "cpu_affinity": sorted(os.sched_getaffinity(0)),
+                         "cpu_placement": CPU_AFFINITY.report(), "rank_data_root": str(rank_root)}
         rank_controls = [None] * size
         dist.all_gather_object(rank_controls, local_control)
         if len({r['graph_sha256'] for r in rank_controls}) != 1 or len({r['initial_state_sha256'] for r in rank_controls}) != 1:
@@ -240,15 +258,24 @@ def run(args):
                     "model": vars(real._model_args(args)), "workers_per_rank": args.num_workers,
                     "prefetch_factor": args.prefetch_factor if args.num_workers > 0 else None, "pin_memory": False,
                     "deterministic_algorithms": args.deterministic == "on", "warmup_steps": args.warmup_steps,
+                    "distribution_validate_args": bool(torch.distributions.Distribution._validate_args),
                     "measurement_steps": args.steps, "checkpoint_early_stop": False,
                     "cached_workers_active_during_timing": False,
                     "rank_input_hashes": [r["batch_hashes"] for r in rank_controls],
                     "rank_partition_hashes": [r["partition_hashes"] for r in rank_controls],
                     "transport_plans": transports.metadata}
+        if CPU_AFFINITY.target is not None:
+            rank_cpus = [r["cpu_placement"]["rank_cpu_ids"] for r in rank_controls]
+            flat_cpus = [cpu for ids in rank_cpus for cpu in ids]
+            if sorted(flat_cpus) != CPU_AFFINITY.job_cpus or len(set(flat_cpus)) != len(flat_cpus):
+                raise RuntimeError("Rank CPU masks must cover the job allocation without overlap")
+            controls["cpu_placement"] = {"policy": POLICY,
+                "job_cpu_ids": CPU_AFFINITY.job_cpus, "rank_cpu_ids": rank_cpus}
         source_paths = [Path(__file__), REPO/"benchmarks/halo_transport_backends.py", REPO/"neural_lam/distributed_message_passing.py",
                         REPO/"neural_lam/models/distributed_graph_efm_training.py", REPO/"neural_lam/models/distributed_graph_efm.py",
                         REPO/"neural_lam/models/graph_efm.py", REPO/"benchmarks/model_parallel_real.py",
-                        REPO/"benchmarks/vendor/physicsnemo/distributed/autograd.py", REPO/"benchmarks/vendor/physicsnemo/distributed/utils.py"]
+                        REPO/"benchmarks/vendor/physicsnemo/distributed/autograd.py", REPO/"benchmarks/vendor/physicsnemo/distributed/utils.py",
+                        REPO/"benchmarks/cpu_affinity.py", REPO/"jobs/halo_transport_comparison.sbatch"]
         controls["source_hashes"] = {str(p.relative_to(REPO)):hashlib.sha256(p.read_bytes()).hexdigest() for p in source_paths}
         control_hash = hashlib.sha256(json.dumps(controls, sort_keys=True, default=str).encode()).hexdigest()
         if rank == 0: print(f"Common cache/graph ready; repeat={args.repeat}, controls={control_hash}", flush=True)
@@ -281,11 +308,14 @@ def run(args):
                 cases[backend] = {"records":records, "rank_records":payload, "summary":summary,
                                   "peak_allocated_bytes_per_gpu":max(r["peak_memory_allocated_bytes"] for r in records)}
                 print(f"{backend}: model wall median={summary['model_wall_ms']['median']:.3f} ms", flush=True)
+        affinity_reports = [None] * size
+        dist.all_gather_object(affinity_reports, CPU_AFFINITY.report())
         if rank == 0:
             atomic_json(args.output, {"status":"completed", "schema":"halo-transport-paired-v1", "repeat":args.repeat,
                          "order":order, "controls":controls, "controls_sha256":control_hash,
                          "initialization_ms":initialization,
                          "validation":validation_reports, "rank_metadata":rank_controls,
+                         "cpu_affinity_reports":affinity_reports,
                          "git":real._git_metadata(), "cases":cases, "elapsed_seconds":time.perf_counter()-started,
                          "interpretation":{"timer":"Cached model wall step after H2D and rank barrier; excludes input/setup",
                              "backend_change":"Remote-only halo primitive; common original P2P graph layout and AR4 implementation",
@@ -303,6 +333,23 @@ def summarize(directory, repeats):
     if len({r["controls_sha256"] for r in results}) != 1: raise ValueError("Controls differ across independent launches")
     if len({json.dumps(r['controls']['source_hashes'], sort_keys=True) for r in results}) != 1: raise ValueError("Source changed between launches")
     if any(not all(v['passed'] for v in r['validation']) for r in results): raise ValueError("Validation failed")
+    placement = results[0]['controls'].get('cpu_placement')
+    cpu_checks = None
+    if placement is not None:
+        required = {f'{backend}_after_measurement' for backend in BACKENDS}
+        for result in results:
+            reports = result.get('cpu_affinity_reports', [])
+            if len(reports) != result['controls']['world_size']:
+                raise ValueError('CPU placement reports missing for one or more ranks')
+            for rank, audit in enumerate(reports):
+                stages = {c['stage'] for c in audit['checkpoints'] if c['passed']}
+                if (audit['rank'] != rank or audit['policy'] != placement['policy']
+                        or audit['job_cpu_ids'] != placement['job_cpu_ids']
+                        or audit['rank_cpu_ids'] != placement['rank_cpu_ids'][rank]
+                        or not required.issubset(stages)
+                        or not all(c['passed'] for c in audit['checkpoints'])):
+                    raise ValueError('CPU placement audit failed; reject these timings')
+        cpu_checks = True
     medians = {b:[r['cases'][b]['summary']['model_wall_ms']['median'] for r in results] for b in BACKENDS}
     ratio = statistics.median(medians['p2p']) / statistics.median(medians['physicsnemo'])
     rng = __import__('random').Random(42)
@@ -314,6 +361,7 @@ def summarize(directory, repeats):
     report={"status":"completed", "world_size":results[0]['controls']['world_size'], "independent_paired_launches":repeats,
             "workers_per_rank":results[0]['controls'].get('workers_per_rank'),
             "prefetch_factor":results[0]['controls'].get('prefetch_factor'),
+            "cpu_placement":placement, "all_cpu_affinity_checks_passed":cpu_checks,
             "controls_sha256":results[0]['controls_sha256'], "per_launch_model_wall_medians_ms":medians,
             "physicsnemo_speedup_over_p2p":ratio, "paired_launch_bootstrap_ci95":[ratios[99],ratios[3899]] if repeats>1 else None,
             "ci_scope":"Paired independent launches only; three repeats provide limited uncertainty resolution",

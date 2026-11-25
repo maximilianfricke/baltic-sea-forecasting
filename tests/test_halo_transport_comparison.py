@@ -128,6 +128,33 @@ def test_backend_context_restores_after_failure():
     assert message_passing.exchange_halo is P2P_EXCHANGE
 
 
+@pytest.mark.parametrize('problem', [None, 'missing_report', 'missing_stage', 'changed_mask'])
+def test_summary_checks_all_rank_cpu_audits(tmp_path, problem):
+    for i in range(3):
+        result = repeat_result(i)
+        result['controls']['cpu_placement'] = {
+            'policy': comparison.POLICY, 'job_cpu_ids': [6, 7, 10, 11],
+            'rank_cpu_ids': [[6, 7], [10, 11]]}
+        result['cpu_affinity_reports'] = [
+            {'rank': rank, 'policy': comparison.POLICY,
+             'job_cpu_ids': [6, 7, 10, 11], 'rank_cpu_ids': cpus,
+             'checkpoints': [{'stage': f'{b}_after_measurement', 'passed': True}
+                             for b in ('p2p', 'physicsnemo')]}
+            for rank, cpus in enumerate(([6, 7], [10, 11]))]
+        if i == 2:
+            if problem == 'missing_report': result['cpu_affinity_reports'].pop()
+            if problem == 'missing_stage': result['cpu_affinity_reports'][1]['checkpoints'].pop()
+            if problem == 'changed_mask': result['cpu_affinity_reports'][1]['rank_cpu_ids'] = [6, 7]
+        (tmp_path/f'repeat-{i}.json').write_text(json.dumps(result))
+    if problem:
+        with pytest.raises(ValueError, match='CPU placement'):
+            summarize(tmp_path, 3)
+    else:
+        report = summarize(tmp_path, 3)
+        assert report['all_cpu_affinity_checks_passed'] is True
+        assert report['cpu_placement']['rank_cpu_ids'] == [[6, 7], [10, 11]]
+
+
 def test_default_cache_runs_in_main_process_without_worker_prefetch(monkeypatch, tmp_path):
     captured = []
     monkeypatch.setattr('sys.argv', ['compare_halo_transports', 'run', '--config-path', 'unused.yaml',
