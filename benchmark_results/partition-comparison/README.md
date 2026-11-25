@@ -218,3 +218,30 @@ identical); memory is the largest peak over the ranks.
 - For inference, graph splitting is a latency tool; chunking handles memory.
 - Chunking leaves node states and the edge embeddings (computed once per
   step) in memory; at 1° these are ≈ 52% of the unchunked peak.
+
+# Nils's partitions on GPUs (job 6088)
+
+Nils's graph `global_hierarchical_graph` (graph files identical locally and on
+the cluster), Nils's weighted owner files (METIS and chunks on mesh 0, other
+layers attached) converted to the loader format, lon_bands from the
+hidden-256 cost model, Max's split = built-in `geographic`. All files load
+through `build_partition_from_graph_efm` with owners and halo traffic equal
+to the cost model. 4 GPUs, hidden 256, batch 2, AR1, rank-zero broadcast,
+5 warm-up + 25 steps, 3 repetitions, one allocation on `studgpu-node02`,
+18 min. Files: [`partitions_hier/`](partitions_hier); results in [`6088/`](6088).
+
+| Partition | Cost model: S / memory share / halo (busiest GPU) | Model step, ms (3 reps) | Peak per GPU |
+| --- | --- | ---: | ---: |
+| Max's split (geographic) | 1.028 / 25.22% / 3,561 | 245.0 (243–249) | 4.60 GiB |
+| lon_bands | 1.025 / 25.05% / 2,090 | 246.3 (243–248) | 4.58 GiB |
+| Nils weighted METIS | 1.067 / 26.36% / 1,070 | 248.6 (248.4–248.8) | 4.73 GiB |
+| Nils weighted chunks | 1.033 / 26.23% / 69,234 | **277.6** (277.5–277.7) | 4.65 GiB |
+
+- Max's split, lon_bands and Nils's weighted METIS are within 1.5% in time;
+  METIS's +0.9% over lon_bands is inside the run-to-run spread.
+- Memory follows the cost model: METIS's 1.3-point higher memory share gives
+  +0.145 GiB (+3.2%) peak.
+- Chunks is 13% slower (forward and backward alike): ≈ 71 MB of halo per
+  forward step at hidden 256, 20–65× the other partitions.
+- First GPU measurement of chunks in our harness. Communication matters when
+  it is tens of MB per step; between 1 and 4 MB it is not visible.

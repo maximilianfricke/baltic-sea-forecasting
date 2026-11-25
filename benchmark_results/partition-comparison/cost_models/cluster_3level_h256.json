@@ -1,0 +1,62 @@
+{
+  "name": "Realistic baseline, global_cluster_3level, hidden 256",
+  "source": {
+    "train_model_args": "--config_path sample_data/global_ocean_1.yaml --model graph_efm --graph global_cluster_3level --hidden_dim 256 --hidden_dim_grid 256 --hidden_dim_mesh_nodes 256 --hidden_dim_edge 256 --processor_layers 2 --ar_steps_train 4 --ar_steps_eval 4 --num_workers 0",
+    "graph": "global_cluster_3level",
+    "git_commit": "dcddc06",
+    "measured": "2026-11-25",
+    "batch_size": 1,
+    "device": "cpu"
+  },
+  "memory": {
+    "unit": "values stored per item / hidden_dim, one forecast step",
+    "node": {
+      "Grid": 18.984,
+      "Mesh 0": 30.383,
+      "Mesh 1": 27.715,
+      "Mesh 2": 55.078
+    },
+    "edge": {
+      "g2m": 21.031,
+      "m2g": 9.016,
+      "m2m 0": 39.055,
+      "m2m 1": 39.055,
+      "m2m 2": 27.039,
+      "up 0->1": 30.383,
+      "up 1->2": 27.715,
+      "down 1->0": 30.383,
+      "down 2->1": 27.715
+    },
+    "total_per_step_values": 1749324275,
+    "notes": [
+      "Mesh 0, up 0->1, down 1->0 have equal size (8462); their stored values are split evenly",
+      "Mesh 1, up 1->2, down 2->1 have equal size (2106); their stored values are split evenly"
+    ]
+  },
+  "usage": {
+    "unit": "applications per forecast step",
+    "edge": {
+      "g2m": 3,
+      "m2g": 1,
+      "m2m 0": 6,
+      "m2m 1": 6,
+      "m2m 2": 4,
+      "up 0->1": 3,
+      "up 1->2": 3,
+      "down 1->0": 1,
+      "down 2->1": 1
+    },
+    "exchanges_unit": "halo exchanges per forecast step",
+    "exchanges": {
+      "g2m": 2,
+      "m2g": 1,
+      "m2m 0": 6,
+      "m2m 1": 6,
+      "m2m 2": 4,
+      "up 0->1": 3,
+      "up 1->2": 3,
+      "down 1->0": 1,
+      "down 2->1": 1
+    }
+  }
+}
