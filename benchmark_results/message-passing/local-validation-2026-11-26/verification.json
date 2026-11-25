@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-26",
+  "status": "passed",
+  "code_commit": "392a2e64c5f5d6db49e29fa984019b546a98bf96",
+  "original_global_model": "76b30d778382939963219142053fcf6f2d54c54e",
+  "original_tracked_files_unchanged": 132,
+  "pytest": {
+    "passed": 11,
+    "gloo_ranks": [
+      1,
+      2,
+      4
+    ],
+    "checkpointing": [
+      true,
+      false
+    ],
+    "transports": [
+      "p2p",
+      "physicsnemo with test-only Gloo emulation"
+    ],
+    "compared": [
+      "AR4 predictions",
+      "loss",
+      "gradients",
+      "two unmasked AdamW updates",
+      "prior-only inference",
+      "unequal and send-only halo traffic"
+    ]
+  },
+  "real_h64_configuration": {
+    "hidden_dim": 64,
+    "ar_steps": 4,
+    "global_batch_size": 2,
+    "parameters": 645020,
+    "input_channels": 93,
+    "grid_nodes": 42348,
+    "mesh_nodes": [
+      8456,
+      2097
+    ],
+    "all_existing_1_2_4_rank_shard_inputs_match_original": true
+  },
+  "real_graph_four_rank_integration": {
+    "hidden_dim": 4,
+    "batch_size": 1,
+    "ar_steps": 4,
+    "all_original_checks_passed": true,
+    "raw_result": "real-graph-four-ranks.json",
+    "max_prediction_absolute_error": 1.9073486328125e-06,
+    "max_parameter_absolute_error": 1.30385160446167e-07
+  },
+  "submission_dry_runs": 6,
+  "invalid_submission_checks": 2,
+  "shell_syntax": "passed",
+  "black_isort_flake8": "passed",
+  "cluster_jobs_submitted": 0,
+  "native_cuda_nccl_tested": false,
+  "native_physicsnemo_multigpu_tested": false,
+  "linux_slurm_cpu_placement_native_tested": false,
+  "interpretation": "Local correctness evidence only. Physical integration uses H4 on CPU; H64 configuration and data identity are independently checked. Native H64 CUDA/NCCL and Slurm placement require the cluster smoke gate."
+}
