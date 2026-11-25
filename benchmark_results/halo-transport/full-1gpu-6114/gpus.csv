@@ -1,0 +1,2 @@
+index, name, uuid, pci.bus_id, driver_version
+0, NVIDIA GeForce GTX 1080 Ti, GPU-18b1597a-5aa5-98ef-6c0b-375d814b54fd, 00000000:08:00.0, 580.178.04

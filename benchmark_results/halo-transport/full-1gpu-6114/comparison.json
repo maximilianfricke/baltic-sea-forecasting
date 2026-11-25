@@ -1,0 +1,33 @@
+{
+  "all_equivalence_checks_passed": true,
+  "ci_scope": "Paired independent launches only; three repeats provide limited uncertainty resolution",
+  "controls_sha256": "2de83469156128dd004e01a4b78c45f586edd31f6f0371824ef808818efcb6de",
+  "independent_paired_launches": 3,
+  "paired_launch_bootstrap_ci95": [
+    0.9989680424159659,
+    1.0011969331682087
+  ],
+  "per_launch_model_wall_medians_ms": {
+    "p2p": [
+      1521.1881366558373,
+      1524.3157893419266,
+      1519.4054157473147
+    ],
+    "physicsnemo": [
+      1519.3695528432727,
+      1524.1760010831058,
+      1520.9749974310398
+    ]
+  },
+  "physicsnemo_speedup_over_p2p": 1.000140133286318,
+  "prefetch_factor": null,
+  "source_files": [
+    "benchmark_results/halo-transport/full-1gpu-6114/repeat-0.json",
+    "benchmark_results/halo-transport/full-1gpu-6114/repeat-1.json",
+    "benchmark_results/halo-transport/full-1gpu-6114/repeat-2.json"
+  ],
+  "status": "completed",
+  "timer": "Cached model wall step after H2D and rank barrier; excludes input/setup",
+  "workers_per_rank": 0,
+  "world_size": 1
+}
