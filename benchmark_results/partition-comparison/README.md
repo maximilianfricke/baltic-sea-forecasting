@@ -245,3 +245,24 @@ to the cost model. 4 GPUs, hidden 256, batch 2, AR1, rank-zero broadcast,
   forward step at hidden 256, 20–65× the other partitions.
 - First GPU measurement of chunks in our harness. Communication matters when
   it is tens of MB per step; between 1 and 4 MB it is not visible.
+
+## Nils's RCB and Mt-KaHyPar (job 6104)
+
+Same setup as job 6088; lon_bands and Nils's weighted METIS repeated as
+references in the same allocation (18 min). Results in [`6104/`](6104).
+
+| Partition | Cost model: S / memory share / halo | Model step, ms (3 reps) | vs lon_bands | Peak per GPU |
+| --- | --- | ---: | ---: | ---: |
+| lon_bands | 1.025 / 25.05% / 2,090 | 243.8 (243.6–244.0) | — | 4.58 GiB |
+| Nils weighted METIS | 1.067 / 26.36% / 1,070 | 248.8 (248.6–248.9) | +2.1% | 4.73 GiB |
+| Nils weighted RCB | 1.077 / 26.66% / 1,845 | 253.0 (251.8–253.7) | +3.8% | 4.76 GiB |
+| Nils weighted Mt-KaHyPar km1 | 1.090 / 26.99% / 945 | 252.2 (250.1–255.9) | +3.4% | 4.78 GiB |
+
+- With tight repetitions, lon_bands is fastest and uses the least memory;
+  the three mesh-0 partitions are 2–4% slower and use 3–4% more memory, in
+  the order of their slowdown S and memory share.
+- Peak memory matches the cost model's memory share to within 0.01 GiB.
+- Less halo does not help: Mt-KaHyPar sends 2.2× less than lon_bands and is
+  3.4% slower. Balance across all layers decides.
+- METIS vs lon_bands was +0.9% in job 6088 and +2.1% here; job 6088's
+  lon_bands repetitions spread over 243–248 ms.
