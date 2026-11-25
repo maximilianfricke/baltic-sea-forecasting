@@ -266,3 +266,15 @@ references in the same allocation (18 min). Results in [`6104/`](6104).
   3.4% slower. Balance across all layers decides.
 - METIS vs lon_bands was +0.9% in job 6088 and +2.1% here; job 6088's
   lon_bands repetitions spread over 243–248 ms.
+
+## Four more runs of all six partitions (job 6116)
+
+Same setup; all six partitions in one allocation, 4 runs each (36 min).
+Results in [`6116/`](6116). Run means, ms: Max's split 243.4–244.2,
+lon_bands 243.1–248.3, Nils METIS 248.7–249.4, Mt-KaHyPar 250.1–252.5,
+RCB 251.1–253.4, chunks 277.5–281.7; peak memory as in jobs 6088/6104.
+Pooled over jobs 6088, 6104 and 6116 (7–10 runs per partition), medians:
+243.5 / 243.8 / 248.5 / 250.2 / 252.7 / 277.6 ms. Order and gaps unchanged.
+Fit over the six medians: step ≈ 98.1 ms + 140.6 ms × S + 0.49 µs × halo
+(node copies of the busiest GPU), RMS residual 1.2 ms; the halo coefficient
+rests on chunks alone.
