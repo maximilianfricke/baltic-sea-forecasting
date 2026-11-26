@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "date": "2026-11-26",
+  "code_commit": "602c6df5194a70361fbba01e7c0ec794e4fa5884",
+  "base": "76b30d778382939963219142053fcf6f2d54c54e",
+  "original_files_unchanged": 132,
+  "tests_passed": 7,
+  "p2p_gloo_ranks_tested": [
+    1,
+    2,
+    4
+  ],
+  "checkpoint_override": false,
+  "manual_cpu_assignment": false,
+  "cpu_affinity_restoration": false,
+  "physicsnemo_dependency": false,
+  "batch_cache": false,
+  "preprocessed_rank_stores": false,
+  "real_graph_integration": {
+    "ranks": 4,
+    "hidden_dim": 4,
+    "batch_size": 1,
+    "ar_steps": 4,
+    "workers": 0,
+    "all_original_checks_passed": true,
+    "input": "original Zarr, live",
+    "max_prediction_absolute_error": 1.9073486328125e-06
+  },
+  "production_reference_configuration_checked": {
+    "hidden_dim": 64,
+    "global_batch_size": 2,
+    "ar_steps": 4,
+    "parameters": 645020,
+    "input_channels": 93
+  },
+  "production_loader": {
+    "workers_per_rank": 8,
+    "prefetch_factor": "PyTorch default 2 with workers",
+    "cached": false
+  },
+  "scheduler_dry_runs_passed": 6,
+  "black_isort_flake8": "passed",
+  "native_cuda_nccl_tested": false,
+  "cluster_jobs_submitted": 0,
+  "scope": "CPU correctness only; local real-graph integration uses H4 and zero workers. H64, eight-worker CUDA execution remains the first cluster test. CPU mask observations never trigger a repair."
+}

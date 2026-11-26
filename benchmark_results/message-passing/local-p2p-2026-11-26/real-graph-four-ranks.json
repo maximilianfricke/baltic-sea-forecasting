@@ -1,0 +1,503 @@
+{
+  "status": "completed",
+  "world_size": 4,
+  "transport": "p2p",
+  "performance_valid": false,
+  "source": {
+    "base": "76b30d778382939963219142053fcf6f2d54c54e",
+    "original_files_verified": 132,
+    "commit": "602c6df5194a70361fbba01e7c0ec794e4fa5884",
+    "source_sha256": {
+      "message_passing/run.py": "201abd2fa9ec65b2c1273dcf0e7d801a66b98a5499a9a8d182288d911f6d56be",
+      "message_passing/partition.py": "16a9b2562d3fa71bdbe435684d6114f9bf3bb20b366b35e8de2c9e2008639de1",
+      "message_passing/results.py": "8863a6c829f075b660b691c55d01a1d2e3357d55e2126b53a216795a4b9928ec",
+      "message_passing/transport.py": "8af8431bfb46df85f882ae7c8f68880118a112654aeb0b4c274b063d48617d99",
+      "message_passing/geographic.py": "030a5f051b78c3086cc16e68d4c95ce62a12b48b1510b8e0d20cfa8bb5fc400a",
+      "message_passing/__init__.py": "2070461d58f3a7785969476e2eddeb12414506bf398af956d7b86eb709b78e36",
+      "message_passing/workload.py": "67a9bad5121f6f6b0acda3f256ed11f06f35ac289d1a12a7049461f9a6c90249",
+      "message_passing/model.py": "ab918275da1e0007ad7bb95b90ddef30bba7dba2eef77de9740618751af8fad4",
+      "message_passing/README.md": "d6f1b1c4405f4c62c1d3d65b599d01acee549569dda121771222ed12291957d7",
+      "message_passing/LEARNINGS.md": "31d65fba4e1fc4ebd029d731b5a1017f2a4fab4f492521d8ce1d6d1045816466",
+      "message_passing/data.py": "f4ab781022896163eb7436d52e9eaa03ec78cf64c7800301ed90e716732332f4",
+      "message_passing/validation.py": "85bfecb6300b2b3ac3105dc52a2d7773ffaba97664e010d34e8ee3383e71a8e0",
+      "jobs/message_passing.sbatch": "45e366aa84c0ff73727077588a2af4573b1aa699af80a7c2ffb2e374bba75106",
+      "jobs/submit_message_passing.sh": "36e0bc3d6f85248713b59eaabe090427665b3fbd6ff921d0f5d0d5130a3f36ac"
+    }
+  },
+  "graph_sha256": "7434d73382886c8e6bac4cbcfc030e7837fa1a3a575d8ff765793e15897f35d9",
+  "model_args": {
+    "ar_steps_train": 4,
+    "batch_size": 1,
+    "crps_alpha": 0.95,
+    "crps_weight": 0.0,
+    "encoder_processor_layers": 1,
+    "ensemble_size": 5,
+    "epochs": 100,
+    "grad_checkpointing": true,
+    "graph": "global_cluster_graph",
+    "hidden_dim": 4,
+    "hidden_dim_edge": 4,
+    "hidden_dim_grid": 4,
+    "hidden_dim_mesh_nodes": 4,
+    "hidden_layers": 1,
+    "input_steps": 2,
+    "kl_beta": 1.0,
+    "latent_dim": null,
+    "learn_prior": 1,
+    "loss": "wmse",
+    "lr": 0.001,
+    "metrics_watch": [],
+    "min_lr": 0.001,
+    "muon_exclude_patterns": [],
+    "muon_momentum": 0.95,
+    "muon_weight_decay": 0.0,
+    "n_example_pred": 0,
+    "num_future_atmosphere_steps": 0,
+    "num_future_boundary_steps": 0,
+    "num_future_forcing_steps": 0,
+    "num_latents_plot": 4,
+    "num_past_atmosphere_steps": 2,
+    "num_past_boundary_steps": 2,
+    "num_past_forcing_steps": 2,
+    "output_std": false,
+    "optimizer": "adamw",
+    "prior_dist": "isotropic",
+    "prior_processor_layers": 1,
+    "processor_layers": 2,
+    "restore_opt": false,
+    "sample_obs_noise": 0,
+    "seed": 42,
+    "soap_betas": [
+      0.95,
+      0.95
+    ],
+    "soap_muon_betas": [
+      0.95,
+      0.98
+    ],
+    "soap_muon_disable_sqrt": false,
+    "soap_precondition_frequency": 10,
+    "soap_weight_decay": 0.0,
+    "train_distr_crps": false,
+    "val_steps_to_log": [
+      1,
+      2,
+      3
+    ],
+    "var_leads_metrics_watch": {}
+  },
+  "checkpoint_early_stop": "original default",
+  "input": {
+    "path": "data/physical_repeat_16/global_ocean_1.yaml",
+    "mode": "live original Zarr; rank selects owned nodes",
+    "workers_per_rank": 0,
+    "prefetch_factor": null,
+    "shuffle_seed": 42
+  },
+  "workload": {
+    "warmup_steps": 0,
+    "measurement_steps": 1,
+    "global_batch_size": 1
+  },
+  "runtime": {
+    "torch": "2.14.1",
+    "cuda": null,
+    "nccl": null
+  },
+  "cpu_policy": "inherited; observed only, never modified",
+  "all_original_checks_passed": true,
+  "ranks": [
+    {
+      "rank": 0,
+      "hostname": "Maximilians-MacBook-Pro.local",
+      "cpu_snapshots": {
+        "after_import": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_first_collective": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_warmup": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_measurement": {
+          "affinity": null,
+          "torch_threads": 1
+        }
+      },
+      "validation": {
+        "passed": true,
+        "optimizer_updates": 2,
+        "masked_adamw_elements": 0,
+        "input_tensors_match": true,
+        "prior_inference_matches": true,
+        "losses": [
+          574266176.0,
+          540854912.0
+        ],
+        "prediction_max_absolute": 1.1920928955078125e-06,
+        "gradient_max_scaled": 1.5080854070150661e-05,
+        "parameter_max_absolute": 1.30385160446167e-07
+      },
+      "records": [
+        {
+          "model_wall_ms": 311.11049999890383,
+          "forward_ms": 91.25133301131427,
+          "backward_ms": 212.1645840088604,
+          "gradient_sync_ms": 3.840290999505669,
+          "optimizer_ms": 3.416249994188547,
+          "metric_reduce_ms": 0.41974999476224184,
+          "loss": 606620544.0,
+          "data_read_ms": 240.9832080011256,
+          "partition_select_ms": 1.895834007882513,
+          "host_to_device_ms": 0.0041669991333037615,
+          "rank_wait_ms": 0.3068750083912164,
+          "end_to_end_ms": 554.736000005505,
+          "batch_samples": 1,
+          "measurement_step": 0
+        }
+      ],
+      "setup_ms": 3071.3635830034036,
+      "nodes": {
+        "grid": 10587,
+        "mesh_0": 2114,
+        "mesh_1": 525
+      },
+      "owner_sha256": {
+        "grid": "b1d1bec2a38303c63937a4a47dc5dea62eb598f31855b151c4c3c1e025fb834c",
+        "mesh_0": "7b4b3e5d4ecdb5f2bfcb26292cd6209f4c3515dd2e3b599913e7b6aeb04822c8",
+        "mesh_1": "02c64eb27837cfb24f43e0eb1ca344214468dddc310e92a3b4c65072915b6737"
+      },
+      "peak_allocated_bytes": null
+    },
+    {
+      "rank": 1,
+      "hostname": "Maximilians-MacBook-Pro.local",
+      "cpu_snapshots": {
+        "after_import": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_first_collective": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_warmup": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_measurement": {
+          "affinity": null,
+          "torch_threads": 1
+        }
+      },
+      "validation": {
+        "passed": true,
+        "optimizer_updates": 2,
+        "masked_adamw_elements": 0,
+        "input_tensors_match": true,
+        "prior_inference_matches": true,
+        "losses": [
+          574266176.0,
+          540854912.0
+        ],
+        "prediction_max_absolute": 1.430511474609375e-06,
+        "gradient_max_scaled": 1.5080854070150661e-05,
+        "parameter_max_absolute": 1.30385160446167e-07
+      },
+      "records": [
+        {
+          "model_wall_ms": 311.17308299872093,
+          "forward_ms": 91.1832499987213,
+          "backward_ms": 211.51383400138002,
+          "gradient_sync_ms": 4.565416995319538,
+          "optimizer_ms": 3.570958011550829,
+          "metric_reduce_ms": 0.3228330024285242,
+          "loss": 606620544.0,
+          "data_read_ms": 227.5198330025887,
+          "partition_select_ms": 1.6114169993670657,
+          "host_to_device_ms": 0.004958012141287327,
+          "rank_wait_ms": 14.147666006465442,
+          "end_to_end_ms": 554.993875004584,
+          "batch_samples": 1,
+          "measurement_step": 0
+        }
+      ],
+      "setup_ms": 3071.3207080116263,
+      "nodes": {
+        "grid": 10587,
+        "mesh_0": 2114,
+        "mesh_1": 524
+      },
+      "owner_sha256": {
+        "grid": "b1d1bec2a38303c63937a4a47dc5dea62eb598f31855b151c4c3c1e025fb834c",
+        "mesh_0": "7b4b3e5d4ecdb5f2bfcb26292cd6209f4c3515dd2e3b599913e7b6aeb04822c8",
+        "mesh_1": "02c64eb27837cfb24f43e0eb1ca344214468dddc310e92a3b4c65072915b6737"
+      },
+      "peak_allocated_bytes": null
+    },
+    {
+      "rank": 2,
+      "hostname": "Maximilians-MacBook-Pro.local",
+      "cpu_snapshots": {
+        "after_import": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_first_collective": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_warmup": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_measurement": {
+          "affinity": null,
+          "torch_threads": 1
+        }
+      },
+      "validation": {
+        "passed": true,
+        "optimizer_updates": 2,
+        "masked_adamw_elements": 0,
+        "input_tensors_match": true,
+        "prior_inference_matches": true,
+        "losses": [
+          574266176.0,
+          540854912.0
+        ],
+        "prediction_max_absolute": 1.9073486328125e-06,
+        "gradient_max_scaled": 1.5080854070150661e-05,
+        "parameter_max_absolute": 1.30385160446167e-07
+      },
+      "records": [
+        {
+          "model_wall_ms": 311.19287500041537,
+          "forward_ms": 91.21812500234228,
+          "backward_ms": 212.20412499678787,
+          "gradient_sync_ms": 3.907999998773448,
+          "optimizer_ms": 3.4444999910192564,
+          "metric_reduce_ms": 0.40175000322051346,
+          "loss": 606620544.0,
+          "data_read_ms": 236.0827079974115,
+          "partition_select_ms": 1.7588329938007519,
+          "host_to_device_ms": 0.004750007065013051,
+          "rank_wait_ms": 5.7157090050168335,
+          "end_to_end_ms": 555.244417002541,
+          "batch_samples": 1,
+          "measurement_step": 0
+        }
+      ],
+      "setup_ms": 3070.9844160010107,
+      "nodes": {
+        "grid": 10587,
+        "mesh_0": 2114,
+        "mesh_1": 524
+      },
+      "owner_sha256": {
+        "grid": "b1d1bec2a38303c63937a4a47dc5dea62eb598f31855b151c4c3c1e025fb834c",
+        "mesh_0": "7b4b3e5d4ecdb5f2bfcb26292cd6209f4c3515dd2e3b599913e7b6aeb04822c8",
+        "mesh_1": "02c64eb27837cfb24f43e0eb1ca344214468dddc310e92a3b4c65072915b6737"
+      },
+      "peak_allocated_bytes": null
+    },
+    {
+      "rank": 3,
+      "hostname": "Maximilians-MacBook-Pro.local",
+      "cpu_snapshots": {
+        "after_import": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_first_collective": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_warmup": {
+          "affinity": null,
+          "torch_threads": 1
+        },
+        "after_measurement": {
+          "affinity": null,
+          "torch_threads": 1
+        }
+      },
+      "validation": {
+        "passed": true,
+        "optimizer_updates": 2,
+        "masked_adamw_elements": 0,
+        "input_tensors_match": true,
+        "prior_inference_matches": true,
+        "losses": [
+          574266176.0,
+          540854912.0
+        ],
+        "prediction_max_absolute": 1.9073486328125e-06,
+        "gradient_max_scaled": 1.5080854070150661e-05,
+        "parameter_max_absolute": 1.30385160446167e-07
+      },
+      "records": [
+        {
+          "model_wall_ms": 311.161791003542,
+          "forward_ms": 91.25924999534618,
+          "backward_ms": 212.16437499970198,
+          "gradient_sync_ms": 3.8676670083077624,
+          "optimizer_ms": 3.399457986233756,
+          "metric_reduce_ms": 0.4555000050459057,
+          "loss": 606620544.0,
+          "data_read_ms": 240.7357499905629,
+          "partition_select_ms": 1.6877500020200387,
+          "host_to_device_ms": 0.004583998816087842,
+          "rank_wait_ms": 1.23758299741894,
+          "end_to_end_ms": 555.2747909969185,
+          "batch_samples": 1,
+          "measurement_step": 0
+        }
+      ],
+      "setup_ms": 3070.8851249946747,
+      "nodes": {
+        "grid": 10587,
+        "mesh_0": 2114,
+        "mesh_1": 524
+      },
+      "owner_sha256": {
+        "grid": "b1d1bec2a38303c63937a4a47dc5dea62eb598f31855b151c4c3c1e025fb834c",
+        "mesh_0": "7b4b3e5d4ecdb5f2bfcb26292cd6209f4c3515dd2e3b599913e7b6aeb04822c8",
+        "mesh_1": "02c64eb27837cfb24f43e0eb1ca344214468dddc310e92a3b4c65072915b6737"
+      },
+      "peak_allocated_bytes": null
+    }
+  ],
+  "records": [
+    {
+      "model_wall_ms": 311.19287500041537,
+      "forward_ms": 91.21812500234228,
+      "backward_ms": 212.20412499678787,
+      "gradient_sync_ms": 3.907999998773448,
+      "optimizer_ms": 3.4444999910192564,
+      "metric_reduce_ms": 0.40175000322051346,
+      "loss": 606620544.0,
+      "data_read_ms": 236.0827079974115,
+      "partition_select_ms": 1.7588329938007519,
+      "host_to_device_ms": 0.004750007065013051,
+      "rank_wait_ms": 5.7157090050168335,
+      "end_to_end_ms": 555.244417002541,
+      "batch_samples": 1,
+      "measurement_step": 0,
+      "model_critical_rank": 2,
+      "application_wall_ms": 555.2747909969185
+    }
+  ],
+  "summary": {
+    "model_wall_ms": {
+      "count": 1,
+      "mean": 311.19287500041537,
+      "median": 311.19287500041537,
+      "min": 311.19287500041537,
+      "max": 311.19287500041537,
+      "p95": 311.19287500041537
+    },
+    "forward_ms": {
+      "count": 1,
+      "mean": 91.21812500234228,
+      "median": 91.21812500234228,
+      "min": 91.21812500234228,
+      "max": 91.21812500234228,
+      "p95": 91.21812500234228
+    },
+    "backward_ms": {
+      "count": 1,
+      "mean": 212.20412499678787,
+      "median": 212.20412499678787,
+      "min": 212.20412499678787,
+      "max": 212.20412499678787,
+      "p95": 212.20412499678787
+    },
+    "gradient_sync_ms": {
+      "count": 1,
+      "mean": 3.907999998773448,
+      "median": 3.907999998773448,
+      "min": 3.907999998773448,
+      "max": 3.907999998773448,
+      "p95": 3.907999998773448
+    },
+    "optimizer_ms": {
+      "count": 1,
+      "mean": 3.4444999910192564,
+      "median": 3.4444999910192564,
+      "min": 3.4444999910192564,
+      "max": 3.4444999910192564,
+      "p95": 3.4444999910192564
+    },
+    "metric_reduce_ms": {
+      "count": 1,
+      "mean": 0.40175000322051346,
+      "median": 0.40175000322051346,
+      "min": 0.40175000322051346,
+      "max": 0.40175000322051346,
+      "p95": 0.40175000322051346
+    },
+    "loss": {
+      "count": 1,
+      "mean": 606620544.0,
+      "median": 606620544.0,
+      "min": 606620544.0,
+      "max": 606620544.0,
+      "p95": 606620544.0
+    },
+    "data_read_ms": {
+      "count": 1,
+      "mean": 236.0827079974115,
+      "median": 236.0827079974115,
+      "min": 236.0827079974115,
+      "max": 236.0827079974115,
+      "p95": 236.0827079974115
+    },
+    "partition_select_ms": {
+      "count": 1,
+      "mean": 1.7588329938007519,
+      "median": 1.7588329938007519,
+      "min": 1.7588329938007519,
+      "max": 1.7588329938007519,
+      "p95": 1.7588329938007519
+    },
+    "host_to_device_ms": {
+      "count": 1,
+      "mean": 0.004750007065013051,
+      "median": 0.004750007065013051,
+      "min": 0.004750007065013051,
+      "max": 0.004750007065013051,
+      "p95": 0.004750007065013051
+    },
+    "rank_wait_ms": {
+      "count": 1,
+      "mean": 5.7157090050168335,
+      "median": 5.7157090050168335,
+      "min": 5.7157090050168335,
+      "max": 5.7157090050168335,
+      "p95": 5.7157090050168335
+    },
+    "end_to_end_ms": {
+      "count": 1,
+      "mean": 555.244417002541,
+      "median": 555.244417002541,
+      "min": 555.244417002541,
+      "max": 555.244417002541,
+      "p95": 555.244417002541
+    },
+    "application_wall_ms": {
+      "count": 1,
+      "mean": 555.2747909969185,
+      "median": 555.2747909969185,
+      "min": 555.2747909969185,
+      "max": 555.2747909969185,
+      "p95": 555.2747909969185
+    },
+    "model_samples_per_second": 3.2134411817708397,
+    "application_samples_per_second": 1.8009101371316343
+  }
+}
